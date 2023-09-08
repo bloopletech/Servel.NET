@@ -1,0 +1,126 @@
+#listing {
+  display: none;
+  padding: 10px;
+  background-color: #fff;
+}
+
+body.listing #listing {
+  display: block;
+}
+
+#header {
+  display: flex;
+}
+
+#listing h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+#title {
+  flex-grow: 1;
+}
+
+#jump-gallery-wrapper {
+  display: none;
+  padding-left: 20px;
+  white-space: nowrap;
+}
+
+body.has-gallery #jump-gallery-wrapper {
+  display: block;
+}
+
+#search-wrapper {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+#search {
+  width: 300px;
+  max-width: 100%;
+  padding: 5px;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  border: 1px solid #ddd;
+}
+
+.table-wrapper {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+  table-layout: fixed;
+  will-change: transform;
+}
+
+#listing-container table, #listing-container tr:first-child td {
+  border-top: none;
+}
+
+th {
+  font-weight: normal;
+}
+
+th, td {
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+tbody {
+  vertical-align: top;
+}
+
+tbody > tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+th.new-tab, td.new-tab {
+  width: 6em;
+}
+
+th.type, td.type {
+  width: 5em;
+}
+
+th.size, td.size {
+  width: 6em;
+}
+
+th.modified, td.modified {
+  width: 12em;
+}
+
+th.sortable.sort-active {
+  font-weight: bold;
+}
+
+th.sortable.sort-active.sort-asc a::after {
+  content: " ⬇️";
+}
+
+th.sortable.sort-active.sort-desc a::after {
+  content: " ⬆️";
+}
+
+span.icon {
+  display: inline-block;
+  margin-right: 0.2em;
+  width: 1.4em;
+  text-align: center;
+}
+
+a.default.home, a.default.top, a.default.parent {
+  font-style: oblique;
+}
+
+@media screen and (max-width: 767px) {
+  #listing h1 {
+    font-size: 20px;
+  }
+}

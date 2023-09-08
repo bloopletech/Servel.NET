@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="idunno.Authentication.Basic" Version="2.3.1" />
+    <PackageReference Include="MinimalApis.LiquidViews" Version="2.4.0" />
+    <PackageReference Include="YamlDotNet" Version="13.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\" />
+    <Content Update="Assets\**" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

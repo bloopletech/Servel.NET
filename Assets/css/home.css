@@ -1,0 +1,16 @@
+#home {
+  padding: 10px;
+}
+
+#home h1 {
+  margin-top: 0;
+}
+
+#roots li {
+  font-size: 24px;
+}
+
+#roots a.new-tab {
+  display: inline-block;
+  margin-left: 20px;
+}

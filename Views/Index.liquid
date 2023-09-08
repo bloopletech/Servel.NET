@@ -1,0 +1,26 @@
+{% section head %}
+    <link href="/_servel/css/listing.css" rel="stylesheet" />
+    <link href="/_servel/css/gallery.css" rel="stylesheet" />
+    <link href="/_servel/css/gallery-text.css" rel="stylesheet" />
+
+    <script>
+        window.specialEntries = {{SpecialEntries | raw}};
+        window.directoryEntries = {{DirectoryEntries | raw}};
+        window.fileEntries = {{FileEntries | raw}};
+    </script>
+
+    <script src="/_servel/js/entries.js"></script>
+    <script src="/_servel/js/common.js"></script>
+    <script src="/_servel/js/index.js"></script>
+    <script src="/_servel/js/listing.js"></script>
+    <script src="/_servel/js/ume.js"></script>
+    <script src="/_servel/js/gallery.js"></script>
+
+{% endsection %}
+
+<div id="gallery">
+    {% render '_Gallery' %}
+</div>
+<div id="listing">
+    {% render '_Listing' %}
+</div>

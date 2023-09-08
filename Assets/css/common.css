@@ -1,0 +1,33 @@
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.text-selectable {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover, a:focus, a:active {
+  text-decoration: underline;
+}
