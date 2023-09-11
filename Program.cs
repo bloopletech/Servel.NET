@@ -70,7 +70,6 @@ if(configuration.Username != null)
 }
 
 builder.Services.AddFluid();
-//builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -84,29 +83,40 @@ if (configuration.Username != null)
 
 //app.UseHttpsRedirection();
 
-foreach (var listing in configuration.Listings)
-{
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = listing.FileProvider,
-        RequestPath = listing.RequestPath,
-        ServeUnknownFileTypes = true
-    });
-}
-
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = app.Environment.WebRootFileProvider,
     RequestPath = "/_servel"
 });
 
-foreach (var listing in configuration.Listings)
+if(configuration.Listings.Count() > 1)
 {
+    foreach (var listing in configuration.Listings)
+    {
+        app.Map(listing.RequestPath, false, app =>
+        {
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = listing.FileProvider,
+                ServeUnknownFileTypes = true
+            });
+            app.UseMiddleware<IndexMiddleware>(listing);
+        });
+    }
+
+    app.UseMiddleware<HomeMiddleware>(configuration.Listings);
+}
+else if(configuration.Listings.Count() == 1)
+{
+    var listing = configuration.Listings.First();
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = listing.FileProvider,
+        ServeUnknownFileTypes = true
+    });
     app.UseMiddleware<IndexMiddleware>(listing);
 }
 
-app.UseMiddleware<HomeMiddleware>(configuration.Listings);
 
-//app.MapGet("/", () => Results.Extensions.View("Home", new { configuration.Listings }));
 
 app.Run();

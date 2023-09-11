@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using System.Text.Json;
 
 namespace Servel.NET
@@ -15,55 +16,60 @@ namespace Servel.NET
 
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
-            if(FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
-                && FileHelpers.TryMatchPath(httpContext, _listing.RequestPath, forDirectory: true, subpath: out var subpath)
-                && TryGetDirectoryInfo(subpath, out var contents))
+            if (ShouldProcess(httpContext)) await Process(httpContext);
+            else await _next.Invoke(httpContext);
+        }
+
+        private bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
+            && GetDirectoryContents(httpContext).Exists;
+
+        private async Task Process(HttpContext httpContext)
+        {
+            // If the path matches a directory but does not end in a slash, redirect to add the slash.
+            // This prevents relative links from breaking.
+            if (!FileHelpers.PathEndsInSlash(httpContext.Request.Path))
             {
-                // If the path matches a directory but does not end in a slash, redirect to add the slash.
-                // This prevents relative links from breaking.
-                if (!FileHelpers.PathEndsInSlash(httpContext.Request.Path))
-                {
-                    FileHelpers.RedirectToPathWithSlash(httpContext);
-                    return;
-                }
-
-                List<Entry> children = contents.Select(EntryFactory.For).Where(x => x != null).Select(e => e!).ToList();
-
-                var model = new {
-                    Listing = _listing,
-                    Path = httpContext.Request.Path,
-                    SpecialEntries = JsonSerializer.Serialize(SpecialEntries(subpath).Select(e => e.AsJson())),
-                    DirectoryEntries = JsonSerializer.Serialize(children.Where(e => e.IsDirectory()).Select(e => e.AsJson())),
-                    FileEntries = JsonSerializer.Serialize(children.Where(e => e.IsFile()).Select(e => e.AsJson()))
-                };
-
-                await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
+                FileHelpers.RedirectToPathWithSlash(httpContext);
                 return;
             }
 
-            await _next.Invoke(httpContext);
+            var contents = GetDirectoryContents(httpContext);
+
+            IEnumerable<Entry> directories = contents.OfType<PhysicalDirectoryInfo>().Select(EntryFactory.For).Where(x => x != null).Select(e => e!);
+            IEnumerable<Entry> files = contents.OfType<PhysicalFileInfo>().Select(EntryFactory.For).Where(x => x != null).Select(e => e!);
+
+            //List<Entry> children = contents.Select(EntryFactory.For).Where(x => x != null).Select(e => e!).ToList();
+
+            var model = new
+            {
+                Listing = _listing,
+                FullPath = httpContext.Request.PathBase.Add(httpContext.Request.Path).Value!,
+                SpecialEntries = JsonSerializer.Serialize(SpecialEntries(httpContext)),
+                DirectoryEntries = JsonSerializer.Serialize(directories),
+                FileEntries = JsonSerializer.Serialize(files)
+            };
+
+            await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
         }
 
-        private bool TryGetDirectoryInfo(PathString subpath, out IDirectoryContents contents)
-        {
-            // TryMatchPath will not output an empty subpath when it returns true. This is called only in that case.
-            contents = _listing.FileProvider.GetDirectoryContents(subpath.Value!);
-            return contents.Exists;
-        }
-
-        private List<Entry> SpecialEntries(string subpath)
+        private List<Entry> SpecialEntries(HttpContext httpContext)
         {
             var list = new List<Entry>();
-            if (_listing.RequestPath != "") list.Add(EntryFactory.Home("/"));
-            if(subpath != "/")
+            if (_listing.RequestPath != "/") list.Add(EntryFactory.HomeEntry);
+            if(httpContext.Request.Path != "/")
             {
-                list.Add(EntryFactory.Top(_listing.RequestPath == "" ? "/" : _listing.RequestPath));
-                list.Add(EntryFactory.Parent("../"));
+                list.Add(EntryFactory.Top(httpContext.Request.PathBase + "/"));
+                list.Add(EntryFactory.ParentEntry);
             }
 
             return list;
+        }
+
+        private IDirectoryContents GetDirectoryContents(HttpContext httpContext)
+        {
+            return _listing.FileProvider.GetDirectoryContents(httpContext.Request.Path.Value!);
         }
     }
 }

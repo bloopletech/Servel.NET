@@ -1,4 +1,6 @@
-﻿namespace Servel.NET
+﻿using System.Diagnostics;
+
+namespace Servel.NET
 {
     public class HomeMiddleware
     {
@@ -12,16 +14,18 @@
 
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
-            if (FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
-                && httpContext.Request.Path == "/")
-            {
-                await Results.Extensions.View("Home", new { Listings = _listings }).ExecuteAsync(httpContext);
-                return;
-            }
+            if (ShouldProcess(httpContext)) await Process(httpContext);
+            else await _next.Invoke(httpContext);
+        }
 
-            await _next.Invoke(httpContext);
+        private bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
+            && httpContext.Request.Path == "/";
+
+        private async Task Process(HttpContext httpContext)
+        {
+            await Results.Extensions.View("Home", new { Listings = _listings }).ExecuteAsync(httpContext);
         }
     }
 }

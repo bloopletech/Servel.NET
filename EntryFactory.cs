@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
+using System.Web;
 
 namespace Servel.NET
 {
@@ -9,42 +11,39 @@ namespace Servel.NET
         public static string[] AUDIO_EXTS = { ".mp3", ".m4a", ".wav" };
         public static string[] TEXT_EXTS = { ".txt" };
 
-        public static Entry Home(string href)
+        public static readonly Entry HomeEntry = new Entry
         {
-            return new Entry
-            {
-                Ftype = Ftype.Directory,
-                Type = "Dir",
-                ListingClasses = "home directory",
-                Icon = "🏠",
-                Href = href,
-                Name = "Listings Home"
-            };
-        }
+            Type = "Dir",
+            Class = "home directory",
+            Icon = "🏠",
+            Href = "/",
+            Name = "Listings Home",
+            SizeText = "-",
+            MtimeText = "-"
+        };
+
+        public static readonly Entry ParentEntry = new Entry
+        {
+            Type = "Dir",
+            Class = "parent directory",
+            Icon = "⬆️",
+            Href = "../",
+            Name = "Parent Directory",
+            SizeText = "-",
+            MtimeText = "-"
+        };
 
         public static Entry Top(string href)
         {
             return new Entry
             {
-                Ftype = Ftype.Directory,
                 Type = "Dir",
-                ListingClasses = "top directory",
+                Class = "top directory",
                 Icon = "🔝",
                 Href = href,
-                Name = "Top Directory"
-            };
-        }
-
-        public static Entry Parent(string href)
-        {
-            return new Entry
-            {
-                Ftype = Ftype.Directory,
-                Type = "Dir",
-                ListingClasses = "parent directory",
-                Icon = "⬆️",
-                Href = href,
-                Name = "Parent Directory"
+                Name = "Top Directory",
+                SizeText = "-",
+                MtimeText = "-"
             };
         }
 
@@ -52,7 +51,9 @@ namespace Servel.NET
         {
             try
             {
-                return new EntryFactory(fileInfo).Entry();
+                if(fileInfo is PhysicalFileInfo physicalFileInfo) return ForFile(physicalFileInfo);
+                if(fileInfo is PhysicalDirectoryInfo physicalDirectoryInfo) return ForDirectory(physicalDirectoryInfo);
+                throw new InvalidOperationException("Unexpected IFileInfo implementation");
             }
             catch (IOException e)
             {
@@ -60,86 +61,80 @@ namespace Servel.NET
             }
         }
 
-        public string PathBasename { get; init; }
-        public string? PathExtname { get; init; }
-        public DateTimeOffset PathMtime { get; init; }
-        public long PathSize { get; init; }
-        public Ftype PathFtype { get; init; }
-        public bool PathDirectory { get; init; }
-        public bool PathFile { get; init; }
-
-        public EntryFactory(IFileInfo fileInfo)
-        {
-            PathBasename = fileInfo.Name;
-            PathExtname = Path.GetExtension(fileInfo.Name)?.ToLower();
-            PathMtime = fileInfo.LastModified;
-            PathSize = fileInfo.Length;
-            PathFtype = fileInfo.IsDirectory ? Ftype.Directory : Ftype.File;
-            PathDirectory = PathFtype == Ftype.Directory;
-            PathFile = PathFtype == Ftype.File;
-        }
-
-        public Entry Entry()
+        private static Entry ForDirectory(PhysicalDirectoryInfo directoryInfo)
         {
             return new Entry
             {
-                Ftype = PathFtype,
-                Type = Type(),
-                MediaType = MediaType(),
-                ListingClasses = ListingClasses(),
-                Icon = Icon(),
-                Href = PathBasename,
-                Name = PathBasename,
-                Size = Size(),
-                Mtime = PathMtime
+                Type = "Dir",
+                MediaType = null,
+                Class = "directory",
+                Icon = "📁",
+                Href = HttpUtility.UrlPathEncode(directoryInfo.Name),
+                Name = directoryInfo.Name,
+                Size = 0,
+                SizeText = "-",
+                Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
+                MtimeText = directoryInfo.LastModified.ToString("d MMM yyyy h:mm tt"),
+                Media = false
             };
         }
 
-        public string Type()
+        private static Entry ForFile(PhysicalFileInfo fileInfo)
         {
-            if (PathDirectory) return "Dir";
-            if (PathFile) return PathExtname!.Replace(".", string.Empty);
-            return "";
+            var fileExtension = Path.GetExtension(fileInfo.Name)?.ToLower();
+            var mediaType = GetMediaType(fileExtension);
+            return new Entry
+            {
+                Type = fileExtension!.Replace(".", string.Empty),
+                MediaType = mediaType,
+                Class = GetListingClasses(mediaType),
+                Icon = GetIcon(mediaType),
+                Href = HttpUtility.UrlPathEncode(fileInfo.Name),
+                Name = fileInfo.Name,
+                Size = fileInfo.Length,
+                SizeText = fileInfo.Length.ToString(),
+                Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds(),
+                MtimeText = fileInfo.LastModified.ToString("d MMM yyyy h:mm tt"),
+                Media = mediaType != null
+            };
         }
 
-        public MediaType? MediaType()
+        private static string? GetMediaType(string? fileExtension)
         {
-            if (!PathFile || string.IsNullOrEmpty(PathExtname)) return null;
+            if (string.IsNullOrEmpty(fileExtension)) return null;
 
-            if (IMAGE_EXTS.Contains(PathExtname)) return NET.MediaType.Image;
-            if (VIDEO_EXTS.Contains(PathExtname)) return NET.MediaType.Video;
-            if (AUDIO_EXTS.Contains(PathExtname)) return NET.MediaType.Audio;
-            if (TEXT_EXTS.Contains(PathExtname)) return NET.MediaType.Text;
+            if (IMAGE_EXTS.Contains(fileExtension)) return "image";
+            if (VIDEO_EXTS.Contains(fileExtension)) return "video";
+            if (AUDIO_EXTS.Contains(fileExtension)) return "audio";
+            if (TEXT_EXTS.Contains(fileExtension)) return "text";
             return null;
         }
 
-        public string ListingClasses()
+        private static string GetListingClasses(string? mediaType)
         {
-            var klasses = new List<string>();
-            if (PathFile) klasses.Add("file");
-            if (PathDirectory) klasses.Add("directory");
-            if (MediaType() != null) klasses.Add("media");
-            if (MediaType() != null) klasses.Add(MediaType()!.Value.ToString());
+            var klasses = new List<string>
+            {
+                "file"
+            };
+            if (mediaType != null)
+            {
+                klasses.Add("media");
+                klasses.Add(mediaType);
+            }
             return string.Join(" ", klasses);
         }
 
-        public string Icon()
+        private static string GetIcon(string? mediaType)
         {
-            if (PathDirectory) return "📁";
-            switch (MediaType())
+            switch (mediaType)
             {
-                case NET.MediaType.Video: return "🎞️";
-                case NET.MediaType.Image: return "🖼️";
-                case NET.MediaType.Audio: return "🔊";
-                case NET.MediaType.Text: return "📝";
+                case "video": return "🎞️";
+                case "image": return "🖼️";
+                case "audio": return "🔊";
+                case "text": return "📝";
                 case null: return "";
                 default: return "";
             }
-        }
-
-        public long? Size()
-        {
-            return PathDirectory ? null : PathSize;
         }
     }
 }

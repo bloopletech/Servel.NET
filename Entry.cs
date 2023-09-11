@@ -1,54 +1,30 @@
-﻿using System.Web;
+﻿using System.Text.Json.Serialization;
 
 namespace Servel.NET
 {
-    public enum Ftype
-    {
-        Directory,
-        File
-    }
-
-    public enum MediaType
-    {
-        Image,
-        Video,
-        Audio,
-        Text
-    }
-
     public class Entry
     {
-        public required Ftype Ftype { get; init; }
-        public required string Type { get; init; }
-        public MediaType? MediaType { get; init; }
-        public required string ListingClasses { get; init; }
+        [JsonPropertyName("icon")]
         public required string Icon { get; init; }
+        [JsonPropertyName("href")]
         public required string Href { get; init; }
+        [JsonPropertyName("class")]
+        public required string Class { get; init; }
+        [JsonPropertyName("mediaType")]
+        public string? MediaType { get; init; }
+        [JsonPropertyName("name")]
         public required string Name { get; init; }
-        public long? Size { get; init; }
-        public DateTimeOffset? Mtime { get; init; }
-
-        public bool IsDirectory() => Ftype == Ftype.Directory;
-        public bool IsFile() => Ftype == Ftype.File;
-
-        public bool IsMedia() => MediaType != null;
-
-        public object AsJson()
-        {
-            return new
-            {
-                icon = Icon,
-                href = HttpUtility.UrlPathEncode(Href),
-                classes = ListingClasses,
-                mediaType = MediaType?.ToString(),
-                name = Name,
-                type = Type,
-                size = Size ?? 0,
-                sizeText = Size == null ? "-" : Size.ToString(),
-                mtime = Mtime?.ToUnixTimeMilliseconds() ?? 0,
-                mtimeText = Mtime == null ? "-" : Mtime.Value.ToString("d MMM yyyy h:mm tt"),
-                media = IsMedia()
-            };
-        }
+        [JsonPropertyName("type")]
+        public required string Type { get; init; }
+        [JsonPropertyName("size")]
+        public long Size { get; init; }
+        [JsonPropertyName("sizeText")]
+        public required string SizeText { get; init; }
+        [JsonPropertyName("mtime")]
+        public long Mtime { get; init; }
+        [JsonPropertyName("mtimeText")]
+        public required string MtimeText { get; init; }
+        [JsonPropertyName("media")]
+        public bool Media { get; init; }
     }
 }
