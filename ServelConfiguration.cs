@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
 
 namespace Servel.NET
 {
@@ -30,6 +32,19 @@ namespace Servel.NET
             Password = yaml.Password;
 
             Listings = yaml.Listings.SelectMany(l => l).Select(l => new Listing(l.Key, l.Value));
+        }
+
+        public static ServelConfiguration Parse()
+        {
+            var yamlBasePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Servel.NET");
+            var yamlPath = Path.Combine(yamlBasePath, "servel.yml");
+
+            var yamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
+            var configurationYaml = yamlDeserializer.Deserialize<ConfigurationYaml>(File.ReadAllText(yamlPath));
+
+            return new ServelConfiguration(configurationYaml, yamlBasePath);
         }
     }
 }

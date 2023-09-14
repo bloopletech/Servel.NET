@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders.Internal;
 using Microsoft.Extensions.FileProviders.Physical;
 using System.Web;
 
@@ -6,135 +6,92 @@ namespace Servel.NET
 {
     public class EntryFactory
     {
-        public static string[] IMAGE_EXTS = { ".jpg", ".jpeg", ".png", ".gif" };
-        public static string[] VIDEO_EXTS = { ".webm", ".mp4", ".mkv" };
-        public static string[] AUDIO_EXTS = { ".mp3", ".m4a", ".wav" };
-        public static string[] TEXT_EXTS = { ".txt" };
-
-        public static readonly Entry HomeEntry = new Entry
+        private static readonly SpecialEntry HomeEntry = new SpecialEntry
         {
-            Type = "Dir",
-            Class = "home directory",
-            Icon = "🏠",
-            Href = "/",
+            HomeEntry = true,
             Name = "Listings Home",
-            SizeText = "-",
-            MtimeText = "-"
+            Href = "/"
         };
 
-        public static readonly Entry ParentEntry = new Entry
+        private static readonly SpecialEntry ParentEntry = new SpecialEntry
         {
-            Type = "Dir",
-            Class = "parent directory",
-            Icon = "⬆️",
-            Href = "../",
+            ParentEntry = true,
             Name = "Parent Directory",
-            SizeText = "-",
-            MtimeText = "-"
+            Href = "../"
         };
 
-        public static Entry Top(string href)
+        private readonly Listing _listing;
+        private readonly SpecialEntry _topEntry;
+
+        public EntryFactory(Listing listing)
         {
-            return new Entry
+            _listing = listing;
+            _topEntry = new SpecialEntry
             {
-                Type = "Dir",
-                Class = "top directory",
-                Icon = "🔝",
-                Href = href,
+                TopEntry = true,
                 Name = "Top Directory",
-                SizeText = "-",
-                MtimeText = "-"
+                Href = HttpUtility.UrlPathEncode(_listing.RequestPath)
             };
         }
 
-        public static Entry? For(IFileInfo fileInfo)
+        public DirectoryEntry? ForDirectory(PathString requestPath, int depth = 1)
         {
-            try
-            {
-                if(fileInfo is PhysicalFileInfo physicalFileInfo) return ForFile(physicalFileInfo);
-                if(fileInfo is PhysicalDirectoryInfo physicalDirectoryInfo) return ForDirectory(physicalDirectoryInfo);
-                throw new InvalidOperationException("Unexpected IFileInfo implementation");
-            }
-            catch (IOException e)
-            {
-                return null;
-            }
+            var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
+            if (!contents.Exists) return null;
+            var directoryInfo = ((PhysicalDirectoryContents)contents).GetDirectoryInfo();
+
+            return ForDirectory(directoryInfo, requestPath, depth);
         }
 
-        private static Entry ForDirectory(PhysicalDirectoryInfo directoryInfo)
+        private DirectoryEntry ForDirectory(PhysicalDirectoryInfo directoryInfo, PathString requestPath, int depth = 0)
         {
-            return new Entry
+            IEnumerable<SpecialEntry>? specialEntries = null;
+            IEnumerable<DirectoryEntry>? directoryEntries = null;
+            IEnumerable<FileEntry>? fileEntries = null;
+
+            if(depth > 0)
             {
-                Type = "Dir",
-                MediaType = null,
-                Class = "directory",
-                Icon = "📁",
-                Href = HttpUtility.UrlPathEncode(directoryInfo.Name),
-                Name = directoryInfo.Name,
-                Size = 0,
-                SizeText = "-",
+                var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
+                if (contents.Exists)
+                {
+                    specialEntries = BuildSpecialEntries(requestPath);
+                    directoryEntries = contents.OfType<PhysicalDirectoryInfo>()
+                        .Select(pdi => ForDirectory(pdi, requestPath + pdi.Name, depth - 1));
+                    fileEntries = contents.OfType<PhysicalFileInfo>().Select(ForFile);
+                }
+            }
+
+            return new DirectoryEntry
+            {
+                Name = requestPath.IsRoot() ? "" : directoryInfo.Name,
                 Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
-                MtimeText = directoryInfo.LastModified.ToString("d MMM yyyy h:mm tt"),
-                Media = false
+                SpecialEntries = specialEntries,
+                Directories = directoryEntries,
+                Files = fileEntries
             };
         }
 
-        private static Entry ForFile(PhysicalFileInfo fileInfo)
+        private IEnumerable<SpecialEntry> BuildSpecialEntries(PathString requestPath)
         {
-            var fileExtension = Path.GetExtension(fileInfo.Name)?.ToLower();
-            var mediaType = GetMediaType(fileExtension);
-            return new Entry
+            var list = new List<SpecialEntry>();
+            if (!_listing.IsMountAtRoot) list.Add(HomeEntry);
+            if (!requestPath.IsRoot())
             {
-                Type = fileExtension!.Replace(".", string.Empty),
-                MediaType = mediaType,
-                Class = GetListingClasses(mediaType),
-                Icon = GetIcon(mediaType),
-                Href = HttpUtility.UrlPathEncode(fileInfo.Name),
+                list.Add(_topEntry);
+                list.Add(ParentEntry);
+            }
+
+            return list;
+        }
+
+        private FileEntry ForFile(PhysicalFileInfo fileInfo)
+        {
+            return new FileEntry
+            {
                 Name = fileInfo.Name,
                 Size = fileInfo.Length,
-                SizeText = fileInfo.Length.ToString(),
-                Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds(),
-                MtimeText = fileInfo.LastModified.ToString("d MMM yyyy h:mm tt"),
-                Media = mediaType != null
+                Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds()
             };
-        }
-
-        private static string? GetMediaType(string? fileExtension)
-        {
-            if (string.IsNullOrEmpty(fileExtension)) return null;
-
-            if (IMAGE_EXTS.Contains(fileExtension)) return "image";
-            if (VIDEO_EXTS.Contains(fileExtension)) return "video";
-            if (AUDIO_EXTS.Contains(fileExtension)) return "audio";
-            if (TEXT_EXTS.Contains(fileExtension)) return "text";
-            return null;
-        }
-
-        private static string GetListingClasses(string? mediaType)
-        {
-            var klasses = new List<string>
-            {
-                "file"
-            };
-            if (mediaType != null)
-            {
-                klasses.Add("media");
-                klasses.Add(mediaType);
-            }
-            return string.Join(" ", klasses);
-        }
-
-        private static string GetIcon(string? mediaType)
-        {
-            switch (mediaType)
-            {
-                case "video": return "🎞️";
-                case "image": return "🖼️";
-                case "audio": return "🔊";
-                case "text": return "📝";
-                case null: return "";
-                default: return "";
-            }
         }
     }
 }

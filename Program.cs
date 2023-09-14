@@ -1,5 +1,3 @@
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
 using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using idunno.Authentication.Basic;
@@ -7,16 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
 
-var yamlBasePath = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "Servel.NET");
-var ymalPath = Path.Combine(yamlBasePath, "servel.yml");
-
-var yamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
-var configurationYaml = yamlDeserializer.Deserialize<ConfigurationYaml>(File.ReadAllText(ymalPath));
-
-var configuration = new ServelConfiguration(configurationYaml, yamlBasePath);
-
+var configuration = ServelConfiguration.Parse();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -89,26 +78,8 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/_servel"
 });
 
-if(configuration.Listings.Count() > 1)
+void MountInternal(IApplicationBuilder app, Listing listing)
 {
-    foreach (var listing in configuration.Listings)
-    {
-        app.Map(listing.RequestPath, false, app =>
-        {
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = listing.FileProvider,
-                ServeUnknownFileTypes = true
-            });
-            app.UseMiddleware<IndexMiddleware>(listing);
-        });
-    }
-
-    app.UseMiddleware<HomeMiddleware>(configuration.Listings);
-}
-else if(configuration.Listings.Count() == 1)
-{
-    var listing = configuration.Listings.First();
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = listing.FileProvider,
@@ -117,6 +88,14 @@ else if(configuration.Listings.Count() == 1)
     app.UseMiddleware<IndexMiddleware>(listing);
 }
 
+void Mount(IApplicationBuilder app, Listing listing)
+{
+    if(listing.IsMountAtRoot) MountInternal(app, listing);
+    else app.Map(listing.RequestPath, false, app => MountInternal(app, listing));
+}
 
+foreach (var listing in configuration.Listings) Mount(app, listing);
+
+if(!configuration.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(configuration.Listings);
 
 app.Run();

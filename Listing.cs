@@ -6,7 +6,7 @@ namespace Servel.NET
     {
         public string RootPath;
         public string RequestPath;
-        public IFileProvider FileProvider;
+        public PhysicalFileProvider FileProvider;
 
         public Listing(string rootPath, string requestPath)
         {
@@ -14,5 +14,7 @@ namespace Servel.NET
             RequestPath = requestPath;
             FileProvider = new PhysicalFileProvider(rootPath);
         }
+
+        public bool IsMountAtRoot => RequestPath == "/";
     }
 }

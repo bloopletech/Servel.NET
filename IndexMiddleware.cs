@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.FileProviders.Physical;
+﻿using Microsoft.Extensions.Primitives;
+using System.Net.Mime;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Servel.NET
 {
@@ -9,12 +10,13 @@ namespace Servel.NET
     {
         private readonly RequestDelegate _next;
         private readonly Listing _listing;
+        private readonly EntryFactory _entryFactory;
 
         public IndexMiddleware(RequestDelegate next, Listing listing)
         {
             _next = next;
             _listing = listing;
-
+            _entryFactory = new EntryFactory(_listing);
         }
 
         public async Task InvokeAsync(HttpContext httpContext)
@@ -23,8 +25,7 @@ namespace Servel.NET
             else await _next.Invoke(httpContext);
         }
 
-        private bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
-            && GetDirectoryContents(httpContext).Exists;
+        private bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method);
 
         private async Task Process(HttpContext httpContext)
         {
@@ -36,41 +37,46 @@ namespace Servel.NET
                 return;
             }
 
-            var contents = GetDirectoryContents(httpContext);
+            var depthStr = httpContext.Request.Query["depth"];
+            if (depthStr == StringValues.Empty) depthStr = "1";
+            var depth = int.Parse(depthStr!);
 
-            IEnumerable<Entry> directories = contents.OfType<PhysicalDirectoryInfo>().Select(EntryFactory.For).Where(x => x != null).Select(e => e!);
-            IEnumerable<Entry> files = contents.OfType<PhysicalFileInfo>().Select(EntryFactory.For).Where(x => x != null).Select(e => e!);
+            var directoryEntryJson = RenderDirectoryEntry(httpContext.Request.Path, depth);
 
-            //List<Entry> children = contents.Select(EntryFactory.For).Where(x => x != null).Select(e => e!).ToList();
+            if(directoryEntryJson == null)
+            {
+                await Results.NotFound().ExecuteAsync(httpContext);
+                return;
+            }
+
+            if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+            {
+                await Results.Content(directoryEntryJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
+                return;
+            }
 
             var model = new
             {
                 Listing = _listing,
                 FullPath = httpContext.Request.PathBase.Add(httpContext.Request.Path).Value!,
-                SpecialEntries = JsonSerializer.Serialize(SpecialEntries(httpContext)),
-                DirectoryEntries = JsonSerializer.Serialize(directories),
-                FileEntries = JsonSerializer.Serialize(files)
+                DirectoryEntry = directoryEntryJson
             };
 
             await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
         }
 
-        private List<Entry> SpecialEntries(HttpContext httpContext)
+        private string? RenderDirectoryEntry(PathString path, int depth)
         {
-            var list = new List<Entry>();
-            if (_listing.RequestPath != "/") list.Add(EntryFactory.HomeEntry);
-            if(httpContext.Request.Path != "/")
+            var directoryEntry = _entryFactory.ForDirectory(path, depth);
+            if (directoryEntry == null) return null;
+
+            JsonSerializerOptions serializerOptions = new()
             {
-                list.Add(EntryFactory.Top(httpContext.Request.PathBase + "/"));
-                list.Add(EntryFactory.ParentEntry);
-            }
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            };
 
-            return list;
-        }
-
-        private IDirectoryContents GetDirectoryContents(HttpContext httpContext)
-        {
-            return _listing.FileProvider.GetDirectoryContents(httpContext.Request.Path.Value!);
+            return JsonSerializer.Serialize(directoryEntry, serializerOptions);
         }
     }
 }

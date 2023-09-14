@@ -145,7 +145,7 @@ var Gallery = (function() {
     window.addEventListener("keydown", function(e) {
       if(e.target == $("#search")) return;
 
-      if(e.keyCode == 39 || ((e.keyCode == 32 || e.keyCode == 13) && atBottom())) {
+      if(e.keyCode == 39 || ((e.keyCode == 32 || e.keyCode == 13) && Common.atBottom())) {
         e.preventDefault();
         next();
       }

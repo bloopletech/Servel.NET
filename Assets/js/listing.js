@@ -7,20 +7,10 @@ var Listing = (function() {
   var moreContent;
   var scrollDebounce = false;
 
-  function escapeHTML(unsafe) {
-    if(unsafe == null) return "";
-    return unsafe.toString()
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
   function HTMLSafe(pieces) {
     var result = pieces[0];
     var substitutions = [].slice.call(arguments, 1);
-    for(var i = 0; i < substitutions.length; ++i) result += escapeHTML(substitutions[i]) + pieces[i + 1];
+    for(var i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
     return result;
   }
 
@@ -61,7 +51,7 @@ var Listing = (function() {
   }
 
   function onScrolled() {
-    if(atBottom() && moreContent) {
+    if(Common.atBottom() && moreContent) {
       currentIndex += perPage;
       if(currentIndex >= Entries.all().length) moreContent = false;
       render();
