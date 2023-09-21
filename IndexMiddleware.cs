@@ -64,14 +64,13 @@ namespace Servel.NET
         {
             var depthStr = httpContext.Request.Query["depth"];
             uint.TryParse(depthStr.ToString(), out var depth);
-            if(depth == 0) depth = 1;
 
             var countChildrenStr = httpContext.Request.Query["countChildren"];
             bool.TryParse(countChildrenStr, out var countChildren);
 
             return new EntryFactory.ForDirectoryOptions
             {
-                Depth = depth,
+                Depth = depth + 1,
                 CountChildren = countChildren
             };
         }
