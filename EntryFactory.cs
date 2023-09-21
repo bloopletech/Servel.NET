@@ -65,7 +65,7 @@ namespace Servel.NET
                 {
                     specialEntries = BuildSpecialEntries(requestPath);
                     directoryEntries = contents.OfType<PhysicalDirectoryInfo>()
-                        .Select(pdi => ForDirectory(pdi, requestPath + pdi.Name, options, depth - 1));
+                        .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
                     fileEntries = contents.OfType<PhysicalFileInfo>().Select(ForFile);
                     if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
                 }
