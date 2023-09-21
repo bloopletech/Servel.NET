@@ -1,6 +1,6 @@
 ﻿namespace Servel.NET
 {
-    public class SpecialEntry
+    public readonly record struct SpecialEntry
     {
         public required string Name { get; init; }
         public required string Href { get; init; }

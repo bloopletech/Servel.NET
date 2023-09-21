@@ -59,6 +59,7 @@ if(configuration.Username != null)
 }
 
 builder.Services.AddFluid();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

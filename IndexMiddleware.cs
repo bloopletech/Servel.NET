@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,11 +12,11 @@ namespace Servel.NET
         private readonly Listing _listing;
         private readonly EntryFactory _entryFactory;
 
-        public IndexMiddleware(RequestDelegate next, Listing listing)
+        public IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache memoryCache)
         {
             _next = next;
             _listing = listing;
-            _entryFactory = new EntryFactory(_listing);
+            _entryFactory = new EntryFactory(_listing, memoryCache);
         }
 
         public async Task InvokeAsync(HttpContext httpContext)

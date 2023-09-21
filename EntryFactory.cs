@@ -1,14 +1,17 @@
-﻿using Microsoft.Extensions.FileProviders.Physical;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.FileProviders.Physical;
 using System.Web;
 
 namespace Servel.NET
 {
     public class EntryFactory
     {
-        public class ForDirectoryOptions
+        public readonly record struct ForDirectoryOptions(uint Depth, bool CountChildren)
         {
-            public uint Depth { get; init; }
-            public bool CountChildren { get; init; }
+            public ForDirectoryOptions Descend()
+            {
+                return this with { Depth = Depth - 1 };
+            }
         }
 
         private static readonly SpecialEntry HomeEntry = new SpecialEntry
@@ -27,8 +30,9 @@ namespace Servel.NET
 
         private readonly Listing _listing;
         private readonly SpecialEntry _topEntry;
+        private readonly IMemoryCache _memoryCache;
 
-        public EntryFactory(Listing listing)
+        public EntryFactory(Listing listing, IMemoryCache memoryCache)
         {
             _listing = listing;
             _topEntry = new SpecialEntry
@@ -37,6 +41,7 @@ namespace Servel.NET
                 Name = "Top Directory",
                 Href = HttpUtility.UrlPathEncode(_listing.RequestPath)
             };
+            _memoryCache = memoryCache;
         }
 
         public DirectoryEntry? ForDirectory(PathString requestPath, ForDirectoryOptions options)
@@ -44,21 +49,32 @@ namespace Servel.NET
             var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
             if (!directoryInfo.Exists) return null;
 
-            return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options, options.Depth);
+            return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options);
         }
 
         private DirectoryEntry ForDirectory(
             PhysicalDirectoryInfo directoryInfo,
             PathString requestPath,
-            ForDirectoryOptions options,
-            uint depth)
+            ForDirectoryOptions options)
+        {
+            var cacheKey = (directoryInfo.PhysicalPath, directoryInfo.LastModified, options);
+            return _memoryCache.GetOrCreate(cacheKey, (cacheEntry) =>
+            {
+                return ForDirectoryWithoutCache(directoryInfo, requestPath, options);
+            })!;
+        }
+
+        private DirectoryEntry ForDirectoryWithoutCache(
+            PhysicalDirectoryInfo directoryInfo,
+            PathString requestPath,
+            ForDirectoryOptions options)
         {
             IEnumerable<SpecialEntry>? specialEntries = null;
             IEnumerable<DirectoryEntry>? directoryEntries = null;
             IEnumerable<FileEntry>? fileEntries = null;
             int? childCount = null;
 
-            if(depth > 0)
+            if(options.Depth > 0)
             {
                 var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
                 if (contents.Exists)

@@ -2,7 +2,7 @@
 
 namespace Servel.NET
 {
-    public class DirectoryEntry
+    public readonly record struct DirectoryEntry
     {
         public required string Name { get; init; }
         public string Href => HttpUtility.UrlPathEncode(Name + "/");
