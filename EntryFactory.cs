@@ -1,11 +1,16 @@
-﻿using Microsoft.Extensions.FileProviders.Internal;
-using Microsoft.Extensions.FileProviders.Physical;
+﻿using Microsoft.Extensions.FileProviders.Physical;
 using System.Web;
 
 namespace Servel.NET
 {
     public class EntryFactory
     {
+        public class ForDirectoryOptions
+        {
+            public uint Depth { get; init; }
+            public bool CountChildren { get; init; }
+        }
+
         private static readonly SpecialEntry HomeEntry = new SpecialEntry
         {
             HomeEntry = true,
@@ -34,20 +39,24 @@ namespace Servel.NET
             };
         }
 
-        public DirectoryEntry? ForDirectory(PathString requestPath, int depth = 1)
+        public DirectoryEntry? ForDirectory(PathString requestPath, ForDirectoryOptions options)
         {
-            var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
-            if (!contents.Exists) return null;
-            var directoryInfo = ((PhysicalDirectoryContents)contents).GetDirectoryInfo();
+            var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
+            if (!directoryInfo.Exists) return null;
 
-            return ForDirectory(directoryInfo, requestPath, depth);
+            return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options, options.Depth);
         }
 
-        private DirectoryEntry ForDirectory(PhysicalDirectoryInfo directoryInfo, PathString requestPath, int depth = 0)
+        private DirectoryEntry ForDirectory(
+            PhysicalDirectoryInfo directoryInfo,
+            PathString requestPath,
+            ForDirectoryOptions options,
+            uint depth)
         {
             IEnumerable<SpecialEntry>? specialEntries = null;
             IEnumerable<DirectoryEntry>? directoryEntries = null;
             IEnumerable<FileEntry>? fileEntries = null;
+            int? childCount = null;
 
             if(depth > 0)
             {
@@ -56,9 +65,15 @@ namespace Servel.NET
                 {
                     specialEntries = BuildSpecialEntries(requestPath);
                     directoryEntries = contents.OfType<PhysicalDirectoryInfo>()
-                        .Select(pdi => ForDirectory(pdi, requestPath + pdi.Name, depth - 1));
+                        .Select(pdi => ForDirectory(pdi, requestPath + pdi.Name, options, depth - 1));
                     fileEntries = contents.OfType<PhysicalFileInfo>().Select(ForFile);
+                    if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
                 }
+            }
+            else if(options.CountChildren)
+            {
+                var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
+                childCount = contents.Count();
             }
 
             return new DirectoryEntry
@@ -67,7 +82,8 @@ namespace Servel.NET
                 Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
                 SpecialEntries = specialEntries,
                 Directories = directoryEntries,
-                Files = fileEntries
+                Files = fileEntries,
+                Children = childCount
             };
         }
 

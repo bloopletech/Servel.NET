@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using Servel.NET.FileProviders;
 
 namespace Servel.NET
 {
@@ -6,13 +6,13 @@ namespace Servel.NET
     {
         public string RootPath;
         public string RequestPath;
-        public PhysicalFileProvider FileProvider;
+        public ListingFileProvider FileProvider;
 
         public Listing(string rootPath, string requestPath)
         {
             RootPath = rootPath;
             RequestPath = requestPath;
-            FileProvider = new PhysicalFileProvider(rootPath);
+            FileProvider = new ListingFileProvider(rootPath);
         }
 
         public bool IsMountAtRoot => RequestPath == "/";

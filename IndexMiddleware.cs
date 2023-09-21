@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,11 +36,7 @@ namespace Servel.NET
                 return;
             }
 
-            var depthStr = httpContext.Request.Query["depth"];
-            if (depthStr == StringValues.Empty) depthStr = "1";
-            var depth = int.Parse(depthStr!);
-
-            var directoryEntryJson = RenderDirectoryEntry(httpContext.Request.Path, depth);
+            var directoryEntryJson = RenderDirectoryEntry(httpContext.Request.Path, ParseParameters(httpContext));
 
             if(directoryEntryJson == null)
             {
@@ -65,9 +60,25 @@ namespace Servel.NET
             await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
         }
 
-        private string? RenderDirectoryEntry(PathString path, int depth)
+        private EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext)
         {
-            var directoryEntry = _entryFactory.ForDirectory(path, depth);
+            var depthStr = httpContext.Request.Query["depth"];
+            uint.TryParse(depthStr.ToString(), out var depth);
+            if(depth == 0) depth = 1;
+
+            var countChildrenStr = httpContext.Request.Query["countChildren"];
+            bool.TryParse(countChildrenStr, out var countChildren);
+
+            return new EntryFactory.ForDirectoryOptions
+            {
+                Depth = depth,
+                CountChildren = countChildren
+            };
+        }
+
+        private string? RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
+        {
+            var directoryEntry = _entryFactory.ForDirectory(path, options);
             if (directoryEntry == null) return null;
 
             JsonSerializerOptions serializerOptions = new()

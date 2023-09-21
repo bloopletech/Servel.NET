@@ -13,5 +13,6 @@ namespace Servel.NET
         public IEnumerable<DirectoryEntry>? Directories { get; init; }
         public IEnumerable<FileEntry>? Files { get; init; }
         public IEnumerable<SpecialEntry>? SpecialEntries { get; init; }
+        public int? Children { get; init; }
     }
 }
