@@ -44,10 +44,10 @@ namespace Servel.NET
             _memoryCache = memoryCache;
         }
 
-        public DirectoryEntry? ForDirectory(PathString requestPath, ForDirectoryOptions options)
+        public DirectoryEntry ForDirectory(PathString requestPath, ForDirectoryOptions options)
         {
             var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
-            if (!directoryInfo.Exists) return null;
+            if (directoryInfo == null || !directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
 
             return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options);
         }

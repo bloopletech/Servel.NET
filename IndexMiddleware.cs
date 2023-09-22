@@ -47,7 +47,7 @@ namespace Servel.NET
 
             if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
             {
-                await Results.Content(directoryEntryJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
+                await Results.Text(directoryEntryJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
                 return;
             }
 
@@ -55,7 +55,7 @@ namespace Servel.NET
             {
                 Listing = _listing,
                 FullPath = httpContext.Request.PathBase.Add(httpContext.Request.Path).Value!,
-                DirectoryEntry = directoryEntryJson
+                DirectoryEntry = System.Text.Encoding.UTF8.GetString(directoryEntryJson)
             };
 
             await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
@@ -76,18 +76,14 @@ namespace Servel.NET
             };
         }
 
-        private string? RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
+        private byte[] RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
         {
             var directoryEntry = _entryFactory.ForDirectory(path, options);
-            if (directoryEntry == null) return null;
 
-            JsonSerializerOptions serializerOptions = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-            };
-
-            return JsonSerializer.Serialize(directoryEntry, serializerOptions);
+            return JsonSerializer.SerializeToUtf8Bytes(
+                directoryEntry,
+                typeof(DirectoryEntry),
+                ServelSourceGenerationContext.Default);
         }
     }
 }
