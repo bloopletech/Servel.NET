@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -51,6 +52,9 @@ namespace Servel.NET
                 return;
             }
 
+            var syncIOFeature = httpContext.Features.Get<IHttpBodyControlFeature>();
+            syncIOFeature!.AllowSynchronousIO = true;
+
             var model = new
             {
                 Listing = _listing,
@@ -76,14 +80,21 @@ namespace Servel.NET
             };
         }
 
-        private byte[] RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
+        private byte[]? RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
         {
-            var directoryEntry = _entryFactory.ForDirectory(path, options);
+            try
+            {
+                var directoryEntry = _entryFactory.ForDirectory(path, options);
 
-            return JsonSerializer.SerializeToUtf8Bytes(
-                directoryEntry,
-                typeof(DirectoryEntry),
-                ServelSourceGenerationContext.Default);
+                return JsonSerializer.SerializeToUtf8Bytes(
+                    directoryEntry,
+                    typeof(DirectoryEntry),
+                    ServelSourceGenerationContext.Default);
+            }
+            catch(DirectoryNotFoundException)
+            {
+                return null;
+            }
         }
     }
 }
