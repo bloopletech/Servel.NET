@@ -1,9 +1,9 @@
 ﻿namespace Servel.NET
 {
-    public class ConfigurationYaml
+    public record ConfigurationYaml
     {
         public string? Host { get; set; } = "*";
-        public string? Port { get; set; } = "9293";
+        public string? Port { get; set; } = "80";
         public string? Cert { get; set; }
         public string? Key { get; set; }
         public string? Username { get; set; }

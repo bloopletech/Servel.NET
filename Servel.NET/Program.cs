@@ -5,6 +5,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
 
+await InstallerManagement.ProcessArguments(args);
+
 var configuration = ServelConfiguration.Parse();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -12,6 +14,8 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
     WebRootPath = "Assets"
 });
+
+builder.Host.UseWindowsService();
 
 builder.WebHost.UseKestrel((serverOptions) =>
 {
@@ -91,7 +95,7 @@ void MountInternal(IApplicationBuilder app, Listing listing)
 
 void Mount(IApplicationBuilder app, Listing listing)
 {
-    if(listing.IsMountAtRoot) MountInternal(app, listing);
+    if (listing.IsMountAtRoot) MountInternal(app, listing);
     else app.Map(listing.RequestPath, false, app => MountInternal(app, listing));
 }
 

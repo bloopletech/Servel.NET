@@ -36,10 +36,21 @@ namespace Servel.NET
 
         public static ServelConfiguration Parse()
         {
-            var yamlBasePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Servel.NET");
+            //var yamlBasePath = Path.Combine(
+            //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            //    "Servel.NET");
+            var yamlBasePath = Path.Combine(AppContext.BaseDirectory, "Configuration");
             var yamlPath = Path.Combine(yamlBasePath, "servel.yml");
+
+            if(!File.Exists(yamlPath))
+            {
+                Directory.CreateDirectory(yamlBasePath);
+                File.WriteAllText(yamlPath, """
+                    ---
+                    listings:
+                      - "C:\\": "/"
+                    """);
+            }
 
             var yamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
             var configurationYaml = yamlDeserializer.Deserialize<ConfigurationYaml>(File.ReadAllText(yamlPath));

@@ -3,22 +3,20 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5210"
+      "applicationUrl": "http://localhost:9293"
     },
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7156;http://localhost:5210"
+      "applicationUrl": "https://localhost:9293;http://localhost:9293"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",
