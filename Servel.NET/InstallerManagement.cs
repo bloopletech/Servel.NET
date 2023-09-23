@@ -1,9 +1,7 @@
 ﻿using CliWrap;
-using System.Data;
-using System;
-using System.Diagnostics;
 
 namespace Servel.NET;
+
 public static class InstallerManagement
 {
     public static async Task ProcessArguments(string[] args)
