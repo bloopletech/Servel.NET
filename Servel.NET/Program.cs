@@ -5,8 +5,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
 
-await InstallerManagement.ProcessArguments(args);
-
 var configuration = ServelConfiguration.Parse();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions

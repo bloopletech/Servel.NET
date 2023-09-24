@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Servel.NET.Installer", "Servel.NET.Installer\Servel.NET.Installer.vdproj", "{29B19562-204E-4345-BD1B-0B01C581FEA1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -22,8 +20,6 @@ Global
 		{404CA82E-79F9-491A-8799-1003D6D5D870}.Debug|x64.Build.0 = Debug|x64
 		{404CA82E-79F9-491A-8799-1003D6D5D870}.Release|x64.ActiveCfg = Release|x64
 		{404CA82E-79F9-491A-8799-1003D6D5D870}.Release|x64.Build.0 = Release|x64
-		{29B19562-204E-4345-BD1B-0B01C581FEA1}.Debug|x64.ActiveCfg = Debug
-		{29B19562-204E-4345-BD1B-0B01C581FEA1}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
