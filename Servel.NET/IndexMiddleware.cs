@@ -88,7 +88,7 @@ public class IndexMiddleware
             return JsonSerializer.SerializeToUtf8Bytes(
                 directoryEntry,
                 typeof(DirectoryEntry),
-                ServelSourceGenerationContext.Default);
+                SerializationSourceGenerationContext.Default);
         }
         catch(DirectoryNotFoundException)
         {

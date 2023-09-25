@@ -7,6 +7,12 @@ namespace Servel.NET;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
     GenerationMode = JsonSourceGenerationMode.Serialization)]
 [JsonSerializable(typeof(DirectoryEntry))]
-internal partial class ServelSourceGenerationContext : JsonSerializerContext
+internal partial class SerializationSourceGenerationContext : JsonSerializerContext
+{
+}
+
+[JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Metadata)]
+[JsonSerializable(typeof(ServelOptions))]
+internal partial class ServelOptionsSourceGenerationContext : JsonSerializerContext
 {
 }

@@ -5,7 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
 
-var configuration = ServelConfiguration.Parse();
+var configuration = ServelConfiguration.Configure();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -34,8 +34,9 @@ builder.WebHost.UseKestrel((serverOptions) =>
 // Add services to the container.
 builder.Services.AddSingleton(configuration);
 
-if(configuration.Username != null)
+if(configuration.Credentials.HasValue)
 {
+    var credentials = configuration.Credentials.Value;
     builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
         .AddBasic(options =>
         {
@@ -44,7 +45,7 @@ if(configuration.Username != null)
             {
                 OnValidateCredentials = context =>
                 {
-                    if (context.Username == configuration.Username && context.Password == configuration.Password)
+                    if (context.Username == credentials.Username && context.Password == credentials.Password)
                     {
                         context.Principal = new ClaimsPrincipal(new GenericIdentity("DefaultUser"));
                         context.Success();
@@ -65,7 +66,7 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-if (configuration.Username != null)
+if (configuration.Credentials.HasValue)
 {
     app.UseAuthentication();
     app.UseAuthorization();

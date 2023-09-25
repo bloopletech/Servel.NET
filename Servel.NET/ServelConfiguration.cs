@@ -1,60 +1,75 @@
 ﻿using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
+using System.Text.Json;
 
 namespace Servel.NET;
 
 public class ServelConfiguration
 {
-    public IPAddress? Host { get; set; }
-    public int Port { get; set; }
-    public X509Certificate2? Certificate { get; set; }
-    public string? Username { get; set; }
-    public string? Password { get; set; }
-    public IEnumerable<Listing> Listings { get; set; }
+    public IPAddress? Host { get; }
+    public int Port { get; }
+    public X509Certificate2? Certificate { get; }
+    public ServelCredentials? Credentials { get; }
+    public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
 
-    public ServelConfiguration(ConfigurationYaml yaml, string yamlBasePath)
-    {
-        if(yaml.Host != null && yaml.Host != "*") Host = IPAddress.Parse(yaml.Host);
-        Port = int.Parse(yaml.Port!);
+    public readonly record struct ServelCredentials(string Username, string Password);
 
-        if(yaml.Cert != null && yaml.Key != null)
+    public ServelConfiguration(ServelOptions options, string basePath)
+    {
+        if(options.Host != null) Host = IPAddress.Parse(options.Host);
+        var portAssigned = options.Port.HasValue;
+        Port = options.Port ?? 80;
+
+        if(options.HasCertificate)
         {
-            var certPath = Path.GetFullPath(yaml.Cert, yamlBasePath);
-            var keyPath = Path.GetFullPath(yaml.Key, yamlBasePath);
+            var certPath = Path.GetFullPath(options.Cert!, basePath);
+            var keyPath = Path.GetFullPath(options.Key!, basePath);
             var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
             Certificate = new X509Certificate2(certificate.Export(X509ContentType.Pkcs12));
+
+            if (!portAssigned) Port = 443;
         }
 
-        Username = yaml.Username;
-        Password = yaml.Password;
+        if(options.HasCredentials) Credentials = new ServelCredentials(options.Username!, options.Password!);
 
-        Listings = yaml.Listings.SelectMany(l => l).Select(l => new Listing(l.Key, l.Value));
+        Listings = options.Listings.SelectMany(l => l)
+            .Select(l => new Listing(Path.GetFullPath(l.Key, basePath), l.Value));
     }
 
-    public static ServelConfiguration Parse()
+    public static ServelConfiguration Configure()
     {
         //var yamlBasePath = Path.Combine(
         //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         //    "Servel.NET");
-        var yamlBasePath = Path.Combine(AppContext.BaseDirectory, "Configuration");
-        var yamlPath = Path.Combine(yamlBasePath, "servel.yml");
+        var basePath = Path.Combine(AppContext.BaseDirectory, "Config");
+        return Configure(basePath);
+    }
 
-        if(!File.Exists(yamlPath))
-        {
-            Directory.CreateDirectory(yamlBasePath);
-            File.WriteAllText(yamlPath, """
-                    ---
-                    listings:
-                      - "C:\\": "/"
-                    """);
-        }
+    public static ServelConfiguration Configure(string basePath)
+    {
+        var configPath = Path.Combine(basePath, "config.json");
+        EnsureConfigurationFile(configPath);
 
-        var yamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
-        var configurationYaml = yamlDeserializer.Deserialize<ConfigurationYaml>(File.ReadAllText(yamlPath));
+        using var inputStream = File.OpenRead(configPath);
+        var options = JsonSerializer.Deserialize(inputStream, ServelOptionsSourceGenerationContext.Default.ServelOptions)!;
 
-        return new ServelConfiguration(configurationYaml, yamlBasePath);
+        return new ServelConfiguration(options, basePath);
+    }
+
+    private static void EnsureConfigurationFile(string configPath)
+    {
+        if (File.Exists(configPath)) return;
+
+        Directory.CreateDirectory(Path.GetDirectoryName(configPath)!);
+        File.WriteAllText(configPath, """
+            {
+              "Listings": [
+                {
+                    "C:\\": "/"
+                }
+              ]
+            }
+            """);
     }
 }
