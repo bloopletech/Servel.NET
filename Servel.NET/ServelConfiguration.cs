@@ -42,13 +42,12 @@ public class ServelConfiguration
         //var yamlBasePath = Path.Combine(
         //    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         //    "Servel.NET");
-        var basePath = Path.Combine(AppContext.BaseDirectory, "Config");
-        return Configure(basePath);
+        return Configure(AppContext.BaseDirectory);
     }
 
     public static ServelConfiguration Configure(string basePath)
     {
-        var configPath = Path.Combine(basePath, "config.json");
+        var configPath = Path.Combine(basePath, "Configuration.json");
         EnsureConfigurationFile(configPath);
 
         using var inputStream = File.OpenRead(configPath);
@@ -61,7 +60,6 @@ public class ServelConfiguration
     {
         if (File.Exists(configPath)) return;
 
-        Directory.CreateDirectory(Path.GetDirectoryName(configPath)!);
         File.WriteAllText(configPath, """
             {
               "Listings": [

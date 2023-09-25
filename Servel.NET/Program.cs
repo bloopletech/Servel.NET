@@ -4,14 +4,28 @@ using idunno.Authentication.Basic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
+using Microsoft.Extensions.Configuration.Memory;
 
 var configuration = ServelConfiguration.Configure();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    Args = args,
     WebRootPath = "Assets"
 });
+
+builder.Configuration.Sources.Clear();
+builder.Configuration.Sources.Add(new MemoryConfigurationSource());
+
+if(builder.Environment.IsDevelopment())
+{
+    builder.Logging.AddFilter("Default", LogLevel.Trace);
+    builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Trace);
+}
+else
+{
+    builder.Logging.AddFilter("Default", LogLevel.Information);
+    builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+}
 
 builder.Host.UseWindowsService();
 
