@@ -9,9 +9,10 @@
     <SelfContained>False</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishIISAssets>false</PublishIISAssets>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>1.5.0</Version>
+    <Version>1.5.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
