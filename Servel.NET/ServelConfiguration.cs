@@ -10,6 +10,7 @@ public class ServelConfiguration
     public int Port { get; }
     public X509Certificate2? Certificate { get; }
     public ServelCredentials? Credentials { get; }
+    public bool AllowPublicAccess { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
 
@@ -32,6 +33,8 @@ public class ServelConfiguration
         }
 
         if(options.HasCredentials) Credentials = new ServelCredentials(options.Username!, options.Password!);
+
+        AllowPublicAccess = options.AllowPublicAccess;
 
         Listings = options.Listings.SelectMany(l => l)
             .Select(l => new Listing(Path.GetFullPath(l.Key, basePath), l.Value));

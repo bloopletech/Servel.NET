@@ -7,6 +7,7 @@ public record struct ServelOptions(
     string? Key,
     string? Username,
     string? Password,
+    bool AllowPublicAccess,
     IReadOnlyDictionary<string, string>[] Listings)
 {
     public readonly bool HasCertificate => Cert != null && Key != null;

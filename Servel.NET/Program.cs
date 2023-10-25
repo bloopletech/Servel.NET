@@ -78,6 +78,8 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
+if (!configuration.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
+
 if (configuration.Credentials.HasValue)
 {
     app.UseAuthentication();
