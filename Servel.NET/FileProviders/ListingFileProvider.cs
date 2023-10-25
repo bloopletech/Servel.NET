@@ -1,16 +1,12 @@
 ﻿using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Internal;
 using Microsoft.Extensions.FileProviders.Physical;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Servel.NET.FileProviders;
 
 public class ListingFileProvider : PhysicalFileProvider
 {
-    private static FieldInfo pdcDirectoryField = typeof(PhysicalDirectoryContents).GetField(
-        "_directory",
-        BindingFlags.NonPublic | BindingFlags.Instance)!;
-
     public ListingFileProvider(string root) : base(root)
     {
     }
@@ -24,10 +20,11 @@ public class ListingFileProvider : PhysicalFileProvider
         var contents = GetDirectoryContents(subpath);
         if (!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
-        var pdContents = (PhysicalDirectoryContents)contents;
 
-        var fullPath = (string)pdcDirectoryField.GetValue(pdContents)!;
+        var fullPath = GetDirectoryField((PhysicalDirectoryContents)contents);
         return new PhysicalDirectoryInfo(new DirectoryInfo(fullPath));
     }
 
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_directory")]
+    private extern static ref string GetDirectoryField(PhysicalDirectoryContents @this);
 }
