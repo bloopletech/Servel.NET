@@ -1,5 +1,5 @@
 #define MyAppName "Servel.NET"
-#define MyAppVersion "1.7.0"
+#define MyAppVersion "1.7.1"
 #define MyAppPublisher "Servel.NET"
 #define MyAppURL "https://www.github.com/bloopletech/Servel.NET"
 #define MyAppExeName "Servel.NET.exe"
@@ -47,66 +47,6 @@ Filename: {sys}\sc.exe; Parameters: "delete {#MyAppName}" ; Flags: runhidden ; R
 Filename: {sys}\netsh.exe; Parameters: "advfirewall firewall delete rule name={#MyAppName} program=""{app}\{#MyAppExeName}""" ; Flags: runhidden ; RunOnceId: "DeleteFirewallRule"
 
 [Code]
-// From https://stackoverflow.com/a/72526428
-function IsDotNetInstalled(DotNetName: string): Boolean;
-var
-  Cmd, Args: string;
-  FileName: string;
-  Output: AnsiString;
-  Command: string;
-  ResultCode: Integer;
-begin
-  FileName := ExpandConstant('{tmp}\dotnet.txt');
-  Cmd := ExpandConstant('{cmd}');
-  Command := 'dotnet --list-runtimes';
-  Args := '/C ' + Command + ' > "' + FileName + '" 2>&1';
-  if Exec(Cmd, Args, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and
-     (ResultCode = 0) then
-  begin
-    if LoadStringFromFile(FileName, Output) then
-    begin
-      if Pos(DotNetName, Output) > 0 then
-      begin
-        Log('"' + DotNetName + '" found in output of "' + Command + '"');
-        Result := True;
-      end
-        else
-      begin
-        Log('"' + DotNetName + '" not found in output of "' + Command + '"');
-        Result := False;
-      end;
-    end
-      else
-    begin
-      Log('Failed to read output of "' + Command + '"');
-    end;
-  end
-    else
-  begin
-    Log('Failed to execute "' + Command + '"');
-    Result := False;
-  end;
-  DeleteFile(FileName);
-end;
-
-function InitializeSetup: Boolean;
-var
-  dotNet7Installed: Boolean;
-  ErrorCode: Integer;
-begin
-  Result := True;
-
-  dotNet7Installed := IsDotNetInstalled('Microsoft.AspNetCore.App 7.');
-
-  if not dotNet7Installed then
-  begin
-    MsgBox('The .ASP.NET Core Runtime 7 is required.' + #13#10 + 'Please download and install it, and then re-run this setup program.'
-      + #13#10 + 'When you click OK the download page will be opened.', mbCriticalError, MB_OK);
-    ShellExecAsOriginalUser('', 'https://dotnet.microsoft.com/en-us/download/dotnet/7.0', '', '', SW_SHOW, ewNoWait, ErrorCode)
-    Result := False;
-  end;
-end;
-
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var ResultCode: Integer;
 begin  

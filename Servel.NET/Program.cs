@@ -11,8 +11,7 @@ var configuration = ServelConfiguration.Configure();
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
-    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production,
-    WebRootPath = "Assets"
+    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production
 });
 
 builder.Services.AddLogging();
