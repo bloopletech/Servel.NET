@@ -89,9 +89,8 @@ var Entries = (function () {
     update();
   }
 
-  updateLists();
-
   return {
+    updateLists: updateLists,
     all: function() {
       return all;
     },

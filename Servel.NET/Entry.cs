@@ -5,9 +5,6 @@ namespace Servel.NET;
 public readonly record struct DirectoryEntry(
     string Name,
     long Mtime,
-    bool HomeEntry,
-    bool TopEntry,
-    bool ParentEntry,
     IEnumerable<DirectoryEntry>? Directories,
     IEnumerable<FileEntry>? Files,
     IEnumerable<SpecialEntry>? SpecialEntries,

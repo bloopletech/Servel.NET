@@ -32,6 +32,13 @@ var Common = (function () {
       .replace(/'/g, "&#039;");
   }
 
+  function HTMLSafe(pieces) {
+    var result = pieces[0];
+    var substitutions = [].slice.call(arguments, 1);
+    for(var i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
+    return result;
+  }
+
   function formatThenEscape(input) {
     return escapeHTML(format(input));
   }
@@ -45,12 +52,14 @@ var Common = (function () {
     formatTimestamp: formatTimestamp,
     format: format,
     escapeHTML: escapeHTML,
+    HTMLSafe: HTMLSafe,
     formatThenEscape: formatThenEscape,
     atBottom: atBottom
   }
 })();
 
 window.e = Common.escapeHTML;
+window.HTMLSafe = Common.HTMLSafe;
 window.f = Common.format;
 window.ef = Common.formatThenEscape;
 

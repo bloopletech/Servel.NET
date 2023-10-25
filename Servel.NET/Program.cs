@@ -4,37 +4,37 @@ using idunno.Authentication.Basic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
-using Microsoft.Extensions.Configuration.Memory;
+using Microsoft.Extensions.FileProviders;
+using System.Reflection;
 
 var configuration = ServelConfiguration.Configure();
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
+    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production,
     WebRootPath = "Assets"
 });
 
-builder.Configuration.Sources.Clear();
-builder.Configuration.Sources.Add(new MemoryConfigurationSource());
-
-if(builder.Environment.IsDevelopment())
+builder.Services.AddLogging();
+builder.Logging.AddSimpleConsole(options => options.IncludeScopes = true);
+builder.Logging.AddDebug();
+builder.Logging.Configure(options =>
 {
-    builder.Logging.AddFilter("Default", LogLevel.Trace);
-    builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Trace);
-}
-else
-{
-    builder.Logging.AddFilter("Default", LogLevel.Information);
-    builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
-}
+    options.ActivityTrackingOptions =
+        ActivityTrackingOptions.SpanId |
+        ActivityTrackingOptions.TraceId |
+        ActivityTrackingOptions.ParentId;
+});
+builder.Logging.SetMinimumLevel(builder.Environment.IsDevelopment() ? LogLevel.Trace : LogLevel.Warning);
 
 builder.Host.UseWindowsService();
 
 builder.WebHost.UseKestrel((serverOptions) =>
 {
-    var configure = (ListenOptions listenOptions) =>
+    void configure(ListenOptions listenOptions)
     {
         if (configuration.Certificate != null) listenOptions.UseHttps(configuration.Certificate);
-    };
+    }
 
     if (configuration.Host != null) serverOptions.Listen(configuration.Host, configuration.Port, configure);
     else serverOptions.ListenAnyIP(configuration.Port, configure);
@@ -51,6 +51,7 @@ builder.Services.AddSingleton(configuration);
 if(configuration.Credentials.HasValue)
 {
     var credentials = configuration.Credentials.Value;
+    builder.Services.AddRoutingCore();
     builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
         .AddBasic(options =>
         {
@@ -69,13 +70,11 @@ if(configuration.Credentials.HasValue)
                 }
             };
         });
-    builder.Services.AddAuthorization(options =>
-    {
-        options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    });
+
+    builder.Services.AddAuthorizationBuilder().SetFallbackPolicy(
+        new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 }
 
-builder.Services.AddFluid();
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
@@ -90,10 +89,11 @@ if (configuration.Credentials.HasValue)
 
 //app.UseHttpsRedirection();
 
+var provider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = app.Environment.WebRootFileProvider,
-    RequestPath = "/_servel"
+    FileProvider = provider,
+    RequestPath = "/_servel",
 });
 
 void MountInternal(IApplicationBuilder app, Listing listing)

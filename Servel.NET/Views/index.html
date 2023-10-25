@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Servel.NET</title>
+        <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no'">
+        <link href="/_servel/css/normalize.css" rel="stylesheet">
+        <link href="/_servel/css/common.css" rel="stylesheet">
+
+        <link href="/_servel/css/listing.css" rel="stylesheet" />
+        <link href="/_servel/css/gallery.css" rel="stylesheet" />
+        <link href="/_servel/css/gallery_text.css" rel="stylesheet" />
+
+        <script src="/_servel/js/filesize_min.js"></script>
+        <script src="/_servel/js/common.js"></script>
+        <script src="/_servel/js/inflater.js"></script>
+        <script src="/_servel/js/entries.js"></script>
+        <script src="/_servel/js/index.js"></script>
+        <script src="/_servel/js/listing.js"></script>
+        <script src="/_servel/js/ume.js"></script>
+        <script src="/_servel/js/gallery.js"></script>
+    </head>
+    <body>
+        <div id="gallery">
+            <div id="controls">
+                <div id="page-jump-listing" class="paginator">🔗 Listing</div>
+                <div id="layout-mode" class="paginator">⤡</div>
+                <div id="page-back-10" class="paginator">◀◀</div>
+                <div id="page-next-10" class="paginator">▶▶</div>
+                <div id="page-back" class="paginator">◀</div>
+                <div id="page-next" class="paginator">▶</div>
+            </div>
+            <div id="content">
+                <div id="scroller">
+                    <img id="image">
+                    <video id="video" loop></video>
+                    <audio id="audio" controls></audio>
+                    <div id="text">
+                        <a href="#" id="text-anchor"></a>
+                        <div id="text-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="listing">
+            <div id="header">
+                <h1 id="title"></h1>
+            </div>
+            <div id="search-wrapper">
+                <input id="search" type="search">
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="sortable sort-active sort-asc" data-sort-method="name" data-sort-direction="asc">
+                                <a href="#">Name</a>
+                            </th>
+                            <th class="new-tab">
+                            </th>
+                            <th class="type sortable" data-sort-method="type" data-sort-direction="asc">
+                                <a href="#">Type</a>
+                            </th>
+                            <th class="size sortable" data-sort-method="size" data-sort-direction="asc">
+                                <a href="#">Size</a>
+                            </th>
+                            <th class="modified sortable" data-sort-method="mtime" data-sort-direction="asc">
+                                <a href="#">Modified</a>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+                <div id="listing-container"></div>
+            </div>
+        </div>
+    </body>
+</html>

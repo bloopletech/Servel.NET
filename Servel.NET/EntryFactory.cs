@@ -14,14 +14,14 @@ public class EntryFactory
         }
     }
 
-    private static readonly SpecialEntry HomeEntry = new SpecialEntry
+    private static readonly SpecialEntry HomeEntry = new()
     {
         HomeEntry = true,
         Name = "Listings Home",
         Href = "/"
     };
 
-    private static readonly SpecialEntry ParentEntry = new SpecialEntry
+    private static readonly SpecialEntry ParentEntry = new()
     {
         ParentEntry = true,
         Name = "Parent Directory",
@@ -103,7 +103,7 @@ public class EntryFactory
         };
     }
 
-    private IEnumerable<SpecialEntry> BuildSpecialEntries(PathString requestPath)
+    private List<SpecialEntry> BuildSpecialEntries(PathString requestPath)
     {
         var list = new List<SpecialEntry>();
         if (!_listing.IsMountAtRoot) list.Add(HomeEntry);

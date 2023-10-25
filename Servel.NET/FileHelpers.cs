@@ -12,7 +12,7 @@ public static class FileHelpers
 
     public static bool PathEndsInSlash(PathString path)
     {
-        return path.HasValue && path.Value!.EndsWith("/", StringComparison.Ordinal);
+        return path.HasValue && path.Value!.EndsWith('/');
     }
 
     public static void RedirectToPathWithSlash(HttpContext context)

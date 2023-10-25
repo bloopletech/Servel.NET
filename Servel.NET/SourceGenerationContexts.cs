@@ -7,6 +7,7 @@ namespace Servel.NET;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
     GenerationMode = JsonSourceGenerationMode.Serialization)]
 [JsonSerializable(typeof(DirectoryEntry))]
+[JsonSerializable(typeof(IEnumerable<string>))]
 internal partial class SerializationSourceGenerationContext : JsonSerializerContext
 {
 }

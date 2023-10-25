@@ -7,13 +7,6 @@ var Listing = (function() {
   var moreContent;
   var scrollDebounce = false;
 
-  function HTMLSafe(pieces) {
-    var result = pieces[0];
-    var substitutions = [].slice.call(arguments, 1);
-    for(var i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
-    return result;
-  }
-
   function renderRow(file) {
     return HTMLSafe`
       <tr>
@@ -117,6 +110,9 @@ var Listing = (function() {
 
   function init() {
     $container = $("#listing-container");
+    const title = `Listing of ${decodeURIComponent(location.pathname)}`;
+    $("#title").textContent = title;
+    document.title = title;
 
     onEntriesUpdate();
 
@@ -128,5 +124,3 @@ var Listing = (function() {
     onEntriesUpdate: onEntriesUpdate
   };
 })();
-
-window.addEventListener("DOMContentLoaded", Listing.init);

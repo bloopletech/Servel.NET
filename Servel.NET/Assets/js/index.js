@@ -19,8 +19,22 @@ var Index = (function() {
     document.body.classList.add("gallery");
   }
 
-  function init() {
+  async function init() {
     jumpListing();
+
+    const response = await fetch(window.location.href, {
+      headers: {
+        "Accept": "application/json",
+      }
+    });
+
+    const directoryEntry = await response.json();
+    inflateDirectoryEntry(directoryEntry);
+    window.directoryEntry = directoryEntry;
+
+    Entries.updateLists();
+    Listing.init();
+    Gallery.init();
   }
 
   return {

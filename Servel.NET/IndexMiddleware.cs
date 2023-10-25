@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text.Json;
 
@@ -25,7 +25,7 @@ public class IndexMiddleware
         else await _next.Invoke(httpContext);
     }
 
-    private bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method);
+    private static bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method);
 
     private async Task Process(HttpContext httpContext)
     {
@@ -45,32 +45,24 @@ public class IndexMiddleware
             return;
         }
 
-        if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        httpContext.Response.Headers.Vary = HeaderNames.Accept;
+
+        if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
             await Results.Text(directoryEntryJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
             return;
         }
 
-        var syncIOFeature = httpContext.Features.Get<IHttpBodyControlFeature>();
-        syncIOFeature!.AllowSynchronousIO = true;
-
-        var model = new
-        {
-            Listing = _listing,
-            FullPath = httpContext.Request.PathBase.Add(httpContext.Request.Path).Value!,
-            DirectoryEntry = System.Text.Encoding.UTF8.GetString(directoryEntryJson)
-        };
-
-        await Results.Extensions.View("Index", model).ExecuteAsync(httpContext);
+        await Results.Text(StaticViews.Get("index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
     }
 
-    private EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext)
+    private static EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext)
     {
         var depthStr = httpContext.Request.Query["depth"];
-        uint.TryParse(depthStr.ToString(), out var depth);
+        _ = uint.TryParse(depthStr.ToString(), out var depth);
 
         var countChildrenStr = httpContext.Request.Query["countChildren"];
-        bool.TryParse(countChildrenStr, out var countChildren);
+        _ = bool.TryParse(countChildrenStr, out var countChildren);
 
         return new EntryFactory.ForDirectoryOptions
         {

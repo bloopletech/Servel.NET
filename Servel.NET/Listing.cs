@@ -2,18 +2,11 @@
 
 namespace Servel.NET;
 
-public class Listing
+public class Listing(string rootPath, string requestPath)
 {
-    public string RootPath;
-    public string RequestPath;
-    public ListingFileProvider FileProvider;
-
-    public Listing(string rootPath, string requestPath)
-    {
-        RootPath = rootPath;
-        RequestPath = requestPath;
-        FileProvider = new ListingFileProvider(rootPath);
-    }
+    public string RootPath = rootPath;
+    public string RequestPath = requestPath;
+    public ListingFileProvider FileProvider = new(rootPath);
 
     public bool IsMountAtRoot => RequestPath == "/";
 }

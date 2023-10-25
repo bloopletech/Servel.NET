@@ -233,5 +233,3 @@ var Gallery = (function() {
     jump: jump
   };
 })();
-
-window.addEventListener("DOMContentLoaded", Gallery.init);

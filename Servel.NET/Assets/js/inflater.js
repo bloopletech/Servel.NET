@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-(function () {
+function inflateDirectoryEntry(directoryEntry) {
   const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif"];
   const VIDEO_EXTS = ["webm", "mp4", "mkv"];
   const AUDIO_EXTS = ["mp3", "m4a", "wav"];
@@ -59,14 +59,10 @@
     }
   }
 
-  function inflate() {
-    for(const entry of window.directoryEntry.specialEntries) entry.directory = true;
-    for(const entry of window.directoryEntry.directories) entry.directory = true;
-    for(const entry of window.directoryEntry.files) entry.file = true;
-    inflateEntries(window.directoryEntry.specialEntries);
-    inflateEntries(window.directoryEntry.directories);
-    inflateEntries(window.directoryEntry.files);
-  }
-
-  inflate();
-})();
+  for(const entry of directoryEntry.specialEntries) entry.directory = true;
+  for(const entry of directoryEntry.directories) entry.directory = true;
+  for(const entry of directoryEntry.files) entry.file = true;
+  inflateEntries(directoryEntry.specialEntries);
+  inflateEntries(directoryEntry.directories);
+  inflateEntries(directoryEntry.files);
+}

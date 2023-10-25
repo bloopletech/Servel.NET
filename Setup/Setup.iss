@@ -1,5 +1,5 @@
 #define MyAppName "Servel.NET"
-#define MyAppVersion "1.5.1"
+#define MyAppVersion "1.7.0"
 #define MyAppPublisher "Servel.NET"
 #define MyAppURL "https://www.github.com/bloopletech/Servel.NET"
 #define MyAppExeName "Servel.NET.exe"
@@ -32,7 +32,7 @@ ArchitecturesAllowed=x64
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\{#MyAppName}\bin\x64\Release\publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\{#MyAppName}\bin\x64\Release\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]
