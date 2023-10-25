@@ -1,5 +1,5 @@
 #define MyAppName "Servel.NET"
-#define MyAppVersion "1.7.1"
+#define MyAppVersion "1.8.0"
 #define MyAppPublisher "Servel.NET"
 #define MyAppURL "https://www.github.com/bloopletech/Servel.NET"
 #define MyAppExeName "Servel.NET.exe"
