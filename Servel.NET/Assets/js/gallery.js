@@ -1,18 +1,18 @@
 "use strict";
 
 var Gallery = (function() {
-  var LAYOUT_MODES = ["fit-both", "fit-width", "clamp-width", "full-size"];
+  const LAYOUT_MODES = ["contain", "fit-both", "fit-width", "clamp-width", "original"];
 
-  var $body;
-  var $gallery;
-  var $image;
-  var $video;
-  var $audio;
-  var currentIndex;
-  var layoutModeIndex = 0;
+  let $body;
+  let $gallery;
+  let $image;
+  let $video;
+  let $audio;
+  let currentIndex;
+  let layoutModeIndex = 0;
 
   function renderText(url) {
-    var http = new XMLHttpRequest();
+    const http = new XMLHttpRequest();
     http.open("GET", url);
     http.onload = function() {
       $("#text-content").innerHTML = ume(http.responseText);
@@ -34,14 +34,14 @@ var Gallery = (function() {
   function render() {
     clearContent();
 
-    var entry = Entries.media()[currentIndex];
+    const entry = Entries.media()[currentIndex];
 
-    var url = entry.href;
-    var type = entry.mediaType;
+    const url = entry.href;
+    const type = entry.mediaType;
 
     $gallery.classList.add(type);
 
-    var $element;
+    let $element;
     if(type == "text") {
       renderText(url);
     }
@@ -67,7 +67,7 @@ var Gallery = (function() {
   }
 
   function go(index) {
-    var newIndex = clamp(index);
+    const newIndex = clamp(index);
     if(newIndex == currentIndex) return;
 
     currentIndex = newIndex;
@@ -91,7 +91,7 @@ var Gallery = (function() {
   }
 
   function jump(url) {
-    var index = Entries.media().findIndex(function(entry) {
+    const index = Entries.media().findIndex(function(entry) {
       return entry.href == url;
     });
     go(index);
@@ -157,42 +157,17 @@ var Gallery = (function() {
   }
 
   function layout() {
-    var vw = document.documentElement.clientWidth;
-    var vh = document.documentElement.clientHeight;
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
 
-    var viewportOrientation = vw > vh ? "landscape" : "portrait";
+    const viewportOrientation = vw > vh ? "landscape" : "portrait";
     $body.classList.remove("landscape", "portrait");
     $body.classList.add(viewportOrientation);
 
-    $gallery.style.height = vh + "px";
+    const layoutMode = LAYOUT_MODES[layoutModeIndex];
 
-    var scrollerMaxHeight = viewportOrientation == "landscape" ? vh : vh - 75;
-
-    var layoutMode = LAYOUT_MODES[layoutModeIndex];
-
-    if(layoutMode == "fit-both") {
-      var maxWidth = "100%";
-      var maxHeight = (scrollerMaxHeight + "px");
-    }
-    else if(layoutMode == "fit-width") {
-      var maxWidth = "100%";
-      var maxHeight = "none";
-    }
-    else if(layoutMode == "clamp-width") {
-      var maxWidth = "1000px";
-      var maxHeight = "none";
-    }
-    else if(layoutMode == "full-size") {
-      var maxWidth = "none";
-      var maxHeight = "none";
-    }
-
-    $image.style.maxWidth = maxWidth;
-    $image.style.maxHeight = maxHeight;
-    $video.style.maxWidth = maxWidth;
-    $video.style.maxHeight = maxHeight;
-    $audio.style.maxWidth = maxWidth;
-    $audio.style.maxHeight = maxHeight;
+    $gallery.classList.remove(...LAYOUT_MODES);
+    $gallery.classList.add(layoutMode);
   }
 
   function initLayout() {
