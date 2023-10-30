@@ -73,6 +73,22 @@ body.landscape #page-jump-listing {
   transform: rotate(180deg);
 }
 
+body.portrait.touch #controls {
+    order: 1;
+}
+
+body.portrait.touch #content {
+    order: 0;
+}
+
+body.landscape.touch #controls {
+    order: 1;
+}
+
+body.landscape.touch #content {
+    order: 0;
+}
+
 #image, #video, #audio, #text {
   display: none;
   margin: 0 auto 0 auto;

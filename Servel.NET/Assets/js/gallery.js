@@ -161,8 +161,9 @@ var Gallery = (function() {
     const vh = document.documentElement.clientHeight;
 
     const viewportOrientation = vw > vh ? "landscape" : "portrait";
-    $body.classList.remove("landscape", "portrait");
+    $body.classList.remove("landscape", "portrait", "touch");
     $body.classList.add(viewportOrientation);
+    if(navigator.maxTouchPoints > 0) $body.classList.add("touch");
 
     const layoutMode = LAYOUT_MODES[layoutModeIndex];
 
