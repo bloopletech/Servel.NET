@@ -2,7 +2,7 @@
 
 function inflateDirectoryEntry(directoryEntry) {
   const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif"];
-  const VIDEO_EXTS = ["webm", "mp4", "mkv"];
+  const VIDEO_EXTS = ["webm", "mp4", "mkv", "m4v"];
   const AUDIO_EXTS = ["mp3", "m4a", "wav"];
   const TEXT_EXTS = ["txt"];
 
