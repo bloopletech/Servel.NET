@@ -24,9 +24,10 @@ var Gallery = (function() {
 
   function clearContent() {
     $gallery.classList.remove("image", "video", "audio", "text");
-    $video.removeAttribute('src');
+    $image.removeAttribute("src");
+    $video.removeAttribute("src");
     $video.pause();
-    $audio.removeAttribute('src');
+    $audio.removeAttribute("src");
     $audio.pause();
     $("#text-content").innerHTML = "";
   }
@@ -154,6 +155,10 @@ var Gallery = (function() {
         prev();
       }
     });
+
+    const setLoop = (e) => e.target.loop = e.target.duration < (5 * 60);
+    $("#video").addEventListener("loadedmetadata", setLoop);
+    $("#audio").addEventListener("loadedmetadata", setLoop);
   }
 
   function layout() {
