@@ -4,14 +4,19 @@ using idunno.Authentication.Basic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
+#if !DEBUG
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
+#endif
 
 var configuration = ServelConfiguration.Configure();
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
-    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production
+    EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production,
+#if DEBUG
+    WebRootPath = "Assets"
+#endif
 });
 
 builder.Services.AddLogging();
@@ -90,7 +95,12 @@ if (configuration.Credentials.HasValue)
 
 //app.UseHttpsRedirection();
 
+#if DEBUG
+var provider = app.Environment.WebRootFileProvider;
+#else
 var provider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
+#endif
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = provider,
