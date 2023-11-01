@@ -38,11 +38,22 @@ jobs:
     - name: Extract App Version
       run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_ENV"
 
+    - name: Prepare Setup Script
+      run: |
+        $iss = (Get-Content Setup\Setup.iss)
+        $iss = $iss -replace '^(#define MyAppVersion ").*?(")$',"`$1${env:APP_VERSION}`$2"
+        Set-Content -Path Setup/Setup.iss -Value $iss
+
+    - name: Compile Setup
+      run: iscc.exe Setup/Setup.iss
+
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
         name: build
-        path: Servel.NET\bin\x64\Release\win-x64\publish
+        path: |
+          Servel.NET/bin/x64/Release/win-x64/publish/*
+          Setup/bin/*
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -51,3 +62,4 @@ jobs:
         tag_name: v${{ env.APP_VERSION }}
         files: |
           Servel.NET/bin/x64/Release/win-x64/publish/*
+          Setup/bin/*
