@@ -38,15 +38,8 @@ jobs:
     - name: Extract App Version
       run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_ENV"
 
-    - name: Prepare Setup Script
-      run: |
-        $iss = (Get-Content Setup\Setup.iss)
-        $iss = $iss -replace '^(#define MyAppVersion ").*?(")$',"``$1${env:APP_VERSION}`$2"
-        Set-Content -Path Setup/Setup.iss -Value $iss
-        Get-Content Setup\Setup.iss
-
     - name: Compile Setup
-      run: iscc.exe Setup/Setup.iss
+      run: iscc.exe /DMyAppVersion=$env:APP_VERSION Setup/Setup.iss
 
     - name: Upload
       uses: actions/upload-artifact@v3
