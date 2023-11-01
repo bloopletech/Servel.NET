@@ -1,8 +1,10 @@
 #define MyAppName "Servel.NET"
-#define MyAppVersion "1.11.0"
 #define MyAppPublisher "Servel.NET"
 #define MyAppURL "https://www.github.com/bloopletech/Servel.NET"
 #define MyAppExeName "Servel.NET.exe"
+#define MyAppInputPath "..\" + MyAppName + "\bin\x64\Release\win-x64\publish\" + MyAppExeName
+#define _MyAppVersion GetStringFileInfo(MyAppInputPath, "ProductVersion")
+#define MyAppVersion Copy(_MyAppVersion, 1, Pos("+", _MyAppVersion) - 1)
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -32,7 +34,7 @@ ArchitecturesAllowed=x64
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\{#MyAppName}\bin\x64\Release\win-x64\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: {#MyAppInputPath}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]
