@@ -39,7 +39,7 @@ jobs:
       run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_ENV"
 
     - name: Compile Setup
-      run: iscc.exe /DMyAppVersion=$env:APP_VERSION Setup/Setup.iss
+      run: iscc.exe Setup/Setup.iss
 
     - name: Upload
       uses: actions/upload-artifact@v3
