@@ -35,7 +35,7 @@ jobs:
 
     - name: Extract App Version
       id: extract-version
-      run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$GITHUB_OUTPUT"; cat "$GITHUB_OUTPUT"
+      run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_OUTPUT"; cat "$env:GITHUB_OUTPUT"
 
     - name: Upload
       uses: actions/upload-artifact@v3
