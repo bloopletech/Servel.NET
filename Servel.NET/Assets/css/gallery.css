@@ -10,30 +10,37 @@ body.has-gallery.gallery #gallery {
 
 #controls {
   display: flex;
-}
 
-#page-jump-listing {
-  flex-grow: 1;
-}
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 90px;
+    height: 90px;
 
-.paginator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 75px;
+    background-color: #1f1f1f;
+    fill: #a0a0a0;
 
-  font-size: 2em;
-  font-weight: bold;
-  text-align: center;
-  background-color: #1f1f1f;
-  color: #858585;
+    cursor: pointer;
 
-  cursor: pointer;
-}
+    &:not(.spacer):hover {
+      background-color: #0f0f0f;
+      fill: #c1c1c1;
+    }
 
-.paginator:hover {
-  background-color: #0f0f0f;
-  color: #c1c1c1;
+    &.spacer {
+      flex-grow: 1;
+      width: auto;
+      height: auto;
+      cursor: auto;
+    }
+
+    > svg {
+      width: 52px;
+      height: 52px;
+      pointer-events: none;
+    }
+  }
 }
 
 #content {
@@ -46,47 +53,44 @@ body.has-gallery.gallery #gallery {
   overflow: auto;
 }
 
-body.portrait #gallery {
-  flex-direction: column;
+body.portrait {
+  #gallery {
+    flex-direction: column;
+  }
+
+  #controls {
+    flex-direction: row;
+  }
+
+  &.touch {
+    #controls {
+      order: 1;
+    }
+
+    #content {
+      order: 0;
+    }
+  }
 }
 
-body.portrait .paginator {
-  width: 100px;
-}
+body.landscape {
+  #gallery {
+    flex-direction: row;
+  }
 
-body.portrait #page-jump-listing {
-  width: auto;
-}
+  #controls {
+    flex-direction: column;
+  }
 
-body.landscape #gallery {
-  flex-direction: row;
-}
+  &.touch {
+    #controls {
+      order: 1;
+    }
 
-body.landscape #controls {
-  flex-direction: column;
-  flex-shrink: 0;
-  width: 100px;
-}
-
-body.landscape #page-jump-listing {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-
-body.portrait.touch #controls {
-    order: 1;
-}
-
-body.portrait.touch #content {
-    order: 0;
-}
-
-body.landscape.touch #controls {
-    order: 1;
-}
-
-body.landscape.touch #content {
-    order: 0;
+    #content {
+      order: 0;
+    }
+  }
 }
 
 #image, #video, #audio, #text {
@@ -124,24 +128,32 @@ body.landscape.touch #content {
   display: block;
 }
 
-#gallery.contain #image, #gallery.contain #video, #gallery.contain #audio, #gallery.contain #text {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+#gallery.contain {
+  #image, #video, #audio, #text {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
-#gallery.fit-both #image, #gallery.fit-both #video, #gallery.fit-both #audio, #gallery.fit-both #text {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: scale-down;
+#gallery.fit-both {
+  #image, #video, #audio, #text {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: scale-down;
+  }
 }
 
-#gallery.fit-width #image, #gallery.fit-width #video, #gallery.fit-width #audio, #gallery.fit-width #text {
-  max-width: 100%;
+#gallery.fit-width {
+  #image, #video, #audio, #text {
+    max-width: 100%;
+  }
 }
 
-#gallery.clamp-width #image, #gallery.clamp-width #video, #gallery.clamp-width #audio, #gallery.clamp-width #text {
-  max-width: 1000px;
+#gallery.clamp-width {
+  #image, #video, #audio, #text {
+    max-width: 1000px;
+  }
 }
 
 @media screen and (max-width: 767px) {
@@ -149,9 +161,9 @@ body.landscape.touch #content {
     padding: 0;
   }
 
-  .paginator {
-    width: 75px;
-    font-size: 20px;
+  #controls > div {
+    width: 60px;
+    height: 60px;
   }
 }
 
