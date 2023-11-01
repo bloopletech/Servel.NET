@@ -11,6 +11,7 @@ on:
 
 jobs:
   build:
+    if: github.event.head_commit.message == 'Bump version'
     runs-on: windows-latest
     permissions:
       contents: write
