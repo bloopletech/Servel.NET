@@ -30,6 +30,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget
 
+    - run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "version=$version" >> GITHUB_ENV
+
     - name: Build
       run: dotnet publish
 
@@ -38,3 +40,11 @@ jobs:
       with:
         name: build
         path: Servel.NET\bin\x64\Release\win-x64\publish
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        prerelease: true
+        tag_name: v${{ env.version }}
+        files: |
+          Servel.NET\bin\x64\Release\win-x64\publish\*
