@@ -41,7 +41,7 @@ jobs:
     - name: Prepare Setup Script
       run: |
         $iss = (Get-Content Setup\Setup.iss)
-        $iss = $iss -replace '^(#define MyAppVersion ").*?(")$',"$1${env:APP_VERSION}`$2"
+        $iss = $iss -replace '^(#define MyAppVersion ").*?(")$',"`${1}${env:APP_VERSION}`${2}"
         Set-Content -Path Setup/Setup.iss -Value $iss
         Get-Content Setup\Setup.iss
 
