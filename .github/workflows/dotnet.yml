@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -34,8 +36,7 @@ jobs:
       run: dotnet publish
 
     - name: Extract App Version
-      id: extract-version
-      run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_OUTPUT"; cat "$env:GITHUB_OUTPUT"
+      run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_ENV"
 
     - name: Upload
       uses: actions/upload-artifact@v3
@@ -47,7 +48,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         prerelease: true
-        tag_name: v${{ steps.extract-version.outputs.APP_VERSION }}
-        #tag_name: v${{ env.APP_VERSION }}
+        tag_name: v${{ env.APP_VERSION }}
         files: |
-          Servel.NET\bin\x64\Release\win-x64\publish\*
+          Servel.NET\bin\x64\Release\win-x64\publish\
