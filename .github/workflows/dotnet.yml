@@ -14,16 +14,27 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: "8"
-        dotnet-quality: "preview"
+        dotnet-quality: preview
+
+    - uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget
+
     - name: Build
-      run: dotnet publish /p:Configuration=Release /p:PublishProfile=PublishProfile
+      run: dotnet publish
+
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
         name: build
-        path: Servel.NET\bin\x64\Release\publish
+        path: Servel.NET\bin\x64\Release\win-x64\publish
