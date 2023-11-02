@@ -45,8 +45,9 @@ var Listing = (function() {
   function renderInfo() {
     const directories = window.directoryEntry.directories.length;
     const files = window.directoryEntry.files.length;
-    const byMediaType = Object.groupBy(window.directoryEntry.files, (entry) => entry.mediaType);
-    for(const key of ["video", "image", "audio", "text"]) byMediaType[key] = byMediaType[key]?.length || 0;
+
+    const byMediaType = { video: 0, image: 0, audio: 0, text: 0 };
+    for(const file of window.directoryEntry.files) byMediaType[file.mediaType]++;
 
     $("#directory-info").innerHTML = HTMLSafe`
       <div><span title="Items (Directories + Files)">⚪</span>\u2004${f(directories + files)}</div>
