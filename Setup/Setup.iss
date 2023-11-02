@@ -43,7 +43,9 @@ Filename: {sys}\sc.exe; Parameters: "create {#MyAppName} binPath=""{app}\{#MyApp
 Filename: {sys}\sc.exe; Parameters: "description {#MyAppName} ""Serves directories on your computer to your local network over HTTP/HTTPS.""" ; Flags: runhidden
 Filename: {sys}\sc.exe; Parameters: "start {#MyAppName}" ; Flags: runhidden
 
-Filename: "http://localhost:9292/"; Flags: shellexec postinstall
+Filename: "http://localhost:9292/"; Flags: shellexec postinstall skipifsilent; Description: "Connect to {#MyAppName}"
+Filename: {sys}\notepad.exe; Parameters: "{app}\Configuration.json"; WorkingDir: "{app}"; Flags: runascurrentuser nowait postinstall skipifsilent; Description: "Edit Configuration File"
+
 
 [UninstallRun]
 Filename: {sys}\sc.exe; Parameters: "stop {#MyAppName}" ; Flags: runhidden ; RunOnceId: "StopService"
