@@ -44,7 +44,7 @@ var Common = (function () {
   }
 
   function atBottom() {
-    return (window.scrollY + window.innerHeight) == document.body.scrollHeight;
+    return (window.scrollY + document.documentElement.clientHeight) >= document.body.scrollHeight;
   }
 
   return {
