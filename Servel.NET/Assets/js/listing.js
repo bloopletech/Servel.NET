@@ -5,7 +5,6 @@ var Listing = (function() {
   var perPage = 99;
   var currentIndex;
   var moreContent;
-  var scrollDebounce = false;
 
   function renderRow(file) {
     return HTMLSafe`
@@ -43,13 +42,12 @@ var Listing = (function() {
     $container.insertAdjacentHTML("beforeend", renderTable(currentEntries));
   }
 
-  function onScrolled() {
-    if(Common.atBottom() && moreContent) {
-      currentIndex += perPage;
-      if(currentIndex >= Entries.all().length) moreContent = false;
-      render();
-    }
-    scrollDebounce = false;
+  function loadMore() {
+    if(!moreContent) return;
+
+    currentIndex += perPage;
+    if(currentIndex >= Entries.all().length) moreContent = false;
+    render();
   }
 
   function applySort(sortable) {
@@ -67,12 +65,11 @@ var Listing = (function() {
   }
 
   function initEvents() {
-    window.addEventListener("scroll", function(e) {
-      if(!scrollDebounce) {
-        scrollDebounce = true;
-        setTimeout(onScrolled, 0);
-      }
+    const loadMoreObserver = new IntersectionObserver(entries => {
+      if(entries[0].intersectionRatio <= 0) return;
+      loadMore();
     });
+    loadMoreObserver.observe($("#load-more-spy"));
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
