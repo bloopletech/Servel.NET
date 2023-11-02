@@ -73,6 +73,7 @@ var Listing = (function() {
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
+      if(!Index.listingVisible()) return;
 
       if(e.target.matches("#jump-gallery")) {
         e.preventDefault();

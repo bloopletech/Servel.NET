@@ -111,6 +111,7 @@ var Gallery = (function() {
   function initEvents() {
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
+      if(!Index.galleryVisible()) return;
 
       if(e.target.matches("#page-back")) {
         e.stopPropagation();
@@ -143,8 +144,8 @@ var Gallery = (function() {
       }
     });
 
-    window.addEventListener("keydown", function(e) {
-      if(e.target == $("#search")) return;
+    window.addEventListener("keydown", function (e) {
+      if(!Index.galleryVisible()) return;
 
       if(e.keyCode == 39 || ((e.keyCode == 32 || e.keyCode == 13) && Common.atBottom())) {
         e.preventDefault();
