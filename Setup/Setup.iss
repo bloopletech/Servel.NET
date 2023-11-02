@@ -43,6 +43,8 @@ Filename: {sys}\sc.exe; Parameters: "create {#MyAppName} binPath=""{app}\{#MyApp
 Filename: {sys}\sc.exe; Parameters: "description {#MyAppName} ""Serves directories on your computer to your local network over HTTP/HTTPS.""" ; Flags: runhidden
 Filename: {sys}\sc.exe; Parameters: "start {#MyAppName}" ; Flags: runhidden
 
+Filename: "http://localhost:9292/"; Flags: shellexec postinstall
+
 [UninstallRun]
 Filename: {sys}\sc.exe; Parameters: "stop {#MyAppName}" ; Flags: runhidden ; RunOnceId: "StopService"
 Filename: {sys}\sc.exe; Parameters: "delete {#MyAppName}" ; Flags: runhidden ; RunOnceId: "DeleteService"

@@ -66,7 +66,7 @@ public class ServelConfiguration
             {
               /*
               This file contains examples of the options that Servel.NET supports;
-              uncomment and modify the examples as needed to achieve your goals.
+              uncomment, comment out, and modify the examples as needed to achieve your goals.
               */
 
               /*
@@ -80,7 +80,7 @@ public class ServelConfiguration
               Port is the TCP port for Servel.NET to bind to and serve your listings at.
               By default Servel.NET will bind to port 80.
               */
-              //"Port": 80,
+              "Port": 9292,
               //"Port": 12345,
 
               /*
