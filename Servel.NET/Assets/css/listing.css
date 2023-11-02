@@ -63,20 +63,29 @@ body.has-gallery #jump-gallery-wrapper {
   border: 1px solid #ddd;
 }
 
-.table-wrapper {
-  overflow-y: auto;
+#table-wrapper {
   min-width: 810px;
   margin-right: -10px;
   padding-right: 10px;
 }
 
+#table-header-wrapper {
+  position: sticky;
+  top: -1px;
+  z-index: 1;
+
+  &.pinned {
+    box-shadow: 0px 5px 9px 0px rgba(0, 0, 0, 0.4);
+  }
+}
+
 table {
   width: 100%;
   min-width: 800px;
+  background-color: #ffffff;
   border-collapse: collapse;
   border: 1px solid #ddd;
   table-layout: fixed;
-  will-change: transform;
 }
 
 #listing-container table, #listing-container tr:first-child td {

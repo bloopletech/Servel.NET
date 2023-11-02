@@ -78,15 +78,21 @@ var Listing = (function() {
     sortable.classList.add("sort-active", "sort-" + sortable.dataset.sortDirection);
 
     Entries.sort(sortable.dataset.sortMethod, sortable.dataset.sortDirection);
-    sortable.scrollIntoView();
+    $("#table-wrapper").scrollIntoView();
   }
 
   function initEvents() {
-    const loadMoreObserver = new IntersectionObserver(entries => {
-      if(entries[0].intersectionRatio <= 0) return;
+    const loadMoreObserver = new IntersectionObserver(([e]) => {
+      if(e.intersectionRatio <= 0) return;
       loadMore();
     });
     loadMoreObserver.observe($("#load-more-spy"));
+
+    const tableHeaderObserver = new IntersectionObserver(
+      ([e]) => e.target.classList.toggle("pinned", e.intersectionRatio < 1),
+      { threshold: [1] }
+    );
+    tableHeaderObserver.observe($("#table-header-wrapper"));
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
