@@ -47,6 +47,16 @@ var Common = (function () {
     return (window.scrollY + document.documentElement.clientHeight) >= document.body.scrollHeight;
   }
 
+  // Based on https://stackoverflow.com/a/77104729
+  function enableDragScroll(element) {
+    if(navigator.maxTouchPoints > 0) return;
+    element.addEventListener("pointerdown", () => {
+      const aborter = new AbortController();
+      addEventListener("pointerup", () => aborter.abort(), { signal: aborter.signal });
+      addEventListener("pointermove", (e) => (element.scrollLeft -= e.movementX), { signal: aborter.signal });
+    });
+  };
+
   return {
     formatDate: formatDate,
     formatTimestamp: formatTimestamp,
@@ -54,7 +64,8 @@ var Common = (function () {
     escapeHTML: escapeHTML,
     HTMLSafe: HTMLSafe,
     formatThenEscape: formatThenEscape,
-    atBottom: atBottom
+    atBottom: atBottom,
+    enableDragScroll: enableDragScroll
   }
 })();
 

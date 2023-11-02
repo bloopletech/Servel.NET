@@ -15,7 +15,8 @@ function inflateDirectoryEntry(directoryEntry) {
       if(entry.mediaType == "video") return "🎞️";
       if(entry.mediaType == "image") return "🖼️";
       if(entry.mediaType == "audio") return "🔊";
-      return "📝";
+      if(entry.mediaType == "text") return "📖";
+      return "📄";
     }
 
     return "";

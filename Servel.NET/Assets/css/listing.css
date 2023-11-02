@@ -31,14 +31,33 @@ body.has-gallery #jump-gallery-wrapper {
   display: block;
 }
 
-#search-wrapper {
-  text-align: right;
+#toolbar {
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
+  gap: 20px;
+}
+
+#directory-info {
+  flex-grow: 1;
+  display: flex;
+  gap: 8px 20px;
+  overflow: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > div {
+    flex-shrink: 0;
+  }
 }
 
 #search {
   width: 300px;
-  max-width: 100%;
+  max-width: 50%;
+  flex-shrink: 0;
   padding: 5px;
   font-size: 16px;
   border: 1px solid #ddd;

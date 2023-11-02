@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 var Listing = (function() {
   var $container;
@@ -40,6 +40,23 @@ var Listing = (function() {
   function render() {
     var currentEntries = Entries.all().slice(currentIndex, currentIndex + perPage);
     $container.insertAdjacentHTML("beforeend", renderTable(currentEntries));
+  }
+
+  function renderInfo() {
+    const directories = window.directoryEntry.directories.length;
+    const files = window.directoryEntry.files.length;
+    const byMediaType = Object.groupBy(window.directoryEntry.files, (entry) => entry.mediaType);
+    for(const key of ["video", "image", "audio", "text"]) byMediaType[key] = byMediaType[key]?.length || 0;
+
+    $("#directory-info").innerHTML = HTMLSafe`
+      <div><span title="Items (Directories + Files)">⚪</span>\u2004${f(directories + files)}</div>
+      <div><span title="Directories">📁</span>\u2004${f(directories)}</div>
+      <div><span title="Files">📄</span>\u2004${f(files)}</div>
+      <div><span title="Videos">🎞️</span>\u2004${f(byMediaType.video)}</div>
+      <div><span title="Images">🖼️</span>\u2004${f(byMediaType.image)}</div>
+      <div><span title="Audio">🔊</span>\u2004${f(byMediaType.audio)}</div>
+      <div><span title="Text">📖</span>\u2004${f(byMediaType.text)}</div>
+    `;
   }
 
   function loadMore() {
@@ -97,6 +114,8 @@ var Listing = (function() {
         Entries.filter($("#search").value);
       }
     });
+
+    Common.enableDragScroll($("#directory-info"));
   }
 
   function onEntriesUpdate() {
@@ -104,6 +123,7 @@ var Listing = (function() {
     currentIndex = 0;
     moreContent = true;
     render();
+    renderInfo();
   }
 
   function init() {
