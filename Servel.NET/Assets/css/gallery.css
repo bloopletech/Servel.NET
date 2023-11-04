@@ -15,8 +15,8 @@ body.has-gallery.gallery #gallery {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
 
     background-color: #1f1f1f;
     fill: #a0a0a0;
