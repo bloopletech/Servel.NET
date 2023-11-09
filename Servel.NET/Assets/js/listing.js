@@ -1,6 +1,9 @@
 ﻿"use strict";
 
 var Listing = (function() {
+  var $directoryInfo;
+  var $tableWrapper;
+  var $tableHeaderWrapper;
   var $container;
   var perPage = 99;
   var currentIndex;
@@ -49,7 +52,7 @@ var Listing = (function() {
     const byMediaType = { video: 0, image: 0, audio: 0, text: 0 };
     for(const file of window.directoryEntry.files) byMediaType[file.mediaType]++;
 
-    $("#directory-info").innerHTML = HTMLSafe`
+    $directoryInfo.innerHTML = HTMLSafe`
       <div><span title="Items (Directories + Files)">⚪</span>\u2004${f(directories + files)}</div>
       <div><span title="Directories">📁</span>\u2004${f(directories)}</div>
       <div><span title="Files">📄</span>\u2004${f(files)}</div>
@@ -79,7 +82,7 @@ var Listing = (function() {
     sortable.classList.add("sort-active", "sort-" + sortable.dataset.sortDirection);
 
     Entries.sort(sortable.dataset.sortMethod, sortable.dataset.sortDirection);
-    $("#table-wrapper").scrollIntoView();
+    $tableWrapper.scrollIntoView();
   }
 
   function initEvents() {
@@ -90,10 +93,10 @@ var Listing = (function() {
     loadMoreObserver.observe($("#load-more-spy"));
 
     const tableHeaderObserver = new IntersectionObserver(
-      ([e]) => e.target.classList.toggle("pinned", e.intersectionRatio < 1),
+      ([e]) => $tableHeaderWrapper.classList.toggle("pinned", e.intersectionRatio < 1),
       { threshold: [1] }
     );
-    tableHeaderObserver.observe($("#table-header-wrapper"));
+    tableHeaderObserver.observe($("#table-header-wrapper-spy"));
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
@@ -122,7 +125,7 @@ var Listing = (function() {
       }
     });
 
-    Common.enableDragScroll($("#directory-info"));
+    Common.enableDragScroll($directoryInfo);
   }
 
   function onEntriesUpdate() {
@@ -134,6 +137,9 @@ var Listing = (function() {
   }
 
   function init() {
+    $directoryInfo = $("#directory-info");
+    $tableWrapper = $("#table-wrapper");
+    $tableHeaderWrapper = $("#table-header-wrapper");
     $container = $("#listing-container");
     const title = `Listing of ${decodeURIComponent(location.pathname)}`;
     $("#title").textContent = title;
