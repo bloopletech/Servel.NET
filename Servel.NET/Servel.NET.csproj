@@ -15,7 +15,7 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>1.16.0</Version>
+    <Version>1.17.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
