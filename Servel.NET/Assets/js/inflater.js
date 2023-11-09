@@ -1,10 +1,15 @@
 ﻿"use strict";
 
 function inflateDirectoryEntry(directoryEntry) {
-  const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif"];
-  const VIDEO_EXTS = ["webm", "mp4", "mkv", "m4v"];
-  const AUDIO_EXTS = ["mp3", "m4a", "wav"];
-  const TEXT_EXTS = ["txt"];
+  const PLAYABLE_IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp"];
+  const IMAGE_EXTS = [].concat(PLAYABLE_IMAGE_EXTS, []);
+  const PLAYABLE_VIDEO_EXTS = ["ogg", "ogm", "ogv", "m4v", "mkv", "mp4", "webm"];
+  const VIDEO_EXTS = [].concat(PLAYABLE_VIDEO_EXTS, ["avi",  "wmv"]);
+  const PLAYABLE_AUDIO_EXTS = ["aac", "oga", "opus", "m4a", "mka", "mp3", "wav"];
+  const AUDIO_EXTS = [].concat(PLAYABLE_AUDIO_EXTS, ["flac", "wma"]);
+  const PLAYABLE_TEXT_EXTS = ["txt", "md"];
+  const TEXT_EXTS = [].concat(PLAYABLE_TEXT_EXTS, []);
+  const COMPRESSED_EXTS = ["bz2", "gz", "lz", "lz4", "lzma", "xz", "7z", "rar", "tgz", "txz", "rar", "zip"]
 
   function getIcon(entry) {
     if(entry.homeEntry) return "🏠";
@@ -12,10 +17,11 @@ function inflateDirectoryEntry(directoryEntry) {
     if(entry.parentEntry) return "⬆️";
     if(entry.directory) return "📁";
     if(entry.file) {
-      if(entry.mediaType == "video") return "🎞️";
-      if(entry.mediaType == "image") return "🖼️";
-      if(entry.mediaType == "audio") return "🔊";
-      if(entry.mediaType == "text") return "📖";
+      if(VIDEO_EXTS.includes(entry.type)) return "🎞️";
+      if(IMAGE_EXTS.includes(entry.type)) return "🖼️";
+      if(AUDIO_EXTS.includes(entry.type)) return "🔊";
+      if(TEXT_EXTS.includes(entry.type)) return "📖";
+      if(COMPRESSED_EXTS.includes(entry.type)) return "📦";
       return "📄";
     }
 
@@ -30,10 +36,10 @@ function inflateDirectoryEntry(directoryEntry) {
   function getMediaType(entry) {
     if(entry.directory || !entry.type) return null;
 
-    if(IMAGE_EXTS.includes(entry.type)) return "image";
-    if(VIDEO_EXTS.includes(entry.type)) return "video";
-    if(AUDIO_EXTS.includes(entry.type)) return "audio";
-    if(TEXT_EXTS.includes(entry.type)) return "text";
+    if(PLAYABLE_IMAGE_EXTS.includes(entry.type)) return "image";
+    if(PLAYABLE_VIDEO_EXTS.includes(entry.type)) return "video";
+    if(PLAYABLE_AUDIO_EXTS.includes(entry.type)) return "audio";
+    if(PLAYABLE_TEXT_EXTS.includes(entry.type)) return "text";
 
     return null;
   }
