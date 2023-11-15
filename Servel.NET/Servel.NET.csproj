@@ -25,9 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\**" Condition="'$(Configuration)'=='DEBUG'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <EmbeddedResource Include="Assets\**" />
     <EmbeddedResource Include="Views\**" />
   </ItemGroup>
