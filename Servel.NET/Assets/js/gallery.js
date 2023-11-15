@@ -52,11 +52,8 @@ var Gallery = (function() {
       $element.focus();
     }
 
-    if(Index.galleryVisible()) {
-      window.scrollTo(0, 0);
-
-      if(type == "video" || type == "audio") $element.play();
-    }
+    window.scrollTo(0, 0);
+    if(type == "video" || type == "audio") $element.play();
 
     //if(currentPage < imageUrls.length) (new Image()).src = imageUrls[currentPage];
   }
@@ -108,10 +105,23 @@ var Gallery = (function() {
     else $video.pause();
   }
 
+  function onResize() {
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+
+    const viewportOrientation = vw > vh ? "landscape" : "portrait";
+    $body.classList.remove("landscape", "portrait", "touch");
+    $body.classList.add(viewportOrientation);
+    if(navigator.maxTouchPoints > 0) $body.classList.add("touch");
+  }
+
   function initEvents() {
+    window.addEventListener("resize", onResize);
+    onResize();
+
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
-      if(!Index.galleryVisible()) return;
+      if(!isVisible()) return;
 
       if(e.target.matches("#page-back")) {
         e.stopPropagation();
@@ -145,7 +155,7 @@ var Gallery = (function() {
     });
 
     window.addEventListener("keydown", function (e) {
-      if(!Index.galleryVisible()) return;
+      if(!isVisible()) return;
 
       if(e.keyCode == 39 || ((e.keyCode == 32 || e.keyCode == 13) && Common.atBottom())) {
         e.preventDefault();
@@ -163,28 +173,16 @@ var Gallery = (function() {
   }
 
   function layout() {
-    const vw = document.documentElement.clientWidth;
-    const vh = document.documentElement.clientHeight;
-
-    const viewportOrientation = vw > vh ? "landscape" : "portrait";
-    $body.classList.remove("landscape", "portrait", "touch");
-    $body.classList.add(viewportOrientation);
-    if(navigator.maxTouchPoints > 0) $body.classList.add("touch");
-
     const layoutMode = LAYOUT_MODES[layoutModeIndex];
 
     $gallery.classList.remove(...LAYOUT_MODES);
     $gallery.classList.add(layoutMode);
   }
 
-  function initLayout() {
-    window.addEventListener("resize", layout);
-    layout();
-  }
-
   function onEntriesUpdate() {
     currentIndex = 0;
-    if(Entries.hasMedia()) render();
+    document.body.classList.toggle("has-gallery", Entries.hasMedia());
+    if(Entries.hasMedia() && isVisible()) render();
   }
 
   function init() {
@@ -194,18 +192,29 @@ var Gallery = (function() {
     $video = $("#video");
     $audio = $("#audio");
 
-    onEntriesUpdate();
+    initEvents();
+    layout();
+  }
 
-    if(Entries.hasMedia()) {
-      document.body.classList.add("has-gallery");
+  function show() {
+    document.body.classList.add("gallery");
+    render();
+  }
 
-      initEvents();
-      initLayout();
-    }
+  function hide() {
+    document.body.classList.remove("gallery");
+    clearContent();
+  }
+
+  function isVisible() {
+    return document.body.classList.contains("gallery");
   }
 
   return {
     init: init,
+    show: show,
+    hide: hide,
+    isVisible: isVisible,
     onEntriesUpdate: onEntriesUpdate,
     go: go,
     prev: prev,

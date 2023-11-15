@@ -100,7 +100,7 @@ var Listing = (function() {
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
-      if(!Index.listingVisible()) return;
+      if(!isVisible()) return;
 
       if(e.target.matches("#jump-gallery")) {
         e.preventDefault();
@@ -145,13 +145,26 @@ var Listing = (function() {
     $("#title").textContent = title;
     document.title = title;
 
-    onEntriesUpdate();
-
     initEvents();
+  }
+
+  function show() {
+    document.body.classList.add("listing");
+  }
+
+  function hide() {
+    document.body.classList.remove("listing");
+  }
+
+  function isVisible() {
+    return document.body.classList.contains("listing");
   }
 
   return {
     init: init,
+    show: show,
+    hide: hide,
+    isVisible: isVisible,
     onEntriesUpdate: onEntriesUpdate
   };
 })();

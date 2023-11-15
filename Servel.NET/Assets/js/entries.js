@@ -4,7 +4,6 @@ var Entries = (function () {
   //Lists
   var all;
   var media;
-  var hasMedia;
 
   var sortMethod = "name";
   var sortDirection = "asc";
@@ -60,7 +59,7 @@ var Entries = (function () {
     return entries;
   }
 
-  function updateLists() {
+  function update() {
     const specialEntries = window.directoryEntry.specialEntries.slice();
     const directoryEntries = runSort(runFilter(window.directoryEntry.directories.slice()));
     const fileEntries = runSort(runFilter(window.directoryEntry.files.slice()));
@@ -69,11 +68,6 @@ var Entries = (function () {
 
     media = fileEntries.filter(entry => entry.mediaType);
 
-    hasMedia = media.length > 0;
-  }
-
-  function update() {
-    updateLists();
     Gallery.onEntriesUpdate();
     Listing.onEntriesUpdate();
   }
@@ -90,16 +84,10 @@ var Entries = (function () {
   }
 
   return {
-    updateLists: updateLists,
-    all: function() {
-      return all;
-    },
-    media: function() {
-      return media;
-    },
-    hasMedia: function() {
-      return hasMedia;
-    },
+    update: update,
+    all: () => all,
+    media: () => media,
+    hasMedia: () => media.length > 0,
     filter: filter,
     sort: sort
   };

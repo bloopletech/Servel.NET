@@ -1,27 +1,17 @@
 "use strict";
 
 var Index = (function() {
-  function galleryVisible() {
-    return document.body.classList.contains("gallery");
-  }
-
-  function listingVisible() {
-    return document.body.classList.contains("listing");
-  }
-
   function jumpListing() {
-    document.body.classList.remove("gallery");
-    document.body.classList.add("listing");
+    Gallery.hide();
+    Listing.show();
   }
 
   function jumpGallery() {
-    document.body.classList.remove("listing");
-    document.body.classList.add("gallery");
+    Listing.hide();
+    Gallery.show();
   }
 
   async function init() {
-    jumpListing();
-
     const response = await fetch(window.location.href, {
       headers: {
         "Accept": "application/json",
@@ -32,15 +22,14 @@ var Index = (function() {
     inflateDirectoryEntry(directoryEntry);
     window.directoryEntry = directoryEntry;
 
-    Entries.updateLists();
     Listing.init();
     Gallery.init();
+    Entries.update();
+    jumpListing();
   }
 
   return {
     init: init,
-    galleryVisible: galleryVisible,
-    listingVisible: listingVisible,
     jumpListing: jumpListing,
     jumpGallery: jumpGallery
   };
