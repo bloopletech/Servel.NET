@@ -72,28 +72,11 @@ var Gallery = (function() {
     render();
   }
 
-  function prev() {
-    go(currentIndex - 1);
-  }
-
-  function next() {
-    go(currentIndex + 1);
-  }
-
-  function rewind() {
-    go(currentIndex - 10);
-  }
-
-  function fastForward() {
-    go(currentIndex + 10);
-  }
-
-  function jump(url) {
-    const index = Entries.media().findIndex(function(entry) {
-      return entry.href == url;
-    });
-    go(index);
-  }
+  const prev = () => go(currentIndex - 1);
+  const next = () => go(currentIndex + 1);
+  const rewind = () => go(currentIndex - 10);
+  const fastForward = () => go(currentIndex + 10);
+  const jump = (url) => go(Entries.media().findIndex(entry => entry.href == url));
 
   function switchLayoutMode() {
     layoutModeIndex++;
