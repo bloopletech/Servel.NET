@@ -26,6 +26,7 @@ var Gallery = (function() {
     $gallery.classList.remove("image", "video", "audio", "text");
     $image.removeAttribute("src");
     $video.removeAttribute("src");
+    $video.removeAttribute("controls");
     $video.pause();
     $audio.removeAttribute("src");
     $audio.pause();
@@ -83,11 +84,6 @@ var Gallery = (function() {
     if(layoutModeIndex >= LAYOUT_MODES.length) layoutModeIndex = 0;
   }
 
-  function playPauseVideo() {
-    if ($video.paused || $video.ended) $video.play();
-    else $video.pause();
-  }
-
   function onResize() {
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
@@ -131,10 +127,6 @@ var Gallery = (function() {
         switchLayoutMode();
         layout();
       }
-      else if(e.target.matches("#video")) {
-        e.stopPropagation();
-        playPauseVideo();
-      }
     });
 
     window.addEventListener("keydown", function (e) {
@@ -151,8 +143,12 @@ var Gallery = (function() {
     });
 
     const setLoop = (e) => e.target.loop = e.target.duration < (5 * 60);
-    $("#video").addEventListener("loadedmetadata", setLoop);
-    $("#audio").addEventListener("loadedmetadata", setLoop);
+    $video.addEventListener("loadedmetadata", setLoop);
+    $audio.addEventListener("loadedmetadata", setLoop);
+
+    $video.addEventListener("mouseenter", () => $video.toggleAttribute("controls", true));
+    $video.addEventListener("mouseleave", () => $video.toggleAttribute("controls", false));
+    $video.addEventListener("touchstart", (e) => e.target.matches("#video") && $video.toggleAttribute("controls", true));
   }
 
   function layout() {
