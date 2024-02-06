@@ -6,18 +6,10 @@ using System.Text.Json;
 namespace Servel.NET;
 
 // Derived from https://github.com/dotnet/aspnetcore/blob/5a4c82ec57fadddef9ce841d608de5c7c8c74446/src/Middleware/StaticFiles/src/DirectoryBrowserMiddleware.cs
-public class IndexMiddleware
+public class IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache memoryCache)
 {
-    private readonly RequestDelegate _next;
-    private readonly Listing _listing;
-    private readonly EntryFactory _entryFactory;
-
-    public IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache memoryCache)
-    {
-        _next = next;
-        _listing = listing;
-        _entryFactory = new EntryFactory(_listing, memoryCache);
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly EntryFactory _entryFactory = new EntryFactory(listing, memoryCache);
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
@@ -79,8 +71,7 @@ public class IndexMiddleware
 
             return JsonSerializer.SerializeToUtf8Bytes(
                 directoryEntry,
-                typeof(DirectoryEntry),
-                SerializationSourceGenerationContext.Default);
+                SerializationSourceGenerationContext.Default.DirectoryEntry);
         }
         catch(DirectoryNotFoundException)
         {

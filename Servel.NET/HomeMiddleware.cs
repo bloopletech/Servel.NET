@@ -35,7 +35,6 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
     {
         return JsonSerializer.SerializeToUtf8Bytes(
             _listings.Select(l => l.RequestPath),
-            typeof(IEnumerable<string>),
-            SerializationSourceGenerationContext.Default);
+            SerializationSourceGenerationContext.Default.IEnumerableString);
     }
 }
