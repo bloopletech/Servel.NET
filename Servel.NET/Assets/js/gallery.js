@@ -102,7 +102,7 @@ var Gallery = (function() {
       if(!e.target) return;
       if(!isVisible()) return;
 
-      if(e.target.matches("#page-back")) {
+      if(e.target.matches("#page-back, #content-page-back")) {
         e.stopPropagation();
         prev();
       }
@@ -110,7 +110,7 @@ var Gallery = (function() {
         e.stopPropagation();
         rewind();
       }
-      else if(e.target.matches("#page-next")) {
+      else if(e.target.matches("#page-next, #content-page-next")) {
         e.stopPropagation();
         next();
       }
