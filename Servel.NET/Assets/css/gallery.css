@@ -60,7 +60,7 @@ body.has-gallery.gallery #gallery {
   font-weight: bold;
   cursor: pointer;
 
-  &:hover {
+  &:active {
     opacity: 0.75;
   }
 
