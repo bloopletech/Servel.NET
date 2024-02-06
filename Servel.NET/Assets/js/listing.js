@@ -150,6 +150,7 @@ var Listing = (function() {
 
   function show() {
     document.body.classList.add("listing");
+    document.title = `Listing of ${decodeURIComponent(location.pathname)}`;
   }
 
   function hide() {

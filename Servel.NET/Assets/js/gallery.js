@@ -41,6 +41,8 @@ var Gallery = (function() {
     const url = entry.href;
     const type = entry.mediaType;
 
+    document.title = `${entry.name} in Listing of ${decodeURIComponent(location.pathname)}`;
+
     $gallery.classList.add(type);
 
     let $element;
