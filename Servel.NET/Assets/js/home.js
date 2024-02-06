@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 async function init() {
   document.title = "Browse Listings";
@@ -14,7 +14,7 @@ async function init() {
   const items = listings.map(listing => HTMLSafe`
       <li>
         <a href="${listing}">${listing}</a>
-        <a class="new-tab" href="${listing}" target="_blank">(New Tab)</a>
+        <a class="new-tab" href="${listing}" target="_blank">🗗</a>
       </li>
     `);
 

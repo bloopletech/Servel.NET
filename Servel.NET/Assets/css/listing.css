@@ -118,7 +118,18 @@ th.name, td.name {
 }
 
 th.new-tab, td.new-tab {
-  width: 6em;
+  padding: 0;
+  width: 33px;
+
+  a.new-tab {
+    padding: 5px;
+    display: block;
+    text-align: center;
+
+    &:active, &:focus, &:hover {
+      text-decoration: none;
+    }
+  }
 }
 
 th.type, td.type {

@@ -17,7 +17,7 @@ var Listing = (function() {
           <a href="${file.href}" class="default ${file.class}" data-url="${file.href}" data-type="${file.mediaType}">${file.name}</a>
         </td>
         <td class="new-tab">
-          <a href="${file.href}" class="new-tab ${file.class}" target="_blank">(New tab)</a>
+          <a href="${file.href}" class="new-tab ${file.class}" target="_blank">🗗</a>
         </td>
         <td class="type">${file.type}</td>
         <td class="size">${file.sizeText}</td>
