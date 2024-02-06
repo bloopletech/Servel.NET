@@ -17,11 +17,11 @@ function inflateDirectoryEntry(directoryEntry) {
     if(entry.parentEntry) return "⬆️";
     if(entry.directory) return "📁";
     if(entry.file) {
-      if(VIDEO_EXTS.includes(entry.type)) return "🎞️";
-      if(IMAGE_EXTS.includes(entry.type)) return "🖼️";
-      if(AUDIO_EXTS.includes(entry.type)) return "🔊";
-      if(TEXT_EXTS.includes(entry.type)) return "📖";
-      if(COMPRESSED_EXTS.includes(entry.type)) return "📦";
+      if(VIDEO_EXTS.includes(entry.ext)) return "🎞️";
+      if(IMAGE_EXTS.includes(entry.ext)) return "🖼️";
+      if(AUDIO_EXTS.includes(entry.ext)) return "🔊";
+      if(TEXT_EXTS.includes(entry.ext)) return "📖";
+      if(COMPRESSED_EXTS.includes(entry.ext)) return "📦";
       return "📄";
     }
 
@@ -34,12 +34,12 @@ function inflateDirectoryEntry(directoryEntry) {
   }
 
   function getMediaType(entry) {
-    if(entry.directory || !entry.type) return null;
+    if(entry.directory || !entry.ext) return null;
 
-    if(PLAYABLE_IMAGE_EXTS.includes(entry.type)) return "image";
-    if(PLAYABLE_VIDEO_EXTS.includes(entry.type)) return "video";
-    if(PLAYABLE_AUDIO_EXTS.includes(entry.type)) return "audio";
-    if(PLAYABLE_TEXT_EXTS.includes(entry.type)) return "text";
+    if(PLAYABLE_IMAGE_EXTS.includes(entry.ext)) return "image";
+    if(PLAYABLE_VIDEO_EXTS.includes(entry.ext)) return "video";
+    if(PLAYABLE_AUDIO_EXTS.includes(entry.ext)) return "audio";
+    if(PLAYABLE_TEXT_EXTS.includes(entry.ext)) return "text";
 
     return null;
   }
@@ -58,6 +58,7 @@ function inflateDirectoryEntry(directoryEntry) {
   function inflateEntries(entries) {
     for(const entry of entries) {
       entry.type = getType(entry);
+      entry.ext = entry.type?.toLowerCase();
       entry.mediaType = getMediaType(entry);
       entry.icon = getIcon(entry);
       entry.sizeText = entry.file ? filesize(entry.size || 0, { base: 2, standard: "jedec" }) : "-";
