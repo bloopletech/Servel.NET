@@ -9,7 +9,7 @@ namespace Servel.NET;
 public class IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache memoryCache)
 {
     private readonly RequestDelegate _next = next;
-    private readonly EntryFactory _entryFactory = new EntryFactory(listing, memoryCache);
+    private readonly EntryFactory _entryFactory = new(listing, memoryCache);
 
     public async Task InvokeAsync(HttpContext httpContext)
     {

@@ -20,11 +20,9 @@ public class ListingFileProvider : PhysicalFileProvider
         var contents = GetDirectoryContents(subpath);
         if (!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
-
-        var fullPath = GetDirectoryField((PhysicalDirectoryContents)contents);
-        return new PhysicalDirectoryInfo(new DirectoryInfo(fullPath));
+        return GetInfoField((PhysicalDirectoryContents)contents);
     }
 
-    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_directory")]
-    private extern static ref string GetDirectoryField(PhysicalDirectoryContents @this);
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_info")]
+    private extern static ref PhysicalDirectoryInfo GetInfoField(PhysicalDirectoryContents @this);
 }

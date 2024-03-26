@@ -76,20 +76,20 @@ public class EntryFactory
 
         if(options.Depth > 0)
         {
-            var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
-            if (contents.Exists)
+            if (directoryInfo.Exists)
             {
                 specialEntries = BuildSpecialEntries(requestPath);
-                directoryEntries = contents.OfType<PhysicalDirectoryInfo>()
+                directoryEntries = directoryInfo.OfType<PhysicalDirectoryInfo>()
                     .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
-                fileEntries = contents.OfType<PhysicalFileInfo>().Select(ForFile);
+                fileEntries = directoryInfo.OfType<PhysicalFileInfo>().Select(ForFile);
                 if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
             }
         }
         else if(options.CountChildren)
         {
-            var contents = _listing.FileProvider.GetDirectoryContents(requestPath.Value!);
-            childCount = contents.Count();
+#pragma warning disable CA1829
+            childCount = directoryInfo.Count();
+#pragma warning restore CA1829
         }
 
         return new DirectoryEntry

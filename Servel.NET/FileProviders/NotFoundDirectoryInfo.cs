@@ -7,17 +7,12 @@ namespace Servel.NET.FileProviders;
 /// <summary>
 /// Represents a non-existing directory.
 /// </summary>
-public class NotFoundDirectoryInfo : IFileInfo
+/// <remarks>
+/// Initializes an instance of <see cref="NotFoundDirectoryInfo"/>.
+/// </remarks>
+/// <param name="name">The name of the directory that could not be found</param>
+public class NotFoundDirectoryInfo(string name) : IFileInfo
 {
-    /// <summary>
-    /// Initializes an instance of <see cref="NotFoundDirectoryInfo"/>.
-    /// </summary>
-    /// <param name="name">The name of the directory that could not be found</param>
-    public NotFoundDirectoryInfo(string name)
-    {
-        Name = name;
-    }
-
     /// <summary>
     /// Always false.
     /// </summary>
@@ -39,7 +34,7 @@ public class NotFoundDirectoryInfo : IFileInfo
     public long Length => -1;
 
     /// <inheritdoc />
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     /// Always null.
