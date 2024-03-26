@@ -64,7 +64,7 @@ if(configuration.Credentials.HasValue)
             {
                 OnValidateCredentials = context =>
                 {
-                    if (context.Username == credentials.Username && context.Password == credentials.Password)
+                    if (credentials.Username.FixedTimeEquals(context.Username) && credentials.Password.FixedTimeEquals(context.Password))
                     {
                         context.Principal = new ClaimsPrincipal(new GenericIdentity("DefaultUser"));
                         context.Success();
