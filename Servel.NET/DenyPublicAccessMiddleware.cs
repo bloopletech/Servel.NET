@@ -7,7 +7,7 @@ public class DenyPublicAccessMiddleware(RequestDelegate next)
         var remoteIp = httpContext.Connection.RemoteIpAddress;
         if(remoteIp == null || !remoteIp.IsPrivate())
         {
-            await Results.Forbid().ExecuteAsync(httpContext);
+            await Results.StatusCode(StatusCodes.Status403Forbidden).ExecuteAsync(httpContext);
             return;
         }
 

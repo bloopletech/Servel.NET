@@ -1,9 +1,5 @@
 using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using idunno.Authentication.Basic;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Principal;
 #if !DEBUG
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
@@ -52,44 +48,13 @@ builder.WebHost.UseKestrel((serverOptions) =>
 // Add services to the container.
 builder.Services.AddSingleton(configuration);
 
-if(configuration.Credentials.HasValue)
-{
-    var credentials = configuration.Credentials.Value;
-    builder.Services.AddRoutingCore();
-    builder.Services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
-        .AddBasic(options =>
-        {
-            options.Realm = "Servel.NET";
-            options.Events = new BasicAuthenticationEvents
-            {
-                OnValidateCredentials = context =>
-                {
-                    if (credentials.Username.FixedTimeEquals(context.Username) && credentials.Password.FixedTimeEquals(context.Password))
-                    {
-                        context.Principal = new ClaimsPrincipal(new GenericIdentity("DefaultUser"));
-                        context.Success();
-                    }
-
-                    return Task.CompletedTask;
-                }
-            };
-        });
-
-    builder.Services.AddAuthorizationBuilder().SetFallbackPolicy(
-        new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
-}
-
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
 if (!configuration.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
 
-if (configuration.Credentials.HasValue)
-{
-    app.UseAuthentication();
-    app.UseAuthorization();
-}
+if (configuration.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(configuration.Credentials.Value);
 
 // Configure the HTTP request pipeline.
 
