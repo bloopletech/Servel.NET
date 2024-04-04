@@ -47,7 +47,7 @@ public class EntryFactory
     public DirectoryEntry ForDirectory(PathString requestPath, ForDirectoryOptions options)
     {
         var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
-        if (directoryInfo == null || !directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
+        if (!directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
 
         return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options);
     }
@@ -76,14 +76,11 @@ public class EntryFactory
 
         if(options.Depth > 0)
         {
-            if (directoryInfo.Exists)
-            {
-                specialEntries = BuildSpecialEntries(requestPath);
-                directoryEntries = directoryInfo.OfType<PhysicalDirectoryInfo>()
-                    .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
-                fileEntries = directoryInfo.OfType<PhysicalFileInfo>().Select(ForFile);
-                if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
-            }
+            specialEntries = BuildSpecialEntries(requestPath);
+            directoryEntries = directoryInfo.OfType<PhysicalDirectoryInfo>()
+                .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
+            fileEntries = directoryInfo.OfType<PhysicalFileInfo>().Select(ForFile);
+            if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
         }
         else if(options.CountChildren)
         {
