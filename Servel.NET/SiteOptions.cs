@@ -1,6 +1,6 @@
 ﻿namespace Servel.NET;
 
-public record struct ServelOptions(
+public record struct SiteOptions(
     string Host,
     int? Port,
     string? Cert,

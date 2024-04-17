@@ -1,5 +1,9 @@
 using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Connections;
+using Microsoft.AspNetCore.Connections.Features;
+using Microsoft.AspNetCore.Http.Features;
+using System.Net;
 #if !DEBUG
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
@@ -29,48 +33,38 @@ builder.Logging.SetMinimumLevel(builder.Environment.IsDevelopment() ? LogLevel.T
 
 builder.Host.UseWindowsService();
 
-builder.WebHost.UseKestrel((serverOptions) =>
+void BindSite(KestrelServerOptions options, SiteConfiguration site)
 {
-    void configure(ListenOptions listenOptions)
+    void Configure(ListenOptions listenOptions)
     {
-        if (configuration.Certificate != null) listenOptions.UseHttps(configuration.Certificate);
+        if (site.Certificate != null) listenOptions.UseHttps(site.Certificate);
+        listenOptions.Use((context, next) =>
+        {
+            context.Items.Add("servelSiteId", site.Id);
+            return next(context);
+        });
     }
 
-    if (configuration.Host != null) serverOptions.Listen(configuration.Host, configuration.Port, configure);
-    else serverOptions.ListenAnyIP(configuration.Port, configure);
+    if (IPAddress.TryParse(site.Host, out var ipAddress)) options.Listen(ipAddress, site.Port, Configure);
+    else if (site.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)) options.ListenLocalhost(site.Port, Configure);
+    else options.ListenAnyIP(site.Port, Configure);
+}
 
-    //serverOptions.Listen(configuration.Host, configuration.Port, listenOptions =>
-    //{
-
-    //});
+builder.WebHost.UseKestrel(serverOptions =>
+{
+    foreach(var site in configuration.Sites) BindSite(serverOptions, site);
 });
 
 // Add services to the container.
-builder.Services.AddSingleton(configuration);
-
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
-
-if (!configuration.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
-
-if (configuration.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(configuration.Credentials.Value);
-
-// Configure the HTTP request pipeline.
-
-//app.UseHttpsRedirection();
 
 #if DEBUG
 var provider = app.Environment.WebRootFileProvider;
 #else
 var provider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
 #endif
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = provider,
-    RequestPath = "/_servel",
-});
 
 void MountInternal(IApplicationBuilder app, Listing listing)
 {
@@ -88,8 +82,37 @@ void Mount(IApplicationBuilder app, Listing listing)
     else app.Map(listing.RequestPath, false, app => MountInternal(app, listing));
 }
 
-foreach (var listing in configuration.Listings) Mount(app, listing);
+void ConfigureSite(IApplicationBuilder app, SiteConfiguration site)
+{
+    if (!site.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
 
-if(!configuration.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(configuration.Listings);
+    if (site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
+
+    // Configure the HTTP request pipeline.
+
+    //app.UseHttpsRedirection();
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = provider,
+        RequestPath = "/_servel",
+    });
+
+    foreach (var listing in site.Listings) Mount(app, listing);
+
+    if (!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
+}
+
+foreach(var site in configuration.Sites)
+{
+    app.MapWhen(httpContext =>
+    {
+        var connectionItems = httpContext.Features.GetRequiredFeature<IConnectionItemsFeature>().Items;
+        var connectionSiteId = (int)connectionItems["servelSiteId"]!;
+
+        return connectionSiteId == site.Id;
+    },
+    siteApp => ConfigureSite(siteApp, site));
+}
 
 app.Run();

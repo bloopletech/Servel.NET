@@ -16,7 +16,7 @@ internal partial class SerializationSourceGenerationContext : JsonSerializerCont
     GenerationMode = JsonSourceGenerationMode.Metadata,
     ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
     AllowTrailingCommas = true)]
-[JsonSerializable(typeof(ServelOptions))]
-internal partial class ServelOptionsSourceGenerationContext : JsonSerializerContext
+[JsonSerializable(typeof(SiteOptions[]))]
+internal partial class DeserializationSourceGenerationContext : JsonSerializerContext
 {
 }
