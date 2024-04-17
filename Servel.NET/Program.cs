@@ -10,6 +10,7 @@ using System.Reflection;
 #endif
 
 var configuration = ServelConfiguration.Configure();
+var sites = configuration.Sites;
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
@@ -40,7 +41,7 @@ void BindSite(KestrelServerOptions options, SiteConfiguration site)
         if (site.Certificate != null) listenOptions.UseHttps(site.Certificate);
         listenOptions.Use((context, next) =>
         {
-            context.Items.Add("servelSiteId", site.Id);
+            context.Items.Add("siteId", site.Id);
             return next(context);
         });
     }
@@ -52,7 +53,7 @@ void BindSite(KestrelServerOptions options, SiteConfiguration site)
 
 builder.WebHost.UseKestrel(serverOptions =>
 {
-    foreach(var site in configuration.Sites) BindSite(serverOptions, site);
+    foreach(var site in sites) BindSite(serverOptions, site);
 });
 
 // Add services to the container.
@@ -103,16 +104,6 @@ void ConfigureSite(IApplicationBuilder app, SiteConfiguration site)
     if (!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
 }
 
-foreach(var site in configuration.Sites)
-{
-    app.MapWhen(httpContext =>
-    {
-        var connectionItems = httpContext.Features.GetRequiredFeature<IConnectionItemsFeature>().Items;
-        var connectionSiteId = (int)connectionItems["servelSiteId"]!;
-
-        return connectionSiteId == site.Id;
-    },
-    siteApp => ConfigureSite(siteApp, site));
-}
+foreach(var site in sites) app.MapWhen(context => context.SiteId() == site.Id, siteApp => ConfigureSite(siteApp, site));
 
 app.Run();
