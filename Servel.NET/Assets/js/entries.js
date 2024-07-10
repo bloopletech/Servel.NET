@@ -1,40 +1,30 @@
 ﻿"use strict";
 
-var Entries = (function () {
-  //Lists
-  var all;
-  var media;
+class Query {
+  method = "name";
+  direction = "asc";
+  text = "";
 
-  var sortMethod = "name";
-  var sortDirection = "asc";
-  var filterText = "";
+  isDefault() {
+    return this.method == "name" && this.direction == "asc" && this.text == "";
+  }
+}
+
+const Entries = (function () {
+  //Lists
+  let all;
+  let media;
+
+  let query = new Query();
 
   function runFilter(entries) {
-    if(filterText == "") return entries;
+    if(query.text == "") return entries;
 
-    var filteredEntries = [];
-
-    for(var i = 0; i < entries.length; i++) {
-      var entry = entries[i];
-      if(entry.name.toLowerCase().includes(filterText.toLowerCase())) filteredEntries.push(entry);
-    }
-
-    return filteredEntries;
+    const term = query.text.toLowerCase();
+    return entries.filter(entry => entry.name.toLowerCase().includes(term));
   }
 
-  var nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-
-  function sortByName(a, b) {
-    return nameCollator.compare(a.name, b.name);
-  }
-
-  function sortByMtime(a, b) {
-    return b.mtime - a.mtime;
-  }
-
-  function sortBySize(a, b) {
-    return b.size - a.size;
-  }
+  const nameCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
 
   function sortByType(a, b) {
     var aType = a.type.toLowerCase();
@@ -47,14 +37,14 @@ var Entries = (function () {
   }
 
   function runSort(entries) {
-    var sortFunction;
-    if(sortMethod == "name") sortFunction = sortByName;
-    else if(sortMethod == "mtime") sortFunction = sortByMtime;
-    else if(sortMethod == "size") sortFunction = sortBySize;
-    else if(sortMethod == "type") sortFunction = sortByType;
+    let sortFunction;
+    if(query.method == "name") sortFunction = (a, b) => nameCollator.compare(a.name, b.name);
+    else if(query.method == "mtime") sortFunction = (a, b) => b.mtime - a.mtime;
+    else if(query.method == "size") sortFunction = (a, b) => b.size - a.size;
+    else if(query.method == "type") sortFunction = sortByType;
 
     entries.sort(sortFunction);
-    if(sortDirection == "desc") entries.reverse();
+    if(query.direction == "desc") entries.reverse();
 
     return entries;
   }
@@ -72,23 +62,22 @@ var Entries = (function () {
     Listing.onEntriesUpdate();
   }
 
-  function sort(newSortMethod, newSortDirection) {
-    sortMethod = newSortMethod;
-    sortDirection = newSortDirection;
-    update();
-  }
-
-  function filter(newFilterText) {
-    filterText = newFilterText;
-    update();
-  }
-
   return {
     update: update,
-    all: () => all,
-    media: () => media,
-    hasMedia: () => media.length > 0,
-    filter: filter,
-    sort: sort
+    get all() {
+      return all;
+    },
+    get media() {
+      return media;
+    },
+    get hasMedia() {
+      return media.length > 0;
+    },
+    get query() {
+      return query;
+    },
+    set query(newQuery) {
+      query = newQuery;
+    }
   };
 })();

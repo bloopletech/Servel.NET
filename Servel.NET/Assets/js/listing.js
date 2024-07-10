@@ -1,13 +1,13 @@
 ﻿"use strict";
 
-var Listing = (function() {
-  var $directoryInfo;
-  var $tableWrapper;
-  var $tableHeaderWrapper;
-  var $container;
-  var perPage = 99;
-  var currentIndex;
-  var moreContent;
+const Listing = (function() {
+  let $directoryInfo;
+  let $tableWrapper;
+  let $tableHeaderWrapper;
+  let $container;
+  const perPage = 99;
+  let currentIndex;
+  let moreContent;
 
   function renderRow(file) {
     return HTMLSafe`
@@ -27,21 +27,17 @@ var Listing = (function() {
   }
 
   function renderTable(currentEntries) {
-    var rows = currentEntries.map(function(entry) {
-      return renderRow(entry);
-    });
-
     return `
       <table>
         <tbody>
-          ${rows.join("")}
+          ${currentEntries.map(entry => renderRow(entry)).join("")}
         </tbody>
       </table>
     `;
   }
 
   function render() {
-    var currentEntries = Entries.all().slice(currentIndex, currentIndex + perPage);
+    const currentEntries = Entries.all.slice(currentIndex, currentIndex + perPage);
     $container.insertAdjacentHTML("beforeend", renderTable(currentEntries));
   }
 
@@ -67,22 +63,45 @@ var Listing = (function() {
     if(!moreContent) return;
 
     currentIndex += perPage;
-    if(currentIndex >= Entries.all().length) moreContent = false;
+    if(currentIndex >= Entries.all.length) moreContent = false;
     render();
   }
 
   function applySort(sortable) {
-    var previousSortable = $("th.sortable.sort-active");
-    previousSortable.classList.remove("sort-active", "sort-asc", "sort-desc");
+    const previousSortable = $("th.sortable.sort-active");
+    if(previousSortable) previousSortable.classList.remove("sort-active", "sort-asc", "sort-desc");
 
     if(sortable == previousSortable) {
       sortable.dataset.sortDirection = sortable.dataset.sortDirection == "asc" ? "desc" : "asc";
     }
 
-    sortable.classList.add("sort-active", "sort-" + sortable.dataset.sortDirection);
+    sortable.classList.add("sort-active", `sort-${sortable.dataset.sortDirection}`);
+  }
 
-    Entries.sort(sortable.dataset.sortMethod, sortable.dataset.sortDirection);
+  function onSort(sortable) {
+    applySort(sortable);
+
+    Entries.query.method = sortable.dataset.sortMethod;
+    Entries.query.direction = sortable.dataset.sortDirection;
+    saveQuery();
+    Entries.update();
     $tableWrapper.scrollIntoView();
+  }
+
+  function initQuery() {
+    const state = sessionStorage.getItem(location.pathname);
+    if(state) Entries.query = Object.assign(new Query, JSON.parse(state));
+
+    const sortable = $(`th.sortable[data-sort-method="${Entries.query.method}"]`);
+    sortable.dataset.sortDirection = Entries.query.direction;
+    applySort(sortable);
+
+    $("#search").value = Entries.query.text;
+  }
+
+  function saveQuery() {
+    if(Entries.query.isDefault()) sessionStorage.removeItem(location.pathname);
+    else sessionStorage.setItem(location.pathname, JSON.stringify(Entries.query));
   }
 
   function initEvents() {
@@ -108,7 +127,7 @@ var Listing = (function() {
       }
       else if(e.target.closest("th.sortable")) {
         e.preventDefault();
-        applySort(e.target.closest("th.sortable"));
+        onSort(e.target.closest("th.sortable"));
       }
       else if(e.target.matches("a.media:not(.new-tab)")) {
         e.preventDefault();
@@ -121,7 +140,9 @@ var Listing = (function() {
       e.stopPropagation();
 
       if(e.keyCode == 13) {
-        Entries.filter($("#search").value);
+        Entries.query.text = $("#search").value;
+        saveQuery();
+        Entries.update();
       }
     });
 
@@ -145,6 +166,7 @@ var Listing = (function() {
     $("#title").textContent = title;
     document.title = title;
 
+    initQuery();
     initEvents();
   }
 

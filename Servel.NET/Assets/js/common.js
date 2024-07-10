@@ -1,7 +1,7 @@
 "use strict";
 
-var Common = (function () {
-  var dateFormatter = new Intl.DateTimeFormat('en-AU', {
+const Common = (function () {
+  const dateFormatter = new Intl.DateTimeFormat('en-AU', {
     year: 'numeric', month: 'short', day: 'numeric',
     hour: 'numeric', minute: 'numeric',
     hour12: true
@@ -16,7 +16,7 @@ var Common = (function () {
   }
 
   function format(input) {
-    var type = typeof input;
+    const type = typeof input;
     if(input instanceof Date) return formatDate(input);
     if(type == "number") return input.toLocaleString();
     return input;
@@ -33,9 +33,9 @@ var Common = (function () {
   }
 
   function HTMLSafe(pieces) {
-    var result = pieces[0];
-    var substitutions = [].slice.call(arguments, 1);
-    for(var i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
+    let result = pieces[0];
+    const substitutions = [].slice.call(arguments, 1);
+    for(let i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
     return result;
   }
 

@@ -1,6 +1,6 @@
 "use strict";
 
-var Index = (function() {
+const Index = (function() {
   function jumpListing() {
     window.location.hash = "";
   }

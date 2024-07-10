@@ -1,6 +1,6 @@
 "use strict";
 
-var Gallery = (function() {
+const Gallery = (function() {
   const LAYOUT_MODES = ["contain", "fit-both", "fit-width", "clamp-width", "original"];
 
   let $body;
@@ -36,7 +36,7 @@ var Gallery = (function() {
   function render() {
     clearContent();
 
-    const entry = Entries.media()[currentIndex];
+    const entry = Entries.media[currentIndex];
 
     const url = entry.href;
     const type = entry.mediaType;
@@ -63,7 +63,7 @@ var Gallery = (function() {
 
   function clamp(index) {
     if(index == null || isNaN(index) || index < 0) return 0;
-    if(index >= Entries.media().length) return Entries.media().length - 1;
+    if(index >= Entries.media.length) return Entries.media.length - 1;
     return index;
   }
 
@@ -79,7 +79,7 @@ var Gallery = (function() {
   const next = () => go(currentIndex + 1);
   const rewind = () => go(currentIndex - 10);
   const fastForward = () => go(currentIndex + 10);
-  const jump = (url) => go(Entries.media().findIndex(entry => entry.href == url));
+  const jump = (url) => go(Entries.media.findIndex(entry => entry.href == url));
 
   function switchLayoutMode() {
     layoutModeIndex++;
@@ -162,8 +162,8 @@ var Gallery = (function() {
 
   function onEntriesUpdate() {
     currentIndex = 0;
-    document.body.classList.toggle("has-gallery", Entries.hasMedia());
-    if(Entries.hasMedia() && isVisible()) render();
+    document.body.classList.toggle("has-gallery", Entries.hasMedia);
+    if(Entries.hasMedia && isVisible()) render();
   }
 
   function init() {
