@@ -4,24 +4,17 @@ using System.Text;
 namespace Servel.NET;
 
 // Derived from https://stackoverflow.com/a/1344255
-public class KeyGenerator
+public static class KeyGenerator
 {
-    internal static readonly char[] chars =
+    private static readonly char[] chars =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
 
     public static string GetUniqueKey(int size)
     {
-        byte[] data = new byte[4 * size];
-        using (var crypto = RandomNumberGenerator.Create())
-        {
-            crypto.GetBytes(data);
-        }
-        StringBuilder result = new StringBuilder(size);
+        var result = new StringBuilder(size);
         for (int i = 0; i < size; i++)
         {
-            var rnd = BitConverter.ToUInt32(data, i * 4);
-            var idx = rnd % chars.Length;
-
+            var idx = RandomNumberGenerator.GetInt32(0, chars.Length);
             result.Append(chars[idx]);
         }
 
