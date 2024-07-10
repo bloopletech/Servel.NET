@@ -9,12 +9,3 @@
 #roots li {
   font-size: 24px;
 }
-
-#roots a.new-tab {
-  display: inline-block;
-  margin-left: 20px;
-
-  &:active, &:focus, &:hover {
-    text-decoration: none;
-  }
-}

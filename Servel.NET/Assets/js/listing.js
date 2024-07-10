@@ -16,9 +16,6 @@ const Listing = (function() {
           <span class="icon">${file.icon}</span>
           <a href="${file.href}" class="default ${file.class}" data-url="${file.href}" data-type="${file.mediaType}">${file.name}</a>
         </td>
-        <td class="new-tab">
-          <a href="${file.href}" class="new-tab ${file.class}" target="_blank">🗗</a>
-        </td>
         <td class="type">${file.type}</td>
         <td class="size">${file.sizeText}</td>
         <td class="modified">${file.mtimeText}</td>
@@ -129,7 +126,7 @@ const Listing = (function() {
         e.preventDefault();
         onSort(e.target.closest("th.sortable"));
       }
-      else if(e.target.matches("a.media:not(.new-tab)")) {
+      else if(e.target.matches("a.media")) {
         e.preventDefault();
         Gallery.jump(e.target.dataset.url);
         Index.jumpGallery();

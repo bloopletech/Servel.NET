@@ -14,7 +14,6 @@ async function init() {
   const items = listings.map(listing => HTMLSafe`
       <li>
         <a href="${listing}">${listing}</a>
-        <a class="new-tab" href="${listing}" target="_blank">🗗</a>
       </li>
     `);
 
