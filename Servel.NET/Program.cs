@@ -1,8 +1,6 @@
 using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.Connections.Features;
-using Microsoft.AspNetCore.Http.Features;
 using System.Net;
 #if !DEBUG
 using Microsoft.Extensions.FileProviders;
