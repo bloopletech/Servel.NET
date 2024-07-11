@@ -12,6 +12,7 @@ public readonly struct SiteConfiguration
     public bool AllowPublicAccess { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
+    public IEnumerable<DirectoryOptions> DirectoriesOptions { get; }
 
     public readonly record struct ServelCredentials(string Username, string Password);
 
@@ -39,5 +40,23 @@ public readonly struct SiteConfiguration
 
         Listings = options.Listings.SelectMany(l => l)
             .Select(l => new Listing(Path.GetFullPath(l.Key, basePath), l.Value));
+
+        DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? new List<DirectoryOptions>();
+    }
+
+    private static DirectoryOptions ConvertDirectoryOptions(SiteDirectoryOptions options)
+    {
+        var indexParams = new IndexParameters(options.Depth ?? 0, options.CountChildren ?? false);
+
+        ListingQuery? defaultQuery = null;
+        if (options.HasDefaultQuery)
+        {
+            defaultQuery = new ListingQuery(
+                options.SortMethod?.ToString().ToLowerInvariant(),
+                options.SortDirection?.ToString().ToLowerInvariant(),
+                options.SearchText);
+        }
+
+        return new DirectoryOptions(options.UrlPath, indexParams, defaultQuery);
     }
 }

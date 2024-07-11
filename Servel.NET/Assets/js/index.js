@@ -34,9 +34,11 @@ const Index = (function() {
       }
     });
 
-    const directoryEntry = await response.json();
+    const { directoryEntry, defaultQuery } = await response.json();
     inflateDirectoryEntry(directoryEntry);
     window.directoryEntry = directoryEntry;
+    window.defaultQuery = Object.assign(new Query, defaultQuery ?? { method: "name", direction: "asc", text: "" });
+    Entries.query = Object.assign(new Query, window.defaultQuery);
 
     Listing.init();
     Gallery.init();

@@ -65,20 +65,20 @@ var provider = app.Environment.WebRootFileProvider;
 var provider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
 #endif
 
-void MountInternal(IApplicationBuilder app, Listing listing)
+void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = listing.FileProvider,
         ServeUnknownFileTypes = true
     });
-    app.UseMiddleware<IndexMiddleware>(listing);
+    app.UseMiddleware<IndexMiddleware>(listing, resolver);
 }
 
-void Mount(IApplicationBuilder app, Listing listing)
+void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
-    if (listing.IsMountAtRoot) MountInternal(app, listing);
-    else app.Map(listing.RequestPath, false, app => MountInternal(app, listing));
+    if (listing.IsMountAtRoot) MountInternal(app, listing, resolver);
+    else app.Map(listing.RequestPath, false, app => MountInternal(app, listing, resolver));
 }
 
 void ConfigureSite(IApplicationBuilder app, SiteConfiguration site)
@@ -97,7 +97,8 @@ void ConfigureSite(IApplicationBuilder app, SiteConfiguration site)
         RequestPath = "/_servel",
     });
 
-    foreach (var listing in site.Listings) Mount(app, listing);
+    var resolver = new DirectoryOptionsResolver(site.DirectoriesOptions);
+    foreach (var listing in site.Listings) Mount(app, listing, resolver);
 
     if (!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
 }

@@ -1,12 +1,14 @@
 ﻿"use strict";
 
 class Query {
-  method = "name";
-  direction = "asc";
+  method = "";
+  direction = "";
   text = "";
 
   isDefault() {
-    return this.method == "name" && this.direction == "asc" && this.text == "";
+    return this.method == window.defaultQuery.method
+      && this.direction == window.defaultQuery.direction
+      && this.text == window.defaultQuery.text;
   }
 }
 
@@ -15,7 +17,7 @@ const Entries = (function () {
   let all;
   let media;
 
-  let query = new Query();
+  let query;
 
   function runFilter(entries) {
     if(query.text == "") return entries;

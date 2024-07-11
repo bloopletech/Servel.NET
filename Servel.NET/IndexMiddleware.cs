@@ -6,7 +6,11 @@ using System.Text.Json;
 namespace Servel.NET;
 
 // Derived from https://github.com/dotnet/aspnetcore/blob/5a4c82ec57fadddef9ce841d608de5c7c8c74446/src/Middleware/StaticFiles/src/DirectoryBrowserMiddleware.cs
-public class IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache memoryCache)
+public partial class IndexMiddleware(
+    RequestDelegate next,
+    Listing listing,
+    DirectoryOptionsResolver directoryOptionsResolver,
+    IMemoryCache memoryCache)
 {
     private readonly RequestDelegate _next = next;
     private readonly EntryFactory _entryFactory = new(listing, memoryCache);
@@ -29,49 +33,58 @@ public class IndexMiddleware(RequestDelegate next, Listing listing, IMemoryCache
             return;
         }
 
-        var directoryEntryJson = RenderDirectoryEntry(httpContext.Request.Path, ParseParameters(httpContext));
+        httpContext.Response.Headers.Vary = HeaderNames.Accept;
 
-        if(directoryEntryJson == null)
+        if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        {
+            await Render(httpContext);
+        }
+        else
+        {
+            await Results.Text(StaticViews.Get("index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+        }
+    }
+
+    private async Task Render(HttpContext httpContext)
+    {
+        var directoryOptions = directoryOptionsResolver.Resolve(httpContext.Request.PathBase + httpContext.Request.Path);
+
+        var responseJson = RenderResponse(
+            httpContext.Request.Path,
+            ParseParameters(httpContext, directoryOptions),
+            directoryOptions);
+
+        if (responseJson == null)
         {
             await Results.NotFound().ExecuteAsync(httpContext);
             return;
         }
 
-        httpContext.Response.Headers.Vary = HeaderNames.Accept;
-
-        if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
-        {
-            await Results.Text(directoryEntryJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
-            return;
-        }
-
-        await Results.Text(StaticViews.Get("index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+        await Results.Text(responseJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
     }
 
-    private static EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext)
+    private static EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext, DirectoryOptions options)
     {
-        var depthStr = httpContext.Request.Query["depth"];
-        _ = uint.TryParse(depthStr.ToString(), out var depth);
-
-        var countChildrenStr = httpContext.Request.Query["countChildren"];
-        _ = bool.TryParse(countChildrenStr, out var countChildren);
+        var parameters = IndexParameters.Parse(httpContext.Request);
+        var defaultParams = options.DefaultParameters;
 
         return new EntryFactory.ForDirectoryOptions
         {
-            Depth = depth + 1,
-            CountChildren = countChildren
+            Depth = (parameters?.Depth ?? defaultParams.Depth) + 1,
+            CountChildren = parameters?.CountChildren ?? defaultParams.CountChildren
         };
     }
 
-    private byte[]? RenderDirectoryEntry(PathString path, EntryFactory.ForDirectoryOptions options)
+    private byte[]? RenderResponse(
+        PathString path,
+        EntryFactory.ForDirectoryOptions options,
+        DirectoryOptions directoryOptions)
     {
         try
         {
-            var directoryEntry = _entryFactory.ForDirectory(path, options);
-
             return JsonSerializer.SerializeToUtf8Bytes(
-                directoryEntry,
-                SerializationSourceGenerationContext.Default.DirectoryEntry);
+                new IndexResponse(_entryFactory.ForDirectory(path, options), directoryOptions.DefaultQuery),
+                SerializationSourceGenerationContext.Default.IndexResponse);
         }
         catch(DirectoryNotFoundException)
         {

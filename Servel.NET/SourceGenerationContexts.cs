@@ -6,7 +6,7 @@ namespace Servel.NET;
     GenerationMode = JsonSourceGenerationMode.Serialization,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
-[JsonSerializable(typeof(DirectoryEntry))]
+[JsonSerializable(typeof(IndexResponse))]
 [JsonSerializable(typeof(IEnumerable<string>))]
 internal partial class SerializationSourceGenerationContext : JsonSerializerContext
 {
@@ -15,7 +15,8 @@ internal partial class SerializationSourceGenerationContext : JsonSerializerCont
 [JsonSourceGenerationOptions(
     GenerationMode = JsonSourceGenerationMode.Metadata,
     ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
-    AllowTrailingCommas = true)]
+    AllowTrailingCommas = true,
+    UseStringEnumConverter = true)]
 [JsonSerializable(typeof(SiteOptions[]))]
 internal partial class DeserializationSourceGenerationContext : JsonSerializerContext
 {
