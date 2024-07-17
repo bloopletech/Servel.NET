@@ -35,6 +35,9 @@ jobs:
     - name: Build
       run: dotnet publish
 
+    - name: Delete spurious generated file
+      run: del Servel.NET/bin/x64/Release/win-x64/publish/Servel.NET.staticwebassets.endpoints.json
+
     - name: Extract App Version
       run: $version = (Select-Xml -Path Servel.NET\Servel.NET.csproj -XPath '//Version[1]/text()[1]').Node.InnerText; "APP_VERSION=$version" >> "$env:GITHUB_ENV"
 
