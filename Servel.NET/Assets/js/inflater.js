@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 function inflateDirectoryEntry(directoryEntry) {
-  const PLAYABLE_IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp"];
+  const PLAYABLE_IMAGE_EXTS = ["jfif", "jpg", "jpeg", "png", "gif", "webp"];
   const IMAGE_EXTS = [].concat(PLAYABLE_IMAGE_EXTS, []);
   const PLAYABLE_VIDEO_EXTS = ["ogg", "ogm", "ogv", "m4v", "mkv", "mp4", "webm"];
   const VIDEO_EXTS = [].concat(PLAYABLE_VIDEO_EXTS, ["avi",  "wmv"]);
@@ -9,7 +9,9 @@ function inflateDirectoryEntry(directoryEntry) {
   const AUDIO_EXTS = [].concat(PLAYABLE_AUDIO_EXTS, ["flac", "wma"]);
   const PLAYABLE_TEXT_EXTS = ["txt", "md"];
   const TEXT_EXTS = [].concat(PLAYABLE_TEXT_EXTS, []);
-  const COMPRESSED_EXTS = ["bz2", "gz", "lz", "lz4", "lzma", "xz", "7z", "rar", "tgz", "txz", "rar", "zip"]
+  const PLAYABLE_DOCUMENT_EXTS = ["htm", "html", "pdf"];
+  const DOCUMENT_EXTS = [].concat(PLAYABLE_DOCUMENT_EXTS, ["doc", "docx"]);
+  const COMPRESSED_EXTS = ["bz2", "gz", "lz", "lz4", "lzma", "xz", "7z", "rar", "tgz", "txz", "rar", "zip"];
 
   function getIcon(entry) {
     if(entry.homeEntry) return "🏠";
@@ -21,6 +23,7 @@ function inflateDirectoryEntry(directoryEntry) {
       if(IMAGE_EXTS.includes(entry.ext)) return "🖼️";
       if(AUDIO_EXTS.includes(entry.ext)) return "🔊";
       if(TEXT_EXTS.includes(entry.ext)) return "📖";
+      if(DOCUMENT_EXTS.includes(entry.ext)) return "📄";
       if(COMPRESSED_EXTS.includes(entry.ext)) return "📦";
       return "📄";
     }
@@ -40,6 +43,7 @@ function inflateDirectoryEntry(directoryEntry) {
     if(PLAYABLE_VIDEO_EXTS.includes(entry.ext)) return "video";
     if(PLAYABLE_AUDIO_EXTS.includes(entry.ext)) return "audio";
     if(PLAYABLE_TEXT_EXTS.includes(entry.ext)) return "text";
+    if(PLAYABLE_DOCUMENT_EXTS.includes(entry.ext)) return "document";
 
     return null;
   }

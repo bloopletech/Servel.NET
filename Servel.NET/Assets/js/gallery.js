@@ -8,6 +8,7 @@ const Gallery = (function() {
   let $image;
   let $video;
   let $audio;
+  let $document;
   let currentIndex;
   let layoutModeIndex = 0;
 
@@ -23,7 +24,7 @@ const Gallery = (function() {
   }
 
   function clearContent() {
-    $gallery.classList.remove("image", "video", "audio", "text");
+    $gallery.classList.remove("image", "video", "audio", "text", "document");
     $image.removeAttribute("src");
     $video.removeAttribute("src");
     $video.removeAttribute("controls");
@@ -31,6 +32,7 @@ const Gallery = (function() {
     $audio.removeAttribute("src");
     $audio.pause();
     $("#text-content").innerHTML = "";
+    $document.removeAttribute("src");
   }
 
   function render() {
@@ -172,6 +174,7 @@ const Gallery = (function() {
     $image = $("#image");
     $video = $("#video");
     $audio = $("#audio");
+    $document = $("#document");
 
     initEvents();
     layout();
