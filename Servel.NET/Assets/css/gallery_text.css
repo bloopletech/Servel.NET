@@ -1,45 +1,50 @@
-#text-content {
+body {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+#content {
   max-width: 1000px;
   margin: 0 auto 0 auto;
   padding: 30px;
 }
 
-#text-content p {
+#content p {
   margin-top: 0;
   margin-bottom: 1.2em;
 }
 
-#text-content h1, #text-content h2, #text-content h3, #text-content h4, #text-content h5, #text-content h6 {
+#content h1, #content h2, #content h3, #content h4, #content h5, #content h6 {
   margin-top: 0;
   margin-bottom: 0.6em;
 }
 
-#text-content h1 {
+#content h1 {
   font-size: 36px;
 }
 
-#text-content h2 {
+#content h2 {
   font-size: 26px;
 }
 
-#text-content h3 {
+#content h3 {
   font-size: 22px;
 }
 
-#text-content h4 {
+#content h4 {
   font-size: 18px;
 }
 
-#text-content h5 {
+#content h5 {
   font-size: 16px;
 }
 
-#text-content h6 {
+#content h6 {
   font-size: 16px;
 }
 
 @media screen and (max-width: 767px) {
-  #text-content {
+  #content {
     padding: 15px;
   }
 }

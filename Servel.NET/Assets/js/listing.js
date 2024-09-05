@@ -42,7 +42,7 @@ const Listing = (function() {
     const directories = window.directoryEntry.directories.length;
     const files = window.directoryEntry.files.length;
 
-    const byMediaType = { video: 0, image: 0, audio: 0, text: 0 };
+    const byMediaType = { video: 0, image: 0, audio: 0, document: 0 };
     for(const file of window.directoryEntry.files) byMediaType[file.mediaType]++;
 
     $directoryInfo.innerHTML = HTMLSafe`
@@ -52,7 +52,7 @@ const Listing = (function() {
       <div><span title="Videos">🎞️</span>\u2004${f(byMediaType.video)}</div>
       <div><span title="Images">🖼️</span>\u2004${f(byMediaType.image)}</div>
       <div><span title="Audio">🔊</span>\u2004${f(byMediaType.audio)}</div>
-      <div><span title="Text">📖</span>\u2004${f(byMediaType.text)}</div>
+      <div><span title="Documents">📝</span>\u2004${f(byMediaType.document)}</div>
     `;
   }
 

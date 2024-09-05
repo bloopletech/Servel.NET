@@ -2,6 +2,7 @@
 
 const Gallery = (function() {
   const LAYOUT_MODES = ["contain", "fit-both", "fit-width", "clamp-width", "original"];
+  const PLAYABLE_TEXT_EXTS = ["txt", "md"];
 
   let $body;
   let $gallery;
@@ -12,27 +13,37 @@ const Gallery = (function() {
   let currentIndex;
   let layoutModeIndex = 0;
 
-  function renderText(url) {
-    const http = new XMLHttpRequest();
-    http.open("GET", url);
-    http.onload = function() {
-      $("#text-content").innerHTML = ume(http.responseText);
-      $("#text").scrollTop = 0;
-      $("#text-anchor").focus();
-    }
-    http.send();
+  async function renderText(url) {
+    const response = await fetch(url);
+    const responseText = await response.text();
+
+    $document.srcdoc = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Servel.NET</title>
+          <link href="/_servel/img/favicon.png" rel="icon" type="image/png">
+          <link href="/_servel/css/normalize.css" rel="stylesheet">
+          <link href="/_servel/css/common.css" rel="stylesheet">
+          <link href="/_servel/css/gallery_text.css" rel="stylesheet">
+        </head>
+        <body>
+          <div id="content">${ume(responseText)}</div>
+        </body>
+      </html>`;
   }
 
   function clearContent() {
-    $gallery.classList.remove("image", "video", "audio", "text", "document");
+    $gallery.classList.remove("image", "video", "audio", "document");
     $image.removeAttribute("src");
     $video.removeAttribute("src");
     $video.removeAttribute("controls");
     $video.pause();
     $audio.removeAttribute("src");
     $audio.pause();
-    $("#text-content").innerHTML = "";
     $document.removeAttribute("src");
+    $document.removeAttribute("srcdoc");
   }
 
   function render() {
@@ -47,15 +58,15 @@ const Gallery = (function() {
 
     $gallery.classList.add(type);
 
-    let $element;
-    if(type == "text") {
+    if(PLAYABLE_TEXT_EXTS.includes(entry.ext)) {
       renderText(url);
+      return;
     }
-    else {
-      $element = $("#" + type);
-      $element.src = url;
-      $element.focus();
-    }
+
+    let $element;
+    $element = $(`#${type}`);
+    $element.src = url;
+    $element.focus();
 
     window.scrollTo(0, 0);
     if(type == "video" || type == "audio") $element.play();
@@ -153,6 +164,8 @@ const Gallery = (function() {
     $video.addEventListener("mouseenter", () => $video.toggleAttribute("controls", true));
     $video.addEventListener("mouseleave", () => $video.toggleAttribute("controls", false));
     $video.addEventListener("touchstart", (e) => e.target.matches("#video") && $video.toggleAttribute("controls", true));
+
+    $document.addEventListener("load", () => $document.focus());
   }
 
   function layout() {
