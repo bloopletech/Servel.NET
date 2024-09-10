@@ -44,7 +44,7 @@ Filename: {sys}\sc.exe; Parameters: "description {#MyAppName} ""Serves directori
 Filename: {sys}\sc.exe; Parameters: "start {#MyAppName}" ; Flags: runhidden
 
 Filename: "http://localhost:9292/"; Flags: shellexec postinstall skipifsilent; Description: "Connect to {#MyAppName}"
-Filename: {sys}\notepad.exe; Parameters: "{app}\Configuration.json"; WorkingDir: "{app}"; Flags: runascurrentuser nowait postinstall skipifsilent; Description: "Edit Configuration File"
+Filename: {sys}\notepad.exe; Parameters: "{app}\Configuration.toml"; WorkingDir: "{app}"; Flags: runascurrentuser nowait postinstall skipifsilent; Description: "Edit Configuration File"
 
 
 [UninstallRun]
