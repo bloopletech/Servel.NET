@@ -38,8 +38,7 @@ public readonly struct SiteConfiguration
 
         AllowPublicAccess = options.AllowPublicAccess;
 
-        Listings = options.Listings.SelectMany(l => l)
-            .Select(l => new Listing(Path.GetFullPath(l.Key, basePath), l.Value));
+        Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.RootPath, basePath), l.RequestPath));
 
         DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? new List<DirectoryOptions>();
     }

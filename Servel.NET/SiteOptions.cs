@@ -1,19 +1,21 @@
 ﻿namespace Servel.NET;
 
 public record struct SiteOptions(
-    string Host,
+    string? Host,
     int? Port,
     string? Cert,
     string? Key,
     string? Username,
     string? Password,
     bool AllowPublicAccess,
-    IReadOnlyDictionary<string, string>[] Listings,
+    SiteListingOption[] Listings,
     SiteDirectoryOptions[]? DirectoriesOptions)
 {
     public readonly bool HasCertificate => Cert != null && Key != null;
     public readonly bool HasCredentials => Username != null && Password != null;
 }
+
+public readonly record struct SiteListingOption(string RootPath, string RequestPath);
 
 public readonly record struct SiteDirectoryOptions(
     string UrlPath,

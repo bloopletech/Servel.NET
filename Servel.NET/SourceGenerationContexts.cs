@@ -11,13 +11,3 @@ namespace Servel.NET;
 internal partial class SerializationSourceGenerationContext : JsonSerializerContext
 {
 }
-
-[JsonSourceGenerationOptions(
-    GenerationMode = JsonSourceGenerationMode.Metadata,
-    ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
-    AllowTrailingCommas = true,
-    UseStringEnumConverter = true)]
-[JsonSerializable(typeof(SiteOptions[]))]
-internal partial class DeserializationSourceGenerationContext : JsonSerializerContext
-{
-}
