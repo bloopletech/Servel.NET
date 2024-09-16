@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace Servel.NET;
 
 // Derived from https://github.com/dotnet/aspnetcore/blob/5a4c82ec57fadddef9ce841d608de5c7c8c74446/src/Middleware/StaticFiles/src/DirectoryBrowserMiddleware.cs
-public partial class IndexMiddleware(
+public class IndexMiddleware(
     RequestDelegate next,
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
