@@ -4,34 +4,22 @@ namespace Servel.NET;
 
 public static class TommyExtensions
 {
-    public static string? GetString(this TomlNode node, string key)
-    {
-        return node[key]?.AsString?.Value;
-    }
+    public static TomlNode? Get(this TomlTable table, string key) => table.RawTable.GetValueOrDefault(key);
+    public static TomlNode GetRequired(this TomlTable table, string key) => table.RawTable[key];
 
-    public static int? GetInteger(this TomlNode node, string key)
-    {
-        return (int?)node[key]?.AsInteger?.Value;
-    }
+    public static string? GetString(this TomlTable table, string key) => table.Get(key)?.AsString?.Value;
+    public static string GetRequiredString(this TomlTable table, string key) => table.GetRequired(key).AsString!.Value;
 
-    public static bool? GetBoolean(this TomlNode node, string key)
-    {
-        return node[key]?.AsBoolean?.Value;
-    }
+    public static int? GetInteger(this TomlTable table, string key) => (int?)table.Get(key)?.AsInteger?.Value;
 
-    public static TomlArray? GetArray(this TomlNode node, string key)
-    {
-        return node[key]?.AsArray!;
-    }
+    public static bool? GetBoolean(this TomlTable table, string key) => table.Get(key)?.AsBoolean?.Value;
 
-    public static TomlTable? GetSubTable(this TomlNode node, string key)
-    {
-        return node[key]?.AsTable!;
-    }
+    public static TomlArray? GetArray(this TomlTable table, string key) => (TomlArray?)table.Get(key);
+    public static TomlArray GetRequiredArray(this TomlTable table, string key) => (TomlArray)table.GetRequired(key);
 
-    public static T? GetEnum<T>(this TomlNode node, string key) where T : struct
+    public static T? GetEnum<T>(this TomlTable table, string key) where T : struct
     {
-        var value = GetString(node, key);
+        var value = GetString(table, key);
         if (value == null) return null;
         return Enum.Parse<T>(value);
     }

@@ -1,5 +1,4 @@
 ﻿using System.Web;
-using Tommy;
 
 namespace Servel.NET;
 
@@ -12,56 +11,8 @@ public readonly record struct ServelConfiguration(Site[] Sites)
         var configPath = Path.Combine(basePath, "Configuration.toml");
         EnsureConfigurationFile(configPath);
 
-        using var inputStream = File.OpenText(configPath);
-        var options = TOML.Parse(inputStream)!;
-
-        return Configure(options, basePath);
-    }
-
-    private static ServelConfiguration Configure(TomlTable options, string basePath)
-    {
-        var sitesOptions = options.GetArray("Site")!;
-        var siteConfigurations = sitesOptions.Children.Select((siteOptions, id) => new Site(
-            id,
-            ParseSiteOptions(siteOptions.AsTable!),
-            basePath));
-        return new ServelConfiguration(siteConfigurations.ToArray());
-    }
-
-    private static SiteOptions ParseSiteOptions(TomlTable siteOptions)
-    {
-        return new SiteOptions(
-            siteOptions.GetString("Host"),
-            siteOptions.GetInteger("Port"),
-            siteOptions.GetString("Cert"),
-            siteOptions.GetString("Key"),
-            siteOptions.GetString("Username"),
-            siteOptions.GetString("Password"),
-            siteOptions.GetBoolean("Host") ?? false,
-            ParseListings(siteOptions.GetArray("Listing")!),
-            ParseDirectoryOptions(siteOptions.GetArray("DirectoriesOptions")));
-    }
-
-    private static SiteListingOption[] ParseListings(TomlArray listings)
-    {
-        return listings.Children.Select(listing =>
-        {
-            var key = listing.Keys.First();
-            return new SiteListingOption(key, listing.GetString(key)!);
-        }).ToArray();
-    }
-
-    private static SiteDirectoryOptions[]? ParseDirectoryOptions(TomlArray? directoriesOptions)
-    {
-        if (directoriesOptions == null) return null;
-
-        return directoriesOptions.Children.Select(directoryOptions => new SiteDirectoryOptions(
-            directoryOptions.GetString("UrlPath")!,
-            directoryOptions.GetEnum<SortMethod>("SortMethod"),
-            directoryOptions.GetEnum<SortDirection>("SortDirection"),
-            directoryOptions.GetString("SearchText"),
-            (uint?)directoryOptions.GetInteger("Depth"),
-            directoryOptions.GetBoolean("CountChildren"))).ToArray();
+        var configurator = new ServelConfigurator(basePath);
+        return configurator.Configure(configPath);
     }
 
     private static void EnsureConfigurationFile(string configPath)
