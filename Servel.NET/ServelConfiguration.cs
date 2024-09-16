@@ -3,7 +3,7 @@ using Tommy;
 
 namespace Servel.NET;
 
-public readonly record struct ServelConfiguration(IEnumerable<Site> Sites)
+public readonly record struct ServelConfiguration(Site[] Sites)
 {
     public static ServelConfiguration Configure() => Configure(AppContext.BaseDirectory);
 
@@ -25,7 +25,7 @@ public readonly record struct ServelConfiguration(IEnumerable<Site> Sites)
             id,
             ParseSiteOptions(siteOptions.AsTable!),
             basePath));
-        return new ServelConfiguration(siteConfigurations.ToList());
+        return new ServelConfiguration(siteConfigurations.ToArray());
     }
 
     private static SiteOptions ParseSiteOptions(TomlTable siteOptions)
