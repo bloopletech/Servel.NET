@@ -3,7 +3,7 @@ using Tommy;
 
 namespace Servel.NET;
 
-public readonly record struct ServelConfiguration(IEnumerable<SiteConfiguration> Sites)
+public readonly record struct ServelConfiguration(IEnumerable<Site> Sites)
 {
     public static ServelConfiguration Configure() => Configure(AppContext.BaseDirectory);
 
@@ -21,7 +21,7 @@ public readonly record struct ServelConfiguration(IEnumerable<SiteConfiguration>
     private static ServelConfiguration Configure(TomlTable options, string basePath)
     {
         var sitesOptions = options.GetArray("Site")!;
-        var siteConfigurations = sitesOptions.Children.Select((siteOptions, id) => new SiteConfiguration(
+        var siteConfigurations = sitesOptions.Children.Select((siteOptions, id) => new Site(
             id,
             ParseSiteOptions(siteOptions.AsTable!),
             basePath));

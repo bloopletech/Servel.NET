@@ -1,22 +1,21 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using Servel.NET.FileProviders;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Servel.NET;
 
-public readonly struct SiteConfiguration
+public readonly struct Site
 {
     public int Id { get; }
     public string Host { get; }
     public int Port { get; }
     public X509Certificate2? Certificate { get; }
-    public ServelCredentials? Credentials { get; }
+    public Credentials? Credentials { get; }
     public bool AllowPublicAccess { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
     public IEnumerable<DirectoryOptions> DirectoriesOptions { get; }
 
-    public readonly record struct ServelCredentials(string Username, string Password);
-
-    public SiteConfiguration(int id, SiteOptions options, string basePath)
+    public Site(int id, SiteOptions options, string basePath)
     {
         Id = id;
 
@@ -29,18 +28,18 @@ public readonly struct SiteConfiguration
             var certPath = Path.GetFullPath(options.Cert!, basePath);
             var keyPath = Path.GetFullPath(options.Key!, basePath);
             var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
-            Certificate = new X509Certificate2(certificate.Export(X509ContentType.Pkcs12));
+            Certificate = X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pkcs12), null);
 
             if (!portAssigned) Port = 443;
         }
 
-        if (options.HasCredentials) Credentials = new ServelCredentials(options.Username!, options.Password!);
+        if (options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
 
         AllowPublicAccess = options.AllowPublicAccess;
 
         Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.RootPath, basePath), l.RequestPath));
 
-        DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? new List<DirectoryOptions>();
+        DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? [];
     }
 
     private static DirectoryOptions ConvertDirectoryOptions(SiteDirectoryOptions options)
@@ -59,3 +58,16 @@ public readonly struct SiteConfiguration
         return new DirectoryOptions(options.UrlPath, indexParams, defaultQuery);
     }
 }
+
+public readonly record struct Credentials(string Username, string Password);
+
+public readonly record struct Listing(string RootPath, string RequestPath)
+{
+    public readonly ListingFileProvider FileProvider = new(RootPath);
+    public bool IsMountAtRoot => RequestPath == "/";
+}
+
+public readonly record struct DirectoryOptions(
+    PathString UrlPath,
+    IndexParameters DefaultParameters,
+    ListingQuery? DefaultQuery);

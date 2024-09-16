@@ -32,7 +32,7 @@ builder.Logging.SetMinimumLevel(builder.Environment.IsDevelopment() ? LogLevel.T
 
 builder.Host.UseWindowsService();
 
-void BindSite(KestrelServerOptions options, SiteConfiguration site)
+void BindSite(KestrelServerOptions options, Site site)
 {
     void Configure(ListenOptions listenOptions)
     {
@@ -81,7 +81,7 @@ void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver re
     else app.Map(listing.RequestPath, false, app => MountInternal(app, listing, resolver));
 }
 
-void ConfigureSite(IApplicationBuilder app, SiteConfiguration site)
+void ConfigureSite(IApplicationBuilder app, Site site)
 {
     if (!site.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
 

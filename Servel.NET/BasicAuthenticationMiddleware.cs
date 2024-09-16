@@ -4,7 +4,7 @@ using System.Text;
 namespace Servel.NET;
 
 // Derived from https://github.com/blowdart/idunno.Authentication/blob/8594ba81d5fa7cf5b473d728c355077dd9b3eaea/src/idunno.Authentication.Basic/BasicAuthenticationHandler.cs
-public class BasicAuthenticationMiddleware(RequestDelegate next, SiteConfiguration.ServelCredentials credentials)
+public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials credentials)
 {
     public const string Scheme = "Basic";
     public const byte Delimiter = 0x3A; // U+003A COLON character (:)
