@@ -85,7 +85,7 @@ Port = 9292
 # The key is the filesystem path of a drive or folder you want to serve.
 # The value is the URL path that drive or folder will be served at.
 # 
-# The entrie contents of the drive or folder, inluding all the folders and files within that drive or folder,
+# The entire contents of the drive or folder, inluding all the folders and files within that drive or folder,
 # will be available for any user to browse and download.
 # 
 # When entering the filesystem path, you will need to add an extra backslash before each backslash;
@@ -116,6 +116,16 @@ Port = 9292
 # 
 # [[Site.Listing]]
 # "C:\\Users\\Mum\\Documents" = "/mums_documents"
+
+# If you supply wildcard values for the filesystem path and URL path (specifically the asterisk character),
+# Servel.NET will automatically create a listing for each and every drive connected to the computer.
+#
+# You can optionally show the volume label for each drive when browsing the home page by setting
+# ShowVolumeLabels = true
+
+# [[Site.Listing]]
+# "*" = "/*"
+# ShowVolumeLabels = true
 
 
 # Servel.NET supports one or more "sites".
