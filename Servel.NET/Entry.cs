@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Text.Json.Serialization;
+using System.Web;
 
 namespace Servel.NET;
 
@@ -31,3 +32,8 @@ public readonly record struct SpecialEntry(
     bool HomeEntry,
     bool TopEntry,
     bool ParentEntry);
+
+public readonly record struct ListingEntry(string Href, string? Label)
+{
+    public string Name => HttpUtility.UrlDecode(Href[1..]);
+}

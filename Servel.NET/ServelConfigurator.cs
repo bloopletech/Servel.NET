@@ -37,7 +37,7 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetString("Key"),
             siteOptions.GetString("Username"),
             siteOptions.GetString("Password"),
-            siteOptions.GetBoolean("AllowPublicAccess") ?? false,
+            siteOptions.GetBoolean("AllowPublicAccess"),
             ConfigureListings(siteOptions.GetRequiredArray("Listing")),
             ConfigureDirectoriesOptions(siteOptions.GetArray("DirectoriesOptions")));
     }
@@ -50,7 +50,11 @@ public readonly struct ServelConfigurator(string BasePath)
     private SiteListingOption ConfigureListing(TomlTable listing)
     {
         var key = listing.Keys.First();
-        return new SiteListingOption(key, listing.GetRequiredString(key));
+        return new SiteListingOption(
+            key,
+            listing.GetRequiredString(key),
+            listing.GetString("Name"),
+            listing.GetBoolean("ShowVolumeLabels"));
     }
 
     private SiteDirectoryOptions[]? ConfigureDirectoriesOptions(TomlArray? directoriesOptions)

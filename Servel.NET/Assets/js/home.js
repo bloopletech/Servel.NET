@@ -9,16 +9,16 @@ async function init() {
     }
   });
 
-  const listings = await response.json();
+  const entries = await response.json();
 
-  const items = listings.map(listing => HTMLSafe`
+  const items = entries.map(entry => HTMLSafe`
       <li>
-        <a href="${listing}">${listing}</a>
+        <a href="${entry.href}">${entry.name}${entry.label ? ` - ${entry.label}` : ""}</a>
       </li>
     `);
 
   $("#container").innerHTML = `
-    <ul id="roots">
+    <ul id="listings">
       ${items.join("")}
     </ul>
   `;

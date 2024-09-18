@@ -24,17 +24,17 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
 
         if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
-            await Results.Text(RenderListings(), MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
+            await Results.Text(RenderResponse(), MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
             return;
         }
 
         await Results.Text(StaticResources.GetView("home.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
     }
 
-    private byte[] RenderListings()
+    private byte[] RenderResponse()
     {
         return JsonSerializer.SerializeToUtf8Bytes(
-            _listings.Select(l => l.RequestPath),
-            SerializationSourceGenerationContext.Default.IEnumerableString);
+            _listings.Select(l => new ListingEntry(l.UrlPath, l.Name)),
+            SerializationSourceGenerationContext.Default.IEnumerableListingEntry);
     }
 }

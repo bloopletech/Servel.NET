@@ -39,7 +39,7 @@ public class EntryFactory
         {
             TopEntry = true,
             Name = "Top Directory",
-            Href = HttpUtility.UrlPathEncode(_listing.RequestPath)
+            Href = _listing.UrlPath
         };
         _memoryCache = memoryCache;
     }

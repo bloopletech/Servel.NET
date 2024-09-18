@@ -9,12 +9,6 @@ public static class PathStringExtensions
 
     public static PathString Combine(this PathString self, string other)
     {
-        return new PathString(EnsureTrailingSlash(self.Value) + EnsureTrailingSlash(other));
-    }
-
-    private static string EnsureTrailingSlash(string? path)
-    {
-        if (!string.IsNullOrEmpty(path) && path[^1] == '/') return path;
-        return path + '/';
+        return new PathString(self.Value.EnsureTrailingSlash() + other.EnsureTrailingSlash());
     }
 }

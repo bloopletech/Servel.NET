@@ -35,9 +35,9 @@ public readonly struct Site
 
         if (options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
 
-        AllowPublicAccess = options.AllowPublicAccess;
+        AllowPublicAccess = options.AllowPublicAccess ?? false;
 
-        Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.RootPath, basePath), l.RequestPath));
+        Listings = new ListingsBuilder(basePath).Build(options.Listings);
 
         DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? [];
     }
@@ -61,10 +61,10 @@ public readonly struct Site
 
 public readonly record struct Credentials(string Username, string Password);
 
-public readonly record struct Listing(string RootPath, string RequestPath)
+public readonly record struct Listing(string FsPath, string UrlPath, string? Name)
 {
-    public readonly ListingFileProvider FileProvider = new(RootPath);
-    public bool IsMountAtRoot => RequestPath == "/";
+    public readonly ListingFileProvider FileProvider = new(FsPath);
+    public bool IsMountAtRoot => UrlPath == "/";
 }
 
 public readonly record struct DirectoryOptions(

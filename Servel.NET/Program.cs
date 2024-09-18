@@ -78,7 +78,7 @@ void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsRes
 void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
     if (listing.IsMountAtRoot) MountInternal(app, listing, resolver);
-    else app.Map(listing.RequestPath, false, app => MountInternal(app, listing, resolver));
+    else app.Map(listing.UrlPath, false, app => MountInternal(app, listing, resolver));
 }
 
 void ConfigureSite(IApplicationBuilder app, Site site)
