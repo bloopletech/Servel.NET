@@ -10,6 +10,7 @@ public readonly struct Site
     public int Port { get; }
     public X509Certificate2? Certificate { get; }
     public Credentials? Credentials { get; }
+    public bool AllowNetworkAccess { get; }
     public bool AllowPublicAccess { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
@@ -35,6 +36,7 @@ public readonly struct Site
 
         if (options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
 
+        AllowNetworkAccess = options.AllowNetworkAccess ?? true;
         AllowPublicAccess = options.AllowPublicAccess ?? false;
 
         Listings = new ListingsBuilder(basePath).Build(options.Listings);

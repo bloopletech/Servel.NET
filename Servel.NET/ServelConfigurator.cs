@@ -37,6 +37,7 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetString("Key"),
             siteOptions.GetString("Username"),
             siteOptions.GetString("Password"),
+            siteOptions.GetBoolean("AllowNetworkAccess"),
             siteOptions.GetBoolean("AllowPublicAccess"),
             ConfigureListings(siteOptions.GetRequiredArray("Listing")),
             ConfigureDirectoriesOptions(siteOptions.GetArray("DirectoriesOptions")));

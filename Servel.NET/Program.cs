@@ -83,6 +83,7 @@ void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver re
 
 void ConfigureSite(IApplicationBuilder app, Site site)
 {
+    if (!site.AllowNetworkAccess) app.UseMiddleware<DenyNetworkAccessMiddleware>();
     if (!site.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
 
     if (site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);

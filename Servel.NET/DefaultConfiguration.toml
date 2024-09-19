@@ -79,6 +79,15 @@ Port = 9292
 # AllowPublicAccess = false
 
 
+# By default Servel.NET only allows users/clients to connect if the clients IP address is in the private ranges.
+# This is intended to only allow users on the local network to access Servel.NET.
+# 
+# You can set AllowNetworkAccess to false to prevent users on the local network from accessing Servel.NET.
+# You will then only be able to access Servel.NET from this computer.
+
+# AllowNetworkAccess = true
+
+
 # Here's where you say what drives or folders you want Servel.NET to serve (to make available for anyone to access).
 # 
 # This is an array of objects. Each object has a single property (key-value pair).
@@ -119,7 +128,7 @@ Port = 9292
 
 # If you supply wildcard values for the filesystem path and URL path (specifically the asterisk character),
 # Servel.NET will automatically create a listing for each and every drive connected to the computer.
-#
+# 
 # You can optionally show the volume label for each drive when browsing the home page by setting
 # ShowVolumeLabels = true
 

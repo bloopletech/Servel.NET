@@ -7,6 +7,7 @@ public record struct SiteOptions(
     string? Key,
     string? Username,
     string? Password,
+    bool? AllowNetworkAccess,
     bool? AllowPublicAccess,
     SiteListingOption[] Listings,
     SiteDirectoryOptions[]? DirectoriesOptions)
