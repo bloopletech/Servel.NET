@@ -12,13 +12,12 @@ public class IndexMiddleware(
     DirectoryOptionsResolver directoryOptionsResolver,
     IMemoryCache memoryCache)
 {
-    private readonly RequestDelegate _next = next;
     private readonly EntryFactory _entryFactory = new(listing, memoryCache);
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
         if (ShouldProcess(httpContext)) await Process(httpContext);
-        else await _next.Invoke(httpContext);
+        else await next.Invoke(httpContext);
     }
 
     private static bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method);

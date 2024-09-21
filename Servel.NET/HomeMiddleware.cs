@@ -6,13 +6,10 @@ namespace Servel.NET;
 
 public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
 {
-    private readonly RequestDelegate _next = next;
-    private readonly IEnumerable<Listing> _listings = listings;
-
     public async Task InvokeAsync(HttpContext httpContext)
     {
         if (ShouldProcess(httpContext)) await Process(httpContext);
-        else await _next.Invoke(httpContext);
+        else await next.Invoke(httpContext);
     }
 
     private static bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
@@ -34,7 +31,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
     private byte[] RenderResponse()
     {
         return JsonSerializer.SerializeToUtf8Bytes(
-            _listings.Select(l => new ListingEntry(l.UrlPath, l.Name)),
+            listings.Select(l => new ListingEntry(l.UrlPath, l.Name)),
             SerializationSourceGenerationContext.Default.IEnumerableListingEntry);
     }
 }
