@@ -23,7 +23,7 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>1.33.0</Version>
+    <Version>1.34.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
