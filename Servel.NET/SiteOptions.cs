@@ -16,10 +16,7 @@ public record struct SiteOptions(
     public readonly bool HasCredentials => Username != null && Password != null;
 }
 
-public readonly record struct SiteListingOption(string Dir, string Url, string? Name, bool? ShowVolumeLabels)
-{
-    public readonly bool IsRootWildcard => Dir == "*";
-}
+public readonly record struct SiteListingOption(string Dir, string Url, string? Name);
 
 public readonly record struct SiteDirectoryOptions(
     string UrlPath,

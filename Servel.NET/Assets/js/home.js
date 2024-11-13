@@ -13,7 +13,7 @@ async function init() {
 
   const items = entries.map(entry => HTMLSafe`
       <li>
-        <a href="${entry.href}">${entry.name}${entry.label ? ` - ${entry.label}` : ""}</a>
+        <a href="${entry.href}">${entry.name}</a>
       </li>
     `);
 

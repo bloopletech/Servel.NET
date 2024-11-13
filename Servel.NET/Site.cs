@@ -39,7 +39,7 @@ public readonly struct Site
         AllowNetworkAccess = options.AllowNetworkAccess ?? true;
         AllowPublicAccess = options.AllowPublicAccess ?? false;
 
-        Listings = new ListingsBuilder(basePath).Build(options.Listings);
+        Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.Dir, basePath), l.Url, l.Name));
 
         DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? [];
     }

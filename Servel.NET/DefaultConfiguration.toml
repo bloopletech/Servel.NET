@@ -110,6 +110,10 @@ Port = 9292
 # then each one needs to have a different value for the URL path.
 # When the user accesses the root URL, they will be shown a list of all the URL paths,
 # and the user can easily navigate to each drive or folder by clicking the corresponding URL path.
+#
+# You can optionally provide a name for a listing.
+# The name will be shown instead of the URL path in the list of all the URL paths.
+# The URL path will still be used in the broswer address bar etc.
 # 
 # By default the Windows Public folder will be served directly at the root URL.
 # You can remove this entry, keep it, or mix and match with the following examples.
@@ -122,19 +126,11 @@ Port = 9292
 # 
 # [[Site.Listing]]
 # "D:\\" = "/bluray_drive"
+# Name = "BluRay Drive"
 # 
 # [[Site.Listing]]
 # "C:\\Users\\Mum\\Documents" = "/mums_documents"
 
-# If you supply wildcard values for the filesystem path and URL path (specifically the asterisk character),
-# Servel.NET will automatically create a listing for each and every drive connected to the computer.
-# 
-# You can optionally show the volume label for each drive when browsing the home page by setting
-# ShowVolumeLabels = true
-
-# [[Site.Listing]]
-# "*" = "/*"
-# ShowVolumeLabels = true
 
 
 # Servel.NET supports one or more "sites".

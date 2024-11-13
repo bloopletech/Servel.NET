@@ -33,7 +33,7 @@ public readonly record struct SpecialEntry(
     bool TopEntry,
     bool ParentEntry);
 
-public readonly record struct ListingEntry(string Href, string? Label)
+public readonly record struct ListingEntry(string Href, string? CustomName)
 {
-    public string Name => HttpUtility.UrlDecode(Href[1..]);
+    public string Name => CustomName ?? HttpUtility.UrlDecode(Href[1..]);
 }

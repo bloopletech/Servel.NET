@@ -51,11 +51,7 @@ public readonly struct ServelConfigurator(string BasePath)
     private SiteListingOption ConfigureListing(TomlTable listing)
     {
         var key = listing.Keys.First();
-        return new SiteListingOption(
-            key,
-            listing.GetRequiredString(key),
-            listing.GetString("Name"),
-            listing.GetBoolean("ShowVolumeLabels"));
+        return new SiteListingOption(key, listing.GetRequiredString(key), listing.GetString("Name"));
     }
 
     private SiteDirectoryOptions[]? ConfigureDirectoriesOptions(TomlArray? directoriesOptions)
