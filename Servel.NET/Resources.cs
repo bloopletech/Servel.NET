@@ -6,10 +6,12 @@ namespace Servel.NET;
 
 public static class Resources
 {
+#pragma warning disable CA2211
     public static IFileProvider FileProvider = new ManifestEmbeddedFileProvider(Assembly.GetEntryAssembly()!);
     public static IFileProvider AssetsFileProvider = new ManifestEmbeddedFileProvider(
         Assembly.GetEntryAssembly()!,
         "Assets");
+#pragma warning restore CA2211
 
     static Resources()
     {
