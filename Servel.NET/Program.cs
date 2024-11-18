@@ -38,7 +38,7 @@ void BindSite(KestrelServerOptions options, Site site)
     }
 
     if (IPAddress.TryParse(site.Host, out var ipAddress)) options.Listen(ipAddress, site.Port, Configure);
-    else if (site.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)) options.ListenLocalhost(site.Port, Configure);
+    else if (site.Host.EqualsIgnoreCase("localhost")) options.ListenLocalhost(site.Port, Configure);
     else options.ListenAnyIP(site.Port, Configure);
 }
 
