@@ -1,25 +1,27 @@
 ﻿using Microsoft.Extensions.FileProviders;
-#if !DEBUG
+using System.Diagnostics;
 using System.Reflection;
-#endif
 
 namespace Servel.NET;
 
 public static class Resources
 {
-    public static IFileProvider FileProvider =
-#if DEBUG
-        new PhysicalFileProvider(Directory.GetCurrentDirectory());
-#else
-        new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
-#endif
+    public static IFileProvider FileProvider = new ManifestEmbeddedFileProvider(Assembly.GetEntryAssembly()!);
+    public static IFileProvider AssetsFileProvider = new ManifestEmbeddedFileProvider(
+        Assembly.GetEntryAssembly()!,
+        "Assets");
 
-    public static IFileProvider AssetsFileProvider =
-#if DEBUG
-        new PhysicalFileProvider(Path.Join(Directory.GetCurrentDirectory(), "Assets"));
-#else
-        new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
-#endif
+    static Resources()
+    {
+        ConfigureDebug();
+    }
+
+    [Conditional("DEBUG")]
+    private static void ConfigureDebug()
+    {
+        FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory());
+        AssetsFileProvider = new PhysicalFileProvider(Path.Join(Directory.GetCurrentDirectory(), "Assets"));
+    }
 
     public static string Get(params string[] parts)
     {
