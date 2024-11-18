@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 function inflateDirectoryEntry(directoryEntry) {
   const PLAYABLE_IMAGE_EXTS = ["jfif", "jpg", "jpeg", "png", "gif", "webp"];

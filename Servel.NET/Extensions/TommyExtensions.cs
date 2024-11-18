@@ -1,4 +1,4 @@
-﻿using Tommy;
+using Tommy;
 
 namespace Servel.NET.Extensions;
 

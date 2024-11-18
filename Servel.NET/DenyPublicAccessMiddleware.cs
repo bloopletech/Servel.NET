@@ -1,4 +1,4 @@
-﻿using Servel.NET.Extensions;
+using Servel.NET.Extensions;
 
 namespace Servel.NET;
 

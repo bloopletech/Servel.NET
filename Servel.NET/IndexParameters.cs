@@ -1,4 +1,4 @@
-﻿namespace Servel.NET;
+namespace Servel.NET;
 
 public readonly record struct IndexParameters(uint Depth, bool CountChildren)
 {

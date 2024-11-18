@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 async function init() {
   document.title = "Browse Listings";

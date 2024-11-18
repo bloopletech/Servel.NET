@@ -1,4 +1,4 @@
-﻿using Servel.NET.FileProviders;
+using Servel.NET.FileProviders;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Servel.NET;

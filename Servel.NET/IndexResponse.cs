@@ -1,4 +1,4 @@
-﻿namespace Servel.NET;
+namespace Servel.NET;
 
 public readonly record struct IndexResponse(DirectoryEntry DirectoryEntry, ListingQuery? DefaultQuery);
 

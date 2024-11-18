@@ -1,4 +1,4 @@
-﻿namespace Servel.NET;
+namespace Servel.NET;
 
 public record struct SiteOptions(
     string? Host,

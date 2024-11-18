@@ -1,4 +1,4 @@
-﻿namespace Servel.NET.Extensions;
+namespace Servel.NET.Extensions;
 
 public static class StringExtensions
 {
