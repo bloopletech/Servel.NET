@@ -1,4 +1,6 @@
-﻿namespace Servel.NET;
+﻿using Servel.NET.Extensions;
+
+namespace Servel.NET;
 
 public class DenyPublicAccessMiddleware(RequestDelegate next)
 {

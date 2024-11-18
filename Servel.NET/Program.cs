@@ -2,6 +2,7 @@ using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
 using System.Net;
+using Servel.NET.Extensions;
 
 var configuration = ServelConfiguration.Configure();
 var sites = configuration.Sites;

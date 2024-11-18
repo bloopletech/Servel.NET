@@ -2,10 +2,10 @@
 using System.Net.Sockets;
 
 // Derived from https://stackoverflow.com/a/72348199
-namespace Servel.NET;
+namespace Servel.NET.Extensions;
 
 /// <summary>
-/// Extension methods on <see cref="System.Net.IPAddress"/>.
+/// Extension methods on <see cref="IPAddress"/>.
 /// </summary>
 public static class IPAddressExtensions
 {

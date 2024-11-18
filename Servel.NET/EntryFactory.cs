@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders.Physical;
+using Servel.NET.Extensions;
 
 namespace Servel.NET;
 

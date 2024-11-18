@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
+using Servel.NET.Extensions;
 using System.Net.Mime;
 using System.Text.Json;
 
@@ -20,15 +21,15 @@ public class IndexMiddleware(
         else await next.Invoke(httpContext);
     }
 
-    private static bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method);
+    private static bool ShouldProcess(HttpContext httpContext) => httpContext.Request.IsGetOrHead();
 
     private async Task Process(HttpContext httpContext)
     {
         // If the path matches a directory but does not end in a slash, redirect to add the slash.
         // This prevents relative links from breaking.
-        if (!FileHelpers.PathEndsInSlash(httpContext.Request.Path))
+        if (!httpContext.Request.Path.EndsInSlash())
         {
-            FileHelpers.RedirectToPathWithSlash(httpContext);
+            httpContext.RedirectToPathWithSlash();
             return;
         }
 

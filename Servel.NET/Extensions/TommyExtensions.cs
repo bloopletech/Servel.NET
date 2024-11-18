@@ -1,6 +1,6 @@
 ﻿using Tommy;
 
-namespace Servel.NET;
+namespace Servel.NET.Extensions;
 
 public static class TommyExtensions
 {
@@ -19,7 +19,7 @@ public static class TommyExtensions
 
     public static T? GetEnum<T>(this TomlTable table, string key) where T : struct
     {
-        var value = GetString(table, key);
+        var value = table.GetString(key);
         if (value == null) return null;
         return Enum.Parse<T>(value);
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Net.Http.Headers;
+using Microsoft.Net.Http.Headers;
+using Servel.NET.Extensions;
 using System.Net.Mime;
 using System.Text.Json;
 
@@ -12,8 +13,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
         else await next.Invoke(httpContext);
     }
 
-    private static bool ShouldProcess(HttpContext httpContext) => FileHelpers.IsGetOrHeadMethod(httpContext.Request.Method)
-        && httpContext.Request.Path == "/";
+    private static bool ShouldProcess(HttpContext httpContext) => httpContext.Request.IsGetOrHead() && httpContext.Request.IsRoot();
 
     private async Task Process(HttpContext httpContext)
     {
