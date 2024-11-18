@@ -14,14 +14,14 @@ public class EntryFactory
         }
     }
 
-    private static readonly SpecialEntry HomeEntry = new()
+    private static readonly OtherEntry HomeEntry = new()
     {
         HomeEntry = true,
         Name = "Listings Home",
         Href = "/"
     };
 
-    private static readonly SpecialEntry ParentEntry = new()
+    private static readonly OtherEntry ParentEntry = new()
     {
         ParentEntry = true,
         Name = "Parent Directory",
@@ -29,13 +29,13 @@ public class EntryFactory
     };
 
     private readonly Listing _listing;
-    private readonly SpecialEntry _topEntry;
+    private readonly OtherEntry _topEntry;
     private readonly IMemoryCache _memoryCache;
 
     public EntryFactory(Listing listing, IMemoryCache memoryCache)
     {
         _listing = listing;
-        _topEntry = new SpecialEntry
+        _topEntry = new OtherEntry
         {
             TopEntry = true,
             Name = "Top Directory",
@@ -69,14 +69,14 @@ public class EntryFactory
         PathString requestPath,
         ForDirectoryOptions options)
     {
-        IEnumerable<SpecialEntry>? specialEntries = null;
+        IEnumerable<OtherEntry>? otherEntries = null;
         IEnumerable<DirectoryEntry>? directoryEntries = null;
         IEnumerable<FileEntry>? fileEntries = null;
         int? childCount = null;
 
         if(options.Depth > 0)
         {
-            specialEntries = BuildSpecialEntries(requestPath);
+            otherEntries = BuildOtherEntries(requestPath);
             directoryEntries = directoryInfo.OfType<PhysicalDirectoryInfo>()
                 .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
             fileEntries = directoryInfo.OfType<PhysicalFileInfo>().Select(ForFile);
@@ -93,16 +93,16 @@ public class EntryFactory
         {
             Name = requestPath.IsRoot() ? "" : directoryInfo.Name,
             Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
-            SpecialEntries = specialEntries,
+            Others = otherEntries,
             Directories = directoryEntries,
             Files = fileEntries,
             Children = childCount
         };
     }
 
-    private List<SpecialEntry> BuildSpecialEntries(PathString requestPath)
+    private List<OtherEntry> BuildOtherEntries(PathString requestPath)
     {
-        var list = new List<SpecialEntry>();
+        var list = new List<OtherEntry>();
         if (!_listing.IsMountAtRoot) list.Add(HomeEntry);
         if (!requestPath.IsRoot())
         {

@@ -67,10 +67,10 @@ function inflateDirectoryEntry(directoryEntry) {
     }
   }
 
-  for(const entry of directoryEntry.specialEntries) entry.directory = true;
+  for(const entry of directoryEntry.others) entry.directory = true;
   for(const entry of directoryEntry.directories) entry.directory = true;
   for(const entry of directoryEntry.files) entry.file = true;
-  inflateEntries(directoryEntry.specialEntries);
+  inflateEntries(directoryEntry.others);
   inflateEntries(directoryEntry.directories);
   inflateEntries(directoryEntry.files);
 }

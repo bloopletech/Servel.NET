@@ -7,7 +7,7 @@ public readonly record struct DirectoryEntry(
     long Mtime,
     IEnumerable<DirectoryEntry>? Directories,
     IEnumerable<FileEntry>? Files,
-    IEnumerable<SpecialEntry>? SpecialEntries,
+    IEnumerable<OtherEntry>? Others,
     int? Children)
 {
     public string Href => HttpUtility.UrlPathEncode(Name + "/");
@@ -25,7 +25,7 @@ public readonly record struct FileEntry(
     public string Href => HttpUtility.UrlPathEncode(Name);
 }
 
-public readonly record struct SpecialEntry(
+public readonly record struct OtherEntry(
     string Name,
     string Href,
     bool HomeEntry,

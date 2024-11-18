@@ -52,11 +52,11 @@ const Entries = (function () {
   }
 
   function update() {
-    const specialEntries = window.directoryEntry.specialEntries.slice();
+    const otherEntries = window.directoryEntry.others.slice();
     const directoryEntries = runSort(runFilter(window.directoryEntry.directories.slice()));
     const fileEntries = runSort(runFilter(window.directoryEntry.files.slice()));
 
-    all = [].concat(specialEntries, directoryEntries, fileEntries);
+    all = [].concat(otherEntries, directoryEntries, fileEntries);
 
     media = fileEntries.filter(entry => entry.mediaType);
 
