@@ -2,10 +2,6 @@ using Servel.NET;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
 using System.Net;
-#if !DEBUG
-using Microsoft.Extensions.FileProviders;
-using System.Reflection;
-#endif
 
 var configuration = ServelConfiguration.Configure();
 var sites = configuration.Sites;
@@ -13,9 +9,6 @@ var sites = configuration.Sites;
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
     EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production,
-#if DEBUG
-    WebRootPath = "Assets"
-#endif
 });
 
 builder.Services.AddLogging();
@@ -59,12 +52,6 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-#if DEBUG
-var provider = app.Environment.WebRootFileProvider;
-#else
-var provider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly(), "Assets");
-#endif
-
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
     app.UseStaticFiles(new StaticFileOptions
@@ -94,7 +81,7 @@ void ConfigureSite(IApplicationBuilder app, Site site)
 
     app.UseStaticFiles(new StaticFileOptions
     {
-        FileProvider = provider,
+        FileProvider = Resources.AssetsFileProvider,
         RequestPath = "/_servel",
     });
 

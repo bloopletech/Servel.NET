@@ -23,7 +23,7 @@ public readonly record struct ServelConfiguration(Site[] Sites)
         var publicPath = Path.GetFullPath("..\\", Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments));
         var encodedPublicPath = HttpUtility.JavaScriptStringEncode(publicPath);
 
-        var defaultConfiguration = StaticResources.Get("DefaultConfiguration.toml");
+        var defaultConfiguration = Resources.Get("DefaultConfiguration.toml");
         var renderedConfiguration = string.Format(defaultConfiguration, password, encodedPublicPath);
         File.WriteAllText(configPath, renderedConfiguration);
     }

@@ -25,7 +25,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
             return;
         }
 
-        await Results.Text(StaticResources.GetView("home.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+        await Results.Text(Resources.Get("Views", "home.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
     }
 
     private byte[] RenderResponse()

@@ -40,7 +40,7 @@ public class IndexMiddleware(
         }
         else
         {
-            await Results.Text(StaticResources.GetView("index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+            await Results.Text(Resources.Get("Views", "index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
         }
     }
 
