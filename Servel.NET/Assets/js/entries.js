@@ -52,13 +52,13 @@ const Entries = (function () {
   }
 
   function update() {
-    const otherEntries = window.directoryEntry.others.slice();
-    const directoryEntries = runSort(runFilter(window.directoryEntry.directories.slice()));
-    const fileEntries = runSort(runFilter(window.directoryEntry.files.slice()));
+    const others = window.directory.others.slice();
+    const directories = runSort(runFilter(window.directory.directories.slice()));
+    const files = runSort(runFilter(window.directory.files.slice()));
 
-    all = [].concat(otherEntries, directoryEntries, fileEntries);
+    all = [].concat(others, directories, files);
 
-    media = fileEntries.filter(entry => entry.mediaType);
+    media = files.filter(entry => entry.mediaType);
 
     Gallery.onEntriesUpdate();
     Listing.onEntriesUpdate();

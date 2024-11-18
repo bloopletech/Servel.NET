@@ -39,11 +39,11 @@ const Listing = (function() {
   }
 
   function renderInfo() {
-    const directories = window.directoryEntry.directories.length;
-    const files = window.directoryEntry.files.length;
+    const directories = window.directory.directories.length;
+    const files = window.directory.files.length;
 
     const byMediaType = { video: 0, image: 0, audio: 0, document: 0 };
-    for(const file of window.directoryEntry.files) byMediaType[file.mediaType]++;
+    for(const file of window.directory.files) byMediaType[file.mediaType]++;
 
     $directoryInfo.innerHTML = HTMLSafe`
       <div><span title="Items (Directories + Files)">⚪</span>\u2004${f(directories + files)}</div>

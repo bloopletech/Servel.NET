@@ -1,6 +1,6 @@
 "use strict";
 
-function inflateDirectoryEntry(directoryEntry) {
+function inflateDirectory(directory) {
   const PLAYABLE_IMAGE_EXTS = ["jfif", "jpg", "jpeg", "png", "gif", "webp"];
   const IMAGE_EXTS = [].concat(PLAYABLE_IMAGE_EXTS, []);
   const PLAYABLE_VIDEO_EXTS = ["ogg", "ogm", "ogv", "m4v", "mkv", "mp4", "webm"];
@@ -67,10 +67,10 @@ function inflateDirectoryEntry(directoryEntry) {
     }
   }
 
-  for(const entry of directoryEntry.others) entry.directory = true;
-  for(const entry of directoryEntry.directories) entry.directory = true;
-  for(const entry of directoryEntry.files) entry.file = true;
-  inflateEntries(directoryEntry.others);
-  inflateEntries(directoryEntry.directories);
-  inflateEntries(directoryEntry.files);
+  for(const entry of directory.others) entry.directory = true;
+  for(const entry of directory.directories) entry.directory = true;
+  for(const entry of directory.files) entry.file = true;
+  inflateEntries(directory.others);
+  inflateEntries(directory.directories);
+  inflateEntries(directory.files);
 }

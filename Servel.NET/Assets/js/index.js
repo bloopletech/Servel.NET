@@ -35,8 +35,8 @@ const Index = (function() {
     });
 
     const { directory, defaultQuery } = await response.json();
-    inflateDirectoryEntry(directory);
-    window.directoryEntry = directory;
+    inflateDirectory(directory);
+    window.directory = directory;
     window.defaultQuery = Object.assign(new Query, defaultQuery ?? { method: "name", direction: "asc", text: "" });
     Entries.query = Object.assign(new Query, window.defaultQuery);
 
