@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
+using Microsoft.Data.Sqlite;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
@@ -51,7 +52,18 @@ builder.WebHost.UseKestrel(serverOptions =>
 // Add services to the container.
 builder.Services.AddMemoryCache();
 
+if (configuration.DatabasePath != null)
+{
+    var databaseService = new DatabaseService(configuration.DatabasePath);
+    DatabaseService.LoadSchema(databaseService);
+    builder.Services.AddSingleton(databaseService);
+
+    builder.Services.AddSingleton<HistoryService>();
+}
+
 var app = builder.Build();
+
+//DatabaseService.LoadSchema(app.Services.GetRequiredService<DatabaseService>());
 
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
