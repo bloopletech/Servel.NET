@@ -10,8 +10,7 @@ public readonly struct Site
     public int Port { get; }
     public X509Certificate2? Certificate { get; }
     public Credentials? Credentials { get; }
-    public bool AllowNetworkAccess { get; }
-    public bool AllowPublicAccess { get; }
+    public Audience Audience { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
     public IEnumerable<DirectoryOptions> DirectoriesOptions { get; }
@@ -36,8 +35,7 @@ public readonly struct Site
 
         if (options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
 
-        AllowNetworkAccess = options.AllowNetworkAccess ?? true;
-        AllowPublicAccess = options.AllowPublicAccess ?? false;
+        Audience = options.Audience ?? Audience.LocalNetwork;
 
         Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.Dir, basePath), l.Url, l.Name));
 

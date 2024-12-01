@@ -58,34 +58,28 @@ Port = 9292
 # Password = "{0}"
 
 
-# By default Servel.NET only allows users/clients to connect if the clients IP address is in the private ranges.
+# Audience allows you to limit which IP addresses can connect to Servel.NET.
+# 
+# No matter how Audience is configured, if you also have a username and password configured,
+# all users will still need to enter the credentials to be able to connect to and access Servel.NET.
+# 
+# By default Audience is LocalNetwork.
+# This means Servel.NET only allows users/clients to connect if the client's IP address is in the private ranges.
 # This is intended to only allow users on the local network to access Servel.NET.
 # 
 # Unless you misconfigure your network or forward traffic from the public internet
 # to the machine hosting Servel.NET in such a way that the source IP of requests is a private address,
 # then only users on your local network will be able to connect to Servel.NET.
 # 
-# Even if the user knows the correct username and password, they still won't be able to connect
-# unless they are on the local network.
-# 
-# AllowPublicAccess enables you to explicitly allow anyone in the public internet to connect to Servel.NET
+# If Audience is Public, then anyone in the public internet can connect to Servel.NET
 # and browse and download all the folders and files that are within the drives and folders listed below.
-# Of course, even with AllowPublicAccess enabled, you stil have to configure your network to allow access
+# 
+# Even with Audience set to Public, you stil have to configure your network to allow access
 # from the public internet to the machine hosting Servel.NET for this to actually work.
 # 
-# Even with AllowPublicAccess enabled, if you have a username and password configured, all users will still
-# need to enter the credentials to be able to connect to and access Servel.NET.
+# If Audience is MyComputer, then Servel.NET will only allow connections from this computer.
 
-# AllowPublicAccess = false
-
-
-# By default Servel.NET only allows users/clients to connect if the clients IP address is in the private ranges.
-# This is intended to only allow users on the local network to access Servel.NET.
-# 
-# You can set AllowNetworkAccess to false to prevent users on the local network from accessing Servel.NET.
-# You will then only be able to access Servel.NET from this computer.
-
-# AllowNetworkAccess = true
+# Audience = LocalNetwork
 
 
 # Here's where you say what drives or folders you want Servel.NET to serve (to make available for anyone to access).

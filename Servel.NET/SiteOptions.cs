@@ -7,13 +7,17 @@ public record struct SiteOptions(
     string? Key,
     string? Username,
     string? Password,
-    bool? AllowNetworkAccess,
-    bool? AllowPublicAccess,
+    Audience? Audience,
     SiteListingOption[] Listings,
     SiteDirectoryOptions[]? DirectoriesOptions)
 {
     public readonly bool HasCertificate => Cert != null && Key != null;
     public readonly bool HasCredentials => Username != null && Password != null;
+}
+
+public enum Audience
+{
+    MyComputer, LocalNetwork, Public
 }
 
 public readonly record struct SiteListingOption(string Dir, string Url, string? Name);

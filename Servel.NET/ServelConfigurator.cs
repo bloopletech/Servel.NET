@@ -10,10 +10,10 @@ public readonly struct ServelConfigurator(string BasePath)
         using var inputStream = File.OpenText(configPath);
         var options = TOML.Parse(inputStream)!;
 
-        return ConfigureOptions(options);
+        return ConfigureServel(options);
     }
 
-    private ServelConfiguration ConfigureOptions(TomlTable options)
+    private ServelConfiguration ConfigureServel(TomlTable options)
     {
         var siteConfigurations = ConfigureSites(options.GetRequiredArray("Site"));
         return new ServelConfiguration(siteConfigurations);
@@ -38,8 +38,7 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetString("Key"),
             siteOptions.GetString("Username"),
             siteOptions.GetString("Password"),
-            siteOptions.GetBoolean("AllowNetworkAccess"),
-            siteOptions.GetBoolean("AllowPublicAccess"),
+            siteOptions.GetEnum<Audience>("Audience"),
             ConfigureListings(siteOptions.GetRequiredArray("Listing")),
             ConfigureDirectoriesOptions(siteOptions.GetArray("DirectoriesOptions")));
     }

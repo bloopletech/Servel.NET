@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
 
-var configuration = ServelConfiguration.Configure();
+var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
@@ -71,8 +71,7 @@ void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver re
 
 void ConfigureSite(IApplicationBuilder app, Site site)
 {
-    if (!site.AllowNetworkAccess) app.UseMiddleware<DenyNetworkAccessMiddleware>();
-    if (!site.AllowPublicAccess) app.UseMiddleware<DenyPublicAccessMiddleware>();
+    app.UseMiddleware<DenyAudienceMiddleware>(site.Audience);
 
     if (site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
 

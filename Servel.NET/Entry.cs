@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Web;
 
 namespace Servel.NET;
@@ -32,7 +33,7 @@ public readonly record struct OtherEntry(
     bool TopEntry,
     bool ParentEntry);
 
-public readonly record struct ListingEntry(string Href, string? CustomName)
+public readonly record struct ListingEntry(string Href, [property: JsonIgnore()] string? CustomName)
 {
     public string Name => CustomName ?? HttpUtility.UrlDecode(Href[1..]);
 }
