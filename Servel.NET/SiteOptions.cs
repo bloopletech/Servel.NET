@@ -17,7 +17,7 @@ public record struct SiteOptions(
 
 public enum Audience
 {
-    MyComputer, LocalNetwork, Public
+    Localhost, LocalNetwork, Public
 }
 
 public readonly record struct SiteListingOption(string Dir, string Url, string? Name);

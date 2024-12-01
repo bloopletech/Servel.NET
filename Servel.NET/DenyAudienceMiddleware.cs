@@ -11,7 +11,7 @@ public class DenyAudienceMiddleware(RequestDelegate next, Audience audience)
 
         var allow = audience switch
         {
-            Audience.MyComputer => remoteIp != null && IPAddress.IsLoopback(remoteIp),
+            Audience.Localhost => remoteIp != null && IPAddress.IsLoopback(remoteIp),
             Audience.LocalNetwork => remoteIp != null && remoteIp.IsPrivate(),
             Audience.Public => true,
             _ => throw new NotImplementedException()

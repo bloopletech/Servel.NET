@@ -77,7 +77,7 @@ Port = 9292
 # Even with Audience set to Public, you stil have to configure your network to allow access
 # from the public internet to the machine hosting Servel.NET for this to actually work.
 # 
-# If Audience is MyComputer, then Servel.NET will only allow connections from this computer.
+# If Audience is Localhost, then Servel.NET will only allow connections from this computer.
 
 # Audience = LocalNetwork
 
