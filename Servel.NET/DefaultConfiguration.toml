@@ -109,7 +109,9 @@ Port = 9292
 # The name will be shown instead of the URL path in the list of all the URL paths.
 # The URL path will still be used in the broswer address bar etc.
 # 
-# By default the Windows Public folder will be served directly at the root URL.
+# By default, if Servel.NET is run elevated or as an Administrator,
+# the Windows Public folder will be served directly at the root URL.
+# If Servel.NET is run as a regular user, by default the current directory will be served directly at the root URL.
 # You can remove this entry, keep it, or mix and match with the following examples.
 
 [[Site.Listing]]

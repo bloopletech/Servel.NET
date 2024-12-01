@@ -20,7 +20,17 @@ public static class ServelConfigurationProvider
         if (File.Exists(configPath)) return;
 
         var password = HttpUtility.JavaScriptStringEncode(KeyGenerator.GetUniqueKey(20));
-        var publicPath = Path.GetFullPath("..\\", Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments));
+        string publicPath;
+        if(Environment.IsPrivilegedProcess)
+        {
+            publicPath = Path.GetFullPath(
+                "..\\",
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments));
+        }
+        else
+        {
+            publicPath = ".";
+        }
         var encodedPublicPath = HttpUtility.JavaScriptStringEncode(publicPath);
 
         var defaultConfiguration = Resources.Get("DefaultConfiguration.toml");
