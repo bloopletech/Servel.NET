@@ -11,7 +11,8 @@ public class IndexMiddleware(
     RequestDelegate next,
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
-    IMemoryCache memoryCache)
+    IMemoryCache memoryCache,
+    HistoryService historyService)
 {
     private readonly EntryFactory _entryFactory = new(listing, memoryCache);
 
@@ -48,6 +49,8 @@ public class IndexMiddleware(
     private async Task Render(HttpContext httpContext)
     {
         var directoryOptions = directoryOptionsResolver.Resolve(httpContext.Request.PathBase + httpContext.Request.Path);
+
+        AddToHistory(httpContext);
 
         var responseJson = RenderResponse(
             httpContext.Request.Path,
@@ -90,5 +93,10 @@ public class IndexMiddleware(
         {
             return null;
         }
+    }
+
+    private void AddToHistory(HttpContext httpContext)
+    {
+        historyService.Visit(httpContext.Request.PathBase, httpContext.Request.Path);
     }
 }

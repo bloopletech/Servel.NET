@@ -1,6 +1,10 @@
 # This file contains examples of the options that Servel.NET supports;
 # uncomment, comment out, and modify the examples as needed to achieve your goals.
 
+# 
+# EnableDatabase = true
+# DatabasePath = "Database.sqlite3"
+
 [[Site]]
 
 # Host is the IP address for Servel.NET to bind to and serve your listings at.
