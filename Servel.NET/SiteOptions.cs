@@ -15,11 +15,6 @@ public record struct SiteOptions(
     public readonly bool HasCredentials => Username != null && Password != null;
 }
 
-public enum Audience
-{
-    Localhost, LocalNetwork, Public
-}
-
 public readonly record struct SiteListingOption(string Dir, string Url, string? Name);
 
 public readonly record struct SiteDirectoryOptions(
@@ -32,14 +27,4 @@ public readonly record struct SiteDirectoryOptions(
 {
     public readonly bool HasParams => Depth != null || CountChildren != null;
     public readonly bool HasDefaultQuery => SortMethod != null || SortDirection != null || SearchText != null;
-}
-
-public enum SortMethod
-{
-    Name, Mtime, Size, Type
-}
-
-public enum SortDirection
-{
-    Asc, Desc
 }

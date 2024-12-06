@@ -61,6 +61,11 @@ public readonly struct Site
 
 public readonly record struct Credentials(string Username, string Password);
 
+public enum Audience
+{
+    Localhost, LocalNetwork, Public
+}
+
 public readonly record struct Listing(string FsPath, string UrlPath, string? Name)
 {
     public readonly ListingFileProvider FileProvider = new(FsPath);
@@ -71,3 +76,13 @@ public readonly record struct DirectoryOptions(
     PathString UrlPath,
     IndexParameters DefaultParameters,
     ListingQuery? DefaultQuery);
+
+public enum SortMethod
+{
+    Name, Mtime, Size, Type
+}
+
+public enum SortDirection
+{
+    Asc, Desc
+}
