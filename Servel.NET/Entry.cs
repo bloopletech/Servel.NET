@@ -37,3 +37,11 @@ public readonly record struct ListingEntry(string Href, [property: JsonIgnore()]
 {
     public string Name => CustomName ?? HttpUtility.UrlDecode(Href[1..]);
 }
+
+public readonly record struct HistoryEntry(
+    string Href,
+    long LastVisited,
+    int VisitedCount)
+{
+    public string Name => HttpUtility.UrlDecode(Href[1..]);
+}

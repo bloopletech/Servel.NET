@@ -6,6 +6,9 @@ charset = utf-8
 # SYSLIB1037: Deserialization of init-only properties is currently not supported in source generation mode.
 dotnet_diagnostic.SYSLIB1037.severity = none
 
+dotnet_diagnostic.IDE0007.severity = error
+dotnet_diagnostic.IDE0008.severity = none
+
 [*.css]
 
 indent_style = space
