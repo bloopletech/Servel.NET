@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Servel.NET.Extensions;
+using Servel.NET.Services;
 using System.Net.Mime;
 using System.Text.Json;
 
@@ -12,7 +13,7 @@ public class IndexMiddleware(
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
     IMemoryCache memoryCache,
-    HistoryService historyService)
+    HistoryService? historyService = null)
 {
     private readonly EntryFactory _entryFactory = new(listing, memoryCache);
 
@@ -38,7 +39,14 @@ public class IndexMiddleware(
 
         if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
-            await Render(httpContext);
+            try
+            {
+                await Render(httpContext);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                await Results.NotFound().ExecuteAsync(httpContext);
+            }
         }
         else
         {
@@ -48,20 +56,26 @@ public class IndexMiddleware(
 
     private async Task Render(HttpContext httpContext)
     {
-        var directoryOptions = directoryOptionsResolver.Resolve(httpContext.Request.PathBase + httpContext.Request.Path);
+        var directoryOptions = directoryOptionsResolver.Resolve(httpContext.Request.FullPath());
 
-        AddToHistory(httpContext);
-
-        var responseJson = RenderResponse(
+        var directoryEntry = _entryFactory.ForDirectory(
             httpContext.Request.Path,
-            ParseParameters(httpContext, directoryOptions),
-            directoryOptions);
+            ParseParameters(httpContext, directoryOptions));
 
-        if (responseJson == null)
-        {
-            await Results.NotFound().ExecuteAsync(httpContext);
-            return;
-        }
+        var recentEntries = historyService?.GetRecent(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
+        var popularEntries = historyService?.GetPopular(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
+
+        historyService?.VisitDirectory(httpContext);
+
+        var indexResponse = new IndexResponse(
+            directoryEntry,
+            directoryOptions.DefaultQuery,
+            recentEntries,
+            popularEntries);
+
+        var responseJson = JsonSerializer.SerializeToUtf8Bytes(
+            indexResponse,
+            SerializationSourceGenerationContext.Default.IndexResponse);
 
         await Results.Text(responseJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
     }
@@ -76,27 +90,5 @@ public class IndexMiddleware(
             Depth = (parameters?.Depth ?? defaultParams.Depth) + 1,
             CountChildren = parameters?.CountChildren ?? defaultParams.CountChildren
         };
-    }
-
-    private byte[]? RenderResponse(
-        PathString path,
-        EntryFactory.ForDirectoryOptions options,
-        DirectoryOptions directoryOptions)
-    {
-        try
-        {
-            return JsonSerializer.SerializeToUtf8Bytes(
-                new IndexResponse(_entryFactory.ForDirectory(path, options), directoryOptions.DefaultQuery),
-                SerializationSourceGenerationContext.Default.IndexResponse);
-        }
-        catch(DirectoryNotFoundException)
-        {
-            return null;
-        }
-    }
-
-    private void AddToHistory(HttpContext httpContext)
-    {
-        historyService.Visit(httpContext.Request.PathBase, httpContext.Request.Path);
     }
 }

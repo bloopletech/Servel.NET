@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
-using Microsoft.Data.Sqlite;
+using Servel.NET.Services;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
@@ -54,23 +54,21 @@ builder.Services.AddMemoryCache();
 
 if (configuration.DatabasePath != null)
 {
-    var databaseService = new DatabaseService(configuration.DatabasePath);
-    DatabaseService.LoadSchema(databaseService);
-    builder.Services.AddSingleton(databaseService);
-
+    builder.Services.AddSingleton(new DatabaseService(configuration.DatabasePath));
     builder.Services.AddSingleton<HistoryService>();
 }
 
 var app = builder.Build();
 
-//DatabaseService.LoadSchema(app.Services.GetRequiredService<DatabaseService>());
+app.Services.GetService<DatabaseService>()?.CreateSchema();
 
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = listing.FileProvider,
-        ServeUnknownFileTypes = true
+        ServeUnknownFileTypes = true,
+        OnPrepareResponse = HistoryService.OnPrepareResponse
     });
     app.UseMiddleware<IndexMiddleware>(listing, resolver);
 }

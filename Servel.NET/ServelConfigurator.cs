@@ -19,7 +19,7 @@ public readonly struct ServelConfigurator(string BasePath)
         return new ServelConfiguration(siteConfigurations, ConfigureServelOptions(options), BasePath);
     }
 
-    private ServelOptions ConfigureServelOptions(TomlTable options)
+    private static ServelOptions ConfigureServelOptions(TomlTable options)
     {
         return new ServelOptions(options.GetBoolean("EnableDatabase"), options.GetString("DatabasePath"));
     }

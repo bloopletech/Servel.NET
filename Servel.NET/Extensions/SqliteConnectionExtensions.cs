@@ -1,53 +1,254 @@
-global using DbValue = System.Collections.Generic.KeyValuePair<string, object?>;
+using System.Data;
 using Microsoft.Data.Sqlite;
 
 namespace Servel.NET.Extensions;
 
+public readonly record struct DbPair(string Name, object? Value);
+
 public static class SqliteConnectionExtensions
 {
-    public static int ExecuteSQL(this SqliteConnection connection, string sql)
+    public static SqliteCommand CreateCommand(this SqliteConnection connection, string sql)
     {
-        using var command = connection.CreateCommand();
+        var command = connection.CreateCommand();
         command.CommandText = sql;
+        return command;
+    }
+
+    public static int Query(this SqliteConnection connection, string sql)
+    {
+        return connection.Query(sql, []);
+    }
+
+    public static int Query(this SqliteConnection connection, string sql, SqliteParameter[] entries)
+    {
+        using var command = connection.CreateCommand(sql);
+        command.Parameters.AddRange(entries);
+
         return command.ExecuteNonQuery();
     }
 
-    public static long Insert(
+    public static T GetRequired<T>(
         this SqliteConnection connection,
         string table,
-        params (string, object?)[] entries)
+        DbPair idEntry,
+        Func<SqliteDataReader, T> builder)
     {
-        var columnsClause = string.Join(",", entries.Select(e => e.Item1));
-        var valuesClause = string.Join(",", entries.Select((e, i) => $"@{i}");
+        return connection.Get(table, idEntry, ["*"], builder) ?? throw new InvalidOperationException();
+    }
 
-        var insertCommand = connection.CreateCommand();
-        insertCommand.CommandText = $"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})";
-        foreach (var (index, entry) in entries.Index())
-        {
-            insertCommand.Parameters.AddWithValue($"@{index}", entry.Item2);
-        }
-        insertCommand.ExecuteNonQuery();
+    public static T GetRequired<T>(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        string[] columns,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Get(table, idEntry, columns, builder) ?? throw new InvalidOperationException();
+    }
 
-        var idCommand = connection.CreateCommand();
-        idCommand.CommandText = "SELECT last_insert_rowid();";
+    public static T? Get<T>(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Get(table, idEntry, ["*"], builder);
+    }
+
+    public static T? Get<T>(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        string[] columns,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Select(table, idEntry, columns, builder).FirstOrDefault();
+    }
+
+    public static SqliteDataReader Select(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry)
+    {
+        return connection.Select(table, idEntry, ["*"]);
+    }
+
+    public static SqliteDataReader Select(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        string[] columns)
+    {
+        var columnsClause = string.Join(",", columns);
+
+        using var command = connection.CreateCommand($"SELECT {columnsClause} FROM {table} WHERE {idEntry.Name} = @id");
+        command.Parameters.AddWithValue("@id", idEntry.Value);
+
+        return command.ExecuteReader();
+    }
+
+    public static IList<T> Select<T>(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Select(table, idEntry, ["*"], builder);
+    }
+
+    public static IList<T> Select<T>(
+        this SqliteConnection connection,
+        string table,
+        DbPair idEntry,
+        string[] columns,
+        Func<SqliteDataReader, T> builder)
+    {
+        var columnsClause = string.Join(",", columns);
+
+        using var command = connection.CreateCommand($"SELECT {columnsClause} FROM {table} WHERE {idEntry.Name} = @id");
+        command.Parameters.AddWithValue("@id", idEntry.Value);
+
+        using var reader = command.ExecuteReader();
+
+        var results = new List<T>();
+        while (reader.Read()) results.Add(builder(reader));
+        return results;
+    }
+
+    public static T GetRequired<T>(
+        this SqliteConnection connection,
+        string sql,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.GetRequired(sql, [], builder);
+    }
+
+    public static T GetRequired<T>(
+        this SqliteConnection connection,
+        string sql,
+        SqliteParameter[] entries,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Get(sql, entries, builder) ?? throw new InvalidOperationException();
+    }
+
+    public static T? Get<T>(
+        this SqliteConnection connection,
+        string sql,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Get(sql, [], builder);
+    }
+
+    public static T? Get<T>(
+        this SqliteConnection connection,
+        string sql,
+        SqliteParameter[] entries,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Select(sql, entries, builder).FirstOrDefault();
+    }
+
+    public static IList<T> Select<T>(
+        this SqliteConnection connection,
+        string sql,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.Select(sql, [], builder);
+    }
+
+    public static IList<T> Select<T>(
+        this SqliteConnection connection,
+        string sql,
+        SqliteParameter[] entries,
+        Func<SqliteDataReader, T> builder)
+    {
+        using var command = connection.CreateCommand(sql);
+        command.Parameters.AddRange(entries);
+
+        using var reader = command.ExecuteReader();
+        var results = new List<T>();
+        while (reader.Read()) results.Add(builder(reader));
+        return results;
+    }
+
+    public static SqliteDataReader SelectRaw(this SqliteConnection connection, string sql)
+    {
+        return connection.SelectRaw(sql, []);
+    }
+
+    public static SqliteDataReader SelectRaw(this SqliteConnection connection, string sql, SqliteParameter[] entries)
+    {
+        using var command = connection.CreateCommand(sql);
+        command.Parameters.AddRange(entries);
+
+        return command.ExecuteReader();
+    }
+
+    public static T SelectRaw<T>(
+        this SqliteConnection connection,
+        string sql,
+        Func<SqliteDataReader, T> builder)
+    {
+        return connection.SelectRaw(sql, [], builder);
+    }
+
+    public static T SelectRaw<T>(
+        this SqliteConnection connection,
+        string sql,
+        SqliteParameter[] entries,
+        Func<SqliteDataReader, T> builder)
+    {
+        using var command = connection.CreateCommand(sql);
+        command.Parameters.AddRange(entries);
+
+        using var reader = command.ExecuteReader();
+        return builder(reader);
+    }
+
+    public static long Insert(this SqliteConnection connection, string table, DbPair[] entries)
+    {
+        var columnsClause = string.Join(",", entries.Select(static e => e.Name));
+        var valuesClause = string.Join(",", entries.Select(static (e, i) => $"@{i}"));
+
+        using var command = connection.CreateCommand($"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})");
+        foreach (var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value);
+        command.ExecuteNonQuery();
+
+        using var idCommand = connection.CreateCommand("SELECT last_insert_rowid();");
         return (long)idCommand.ExecuteScalar()!;
     }
 
     public static void Update(
         this SqliteConnection connection,
         string table,
-        (string, object?) idEntry,
-        params List<(string, object?)> entries)
+        DbPair idEntry,
+        DbPair[] entries)
     {
-        var setClause = string.Join(", ", entries.Select((e, i) => $"{e.Item1} = @{i}"));
+        var setClause = string.Join(", ", entries.Select(static (e, i) => $"{e.Name} = @{i}"));
 
-        var updateCommand = connection.CreateCommand();
-        updateCommand.CommandText = $"UPDATE {table} SET {setClause} WHERE {idEntry.Item1} = @id";
-        foreach (var (index, entry) in entries.Index())
+        using var command = connection.CreateCommand($"UPDATE {table} SET {setClause} WHERE {idEntry.Name} = @id");
+        foreach (var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value);
+        command.Parameters.AddWithValue("@id", idEntry.Value);
+        command.ExecuteNonQuery();
+    }
+
+    public static void Delete(this SqliteConnection connection, string table, DbPair idEntry)
+    {
+        using var command = connection.CreateCommand($"DELETE FROM {table} WHERE {idEntry.Name} = @id");
+        command.Parameters.AddWithValue("@id", idEntry.Value);
+        command.ExecuteNonQuery();
+    }
+
+    public static bool HasColumn(this SqliteConnection connection, string tableName, string columnName)
+    {
+        using var command = connection.CreateCommand($"PRAGMA table_info({tableName})");
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            updateCommand.Parameters.AddWithValue($"@{index}", entry.Item2);
+            if (reader.GetString("name") == columnName) return true;
         }
-        updateCommand.Parameters.AddWithValue("@id", idEntry.Item2);
-        updateCommand.ExecuteNonQuery();
+
+        return false;
     }
 }
