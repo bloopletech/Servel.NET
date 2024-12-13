@@ -50,8 +50,12 @@ builder.WebHost.UseKestrel(serverOptions =>
 
 // Add services to the container.
 builder.Services.AddMemoryCache();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(app => app.Run(context => Task.CompletedTask));
+if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
