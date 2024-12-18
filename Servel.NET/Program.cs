@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
+using Servel.NET.Services;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
@@ -52,17 +53,26 @@ builder.WebHost.UseKestrel(serverOptions =>
 builder.Services.AddMemoryCache();
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 
+if (configuration.DatabasePath != null)
+{
+    builder.Services.AddSingleton(new DatabaseService(configuration.DatabasePath));
+    builder.Services.AddSingleton<HistoryService>();
+}
+
 var app = builder.Build();
 
 app.UseExceptionHandler(app => app.Run(context => Task.CompletedTask));
 if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+app.Services.GetService<DatabaseService>()?.CreateSchema();
 
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = listing.FileProvider,
-        ServeUnknownFileTypes = true
+        ServeUnknownFileTypes = true,
+        OnPrepareResponse = HistoryService.OnPrepareResponse
     });
     app.UseMiddleware<IndexMiddleware>(listing, resolver);
 }

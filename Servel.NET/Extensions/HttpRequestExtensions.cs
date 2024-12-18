@@ -7,4 +7,6 @@ public static class HttpRequestExtensions
         HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method);
 
     public static bool IsRoot(this HttpRequest request) => request.Path.IsRoot();
+
+    public static PathString FullPath(this HttpRequest request) => request.PathBase + request.Path;
 }
