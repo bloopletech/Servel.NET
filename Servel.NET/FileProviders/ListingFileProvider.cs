@@ -18,7 +18,7 @@ public class ListingFileProvider : PhysicalFileProvider
     public IFileInfo GetDirectoryInfo(string subpath)
     {
         var contents = GetDirectoryContents(subpath);
-        if (!contents.Exists) return new NotFoundDirectoryInfo(subpath);
+        if(!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
         return GetInfoField((PhysicalDirectoryContents)contents);
     }

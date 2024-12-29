@@ -1,6 +1,6 @@
 #listing {
   display: none;
-  padding: 10px;
+  padding: 20px;
   background-color: #fff;
 }
 
@@ -31,113 +31,177 @@ body.has-gallery #jump-gallery-wrapper {
   display: block;
 }
 
-#toolbar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 20px;
-}
-
 #directory-info {
-  flex-grow: 1;
   display: flex;
+  margin-bottom: 10px;
   gap: 8px 20px;
   overflow: auto;
   scrollbar-width: none;
+}
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+#directory-info::-webkit-scrollbar {
+  display: none;
+}
 
-  > div {
-    flex-shrink: 0;
-  }
+#directory-info > div {
+  flex-shrink: 0;
+}
+
+#toolbar-spy {
+  width: 0;
+}
+
+#toolbar-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0 -20px;
+  padding: 0 20px;
+  background-color: #fff;
+}
+
+#toolbar-wrapper.pinned {
+  box-shadow: 0px 5px 9px 0px rgba(0, 0, 0, 0.4);
+}
+
+#toolbar {
+  display: flex;
+  margin-bottom: 10px;
+  padding: 10px 0;
+  align-items: center;
+  gap: 20px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+#toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+#toolbar > div {
+  flex: none;
+  display: flex;
+  padding: 10px 15px;
+  border-radius: 15px;
+  gap: 8px 15px;
+  background-color: #eee;
+}
+
+#toolbar > div > label {
+  font-weight: bold;
+}
+
+#listing:not(.has-thumbnails) #layout-mode {
+  display: none;
 }
 
 #search {
   width: 300px;
-  max-width: 50%;
-  flex-shrink: 0;
+  min-width: 150px;
+  margin-left: auto;
   padding: 5px;
   font-size: 16px;
   border: 1px solid #ddd;
 }
 
-#table-wrapper {
-  min-width: 810px;
-  margin-right: -10px;
-  padding-right: 10px;
+.thumbnail {
+  cursor: pointer;
 }
 
-#table-header-wrapper-spy {
-  width: 0;
-}
-
-#table-header-wrapper {
-  position: sticky;
-  top: -1px;
-  z-index: 1;
-
-  &.pinned {
-    box-shadow: 0px 5px 9px 0px rgba(0, 0, 0, 0.4);
-  }
-}
-
-table {
+.thumbnail img {
+  display: block;
   width: 100%;
-  min-width: 800px;
-  background-color: #ffffff;
-  border-collapse: collapse;
-  border: 1px solid #ddd;
-  table-layout: fixed;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
 
-#listing-container table, #listing-container tr:first-child td {
-  border-top: none;
-}
-
-th {
-  font-weight: normal;
-}
-
-th, td {
-  padding: 5px;
-  border: 1px solid #ddd;
-}
-
-tbody {
-  vertical-align: top;
-}
-
-tbody > tr:nth-of-type(odd) {
-  background-color: #f9f9f9;
-}
-
-th.name, td.name {
+.name {
   overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
-th.type, td.type {
+.name a {
+  white-space: normal;
+}
+
+.type {
   width: 5em;
 }
 
-th.size, td.size {
+.size {
   width: 6em;
 }
 
-th.modified, td.modified {
+.modified {
   width: 12em;
 }
 
-th.sortable.sort-active {
+#listing.list .entry {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background-color: #fff;
+}
+
+#listing.list .entry:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+#listing.list .entry > * {
+  flex: none;
+}
+
+#listing.list .thumbnail {
+  width: 50px;
+  max-height: 50px;
+}
+
+#listing.list .name {
+  flex: auto;
+}
+
+#listing.thumbnails #entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background-color: #333;
+}
+
+#listing.thumbnails .entry {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+#listing.thumbnails .thumbnail {
+  height: 100%;
+}
+
+#listing.thumbnails .name {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 5px;
+  background-color: #ffffffa0;
+}
+
+#listing.thumbnails .type, #listing.thumbnails .size, #listing.thumbnails .modified {
+  display: none;
+}
+
+.layout-mode.active {
   font-weight: bold;
 }
 
-th.sortable.sort-active.sort-asc a::after {
+.sortable.sort-active {
+  font-weight: bold;
+}
+
+.sortable.sort-active.sort-asc::after {
   content: " ⬇️";
 }
 
-th.sortable.sort-active.sort-desc a::after {
+.sortable.sort-active.sort-desc::after {
   content: " ⬆️";
 }
 
@@ -152,8 +216,38 @@ a.default.home, a.default.top, a.default.parent {
   font-style: oblique;
 }
 
+@media screen and (max-width: 991px) {
+  .type {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 767px) {
   #listing h1 {
     font-size: 20px;
   }
+
+  #listing.list .name {
+    width: 100%;
+  }
+
+  #listing.list.has-thumbnails .name {
+    width: calc(100% - 60px);
+  }
+
+  #listing.list .entry {
+    flex-wrap: wrap;
+  }
+
+  #listing.list .entry > * {
+    flex: auto;
+  }
+}
+
+@media screen and (max-width: 479px) {
+
+
+
+
+
 }

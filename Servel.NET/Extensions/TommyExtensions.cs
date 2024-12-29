@@ -20,7 +20,7 @@ public static class TommyExtensions
     public static T? GetEnum<T>(this TomlTable table, string key) where T : struct
     {
         var value = table.GetString(key);
-        if (value == null) return null;
+        if(value == null) return null;
         return Enum.Parse<T>(value);
     }
 }

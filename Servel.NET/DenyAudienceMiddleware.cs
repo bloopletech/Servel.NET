@@ -17,7 +17,7 @@ public class DenyAudienceMiddleware(RequestDelegate next, Audience audience)
             _ => throw new NotImplementedException()
         };
 
-        if (!allow) await Results.StatusCode(StatusCodes.Status403Forbidden).ExecuteAsync(httpContext);
+        if(!allow) await Results.StatusCode(StatusCodes.Status403Forbidden).ExecuteAsync(httpContext);
         else await next.Invoke(httpContext);
     }
 }

@@ -111,7 +111,7 @@ public static class SqliteConnectionExtensions
         using var reader = command.ExecuteReader();
 
         var results = new List<T>();
-        while (reader.Read()) results.Add(builder(reader));
+        while(reader.Read()) results.Add(builder(reader));
         return results;
     }
 
@@ -168,7 +168,7 @@ public static class SqliteConnectionExtensions
 
         using var reader = command.ExecuteReader();
         var results = new List<T>();
-        while (reader.Read()) results.Add(builder(reader));
+        while(reader.Read()) results.Add(builder(reader));
         return results;
     }
 
@@ -212,7 +212,7 @@ public static class SqliteConnectionExtensions
         var valuesClause = string.Join(",", entries.Select(static (e, i) => $"@{i}"));
 
         using var command = connection.CreateCommand($"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})");
-        foreach (var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value);
+        foreach(var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value ?? DBNull.Value);
         command.ExecuteNonQuery();
 
         using var idCommand = connection.CreateCommand("SELECT last_insert_rowid();");
@@ -228,7 +228,7 @@ public static class SqliteConnectionExtensions
         var setClause = string.Join(", ", entries.Select(static (e, i) => $"{e.Name} = @{i}"));
 
         using var command = connection.CreateCommand($"UPDATE {table} SET {setClause} WHERE {idEntry.Name} = @id");
-        foreach (var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value);
+        foreach(var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value ?? DBNull.Value);
         command.Parameters.AddWithValue("@id", idEntry.Value);
         command.ExecuteNonQuery();
     }
@@ -244,9 +244,9 @@ public static class SqliteConnectionExtensions
     {
         using var command = connection.CreateCommand($"PRAGMA table_info({tableName})");
         using var reader = command.ExecuteReader();
-        while (reader.Read())
+        while(reader.Read())
         {
-            if (reader.GetString("name") == columnName) return true;
+            if(reader.GetString("name") == columnName) return true;
         }
 
         return false;

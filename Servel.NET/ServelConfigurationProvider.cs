@@ -8,7 +8,7 @@ public static class ServelConfigurationProvider
 
     public static ServelConfiguration Configure(string basePath)
     {
-        var configPath = Path.Combine(basePath, "Configuration.toml");
+        var configPath = Path.Combine(basePath, "ServelConfiguration.toml");
         EnsureConfigurationFile(configPath);
 
         var configurator = new ServelConfigurator(basePath);
@@ -17,7 +17,7 @@ public static class ServelConfigurationProvider
 
     private static void EnsureConfigurationFile(string configPath)
     {
-        if (File.Exists(configPath)) return;
+        if(File.Exists(configPath)) return;
 
         var password = HttpUtility.JavaScriptStringEncode(KeyGenerator.GetUniqueKey(20));
         string publicPath;

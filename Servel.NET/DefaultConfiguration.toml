@@ -3,7 +3,10 @@
 
 # 
 # EnableDatabase = true
-# DatabasePath = "Database.sqlite3"
+# DatabasePath = "ServelDatabase.sqlite3"
+# EnableCacheDatabase = true
+# CacheDatabasePath = "ServelCacheDatabase.sqlite3"
+
 
 [[Site]]
 

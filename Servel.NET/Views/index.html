@@ -59,35 +59,26 @@
                     <a id="jump-gallery" href="#">Gallery</a>
                 </h1>
             </div>
-            <div id="toolbar">
-                <div id="directory-info"></div>
-                <input id="search" type="search">
-            </div>
-            <div id="table-wrapper">
-                <div id="table-header-wrapper-spy"></div>
-                <div id="table-header-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th class="name sortable" data-sort-method="name" data-sort-direction="asc">
-                                    <a href="#">Name</a>
-                                </th>
-                                <th class="type sortable" data-sort-method="type" data-sort-direction="asc">
-                                    <a href="#">Type</a>
-                                </th>
-                                <th class="size sortable" data-sort-method="size" data-sort-direction="asc">
-                                    <a href="#">Size</a>
-                                </th>
-                                <th class="modified sortable" data-sort-method="mtime" data-sort-direction="asc">
-                                    <a href="#">Modified</a>
-                                </th>
-                            </tr>
-                        </thead>
-                    </table>
+            <div id="directory-info"></div>
+            <div id="toolbar-spy"></div>
+            <div id="toolbar-wrapper">
+                <div id="toolbar">
+                    <div>
+                        <label>Sort</label>
+                        <a class="sortable" data-sort-method="name" data-sort-direction="asc" href="#">Name</a>
+                        <a class="sortable" data-sort-method="type" data-sort-direction="asc" href="#">Type</a>
+                        <a class="sortable" data-sort-method="size" data-sort-direction="asc" href="#">Size</a>
+                        <a class="sortable" data-sort-method="mtime" data-sort-direction="asc" href="#">Modified</a>
+                    </div>
+                    <div id="layout-mode">
+                        <label>View</label>
+                        <a class="layout-mode" data-layout-mode="list" href="#">List</a>
+                        <a class="layout-mode" data-layout-mode="thumbnails" href="#">Thumbnails</a>
+                    </div>
+                    <input id="search" type="search">
                 </div>
-                <div id="listing-container"></div>
-                <div id="load-more-spy"></div>
             </div>
+            <div id="entries"></div>
         </div>
 
         <svg class="default-hidden">

@@ -9,7 +9,7 @@ public static class StringExtensions
 
     public static string EnsureTrailingSlash(this string? path)
     {
-        if (!string.IsNullOrEmpty(path) && path[^1] == '/') return path;
+        if(!string.IsNullOrEmpty(path) && path[^1] == '/') return path;
         return path + '/';
     }
 }

@@ -9,7 +9,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
 {
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        if (ShouldProcess(httpContext)) await Process(httpContext);
+        if(ShouldProcess(httpContext)) await Process(httpContext);
         else await next.Invoke(httpContext);
     }
 
@@ -19,7 +19,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
     {
         httpContext.Response.Headers.Vary = HeaderNames.Accept;
 
-        if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
             await Results.Text(RenderResponse(), MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
             return;

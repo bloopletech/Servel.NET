@@ -9,4 +9,10 @@ public static class HttpRequestExtensions
     public static bool IsRoot(this HttpRequest request) => request.Path.IsRoot();
 
     public static PathString FullPath(this HttpRequest request) => request.PathBase + request.Path;
+
+    public static string? GetAction(this HttpRequest request)
+    {
+        if(!request.Query.ContainsKey("action")) return null;
+        return request.Query["action"].ToString();
+    }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -27,9 +27,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.3.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
+    <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.420" GeneratePathProperty="true">
+      <ExcludeAssets>all</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
@@ -37,5 +41,9 @@
     <EmbeddedResource Include="Assets\**" />
     <EmbeddedResource Include="Views\**" />
     <EmbeddedResource Include="DefaultConfiguration.toml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(PkgSoenneker_Libraries_FFmpeg)\content\Resources\ffmpeg.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -1,41 +1,31 @@
 "use strict";
 
-const Listing = (function() {
+const Listing = (function () {
+  let $listing;
   let $directoryInfo;
-  let $tableWrapper;
-  let $tableHeaderWrapper;
-  let $container;
-  const perPage = 99;
-  let currentIndex;
-  let moreContent;
+  let $toolbarSpy;
+  let $toolbarWrapper;
+  let $entries;
+  let hasThumbnails;
 
-  function renderRow(file) {
+  function renderEntry(entry) {
+    const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.href}?action=thumbnail">` : "";
     return HTMLSafe`
-      <tr>
-        <td class="name text-selectable">
-          <span class="icon">${file.icon}</span>
-          <a href="${file.href}" class="default ${file.class}" data-url="${file.href}" data-type="${file.mediaType}">${file.name}</a>
-        </td>
-        <td class="type">${file.type}</td>
-        <td class="size">${file.sizeText}</td>
-        <td class="modified">${file.mtimeText}</td>
-      </tr>
-    `;
-  }
-
-  function renderTable(currentEntries) {
-    return `
-      <table>
-        <tbody>
-          ${currentEntries.map(entry => renderRow(entry)).join("")}
-        </tbody>
-      </table>
+      <div class="entry">
+        ${hasThumbnails ? HTMLSafe`<div class="thumbnail">${thumbnailInner}</div>` : ""}
+        <div class="name text-selectable">
+          <span class="icon">${entry.icon}</span>
+          <a href="${entry.href}" class="default ${entry.class}" data-url="${entry.href}" data-type="${entry.mediaType}">${entry.name}</a>
+        </div>
+        <div class="type">${entry.type}</div>
+        <div class="size">${entry.sizeText}</div>
+        <div class="modified">${entry.mtimeText}</div>
+      </div>
     `;
   }
 
   function render() {
-    const currentEntries = Entries.all.slice(currentIndex, currentIndex + perPage);
-    $container.insertAdjacentHTML("beforeend", renderTable(currentEntries));
+    $entries.innerHTML = Entries.all.map(entry => renderEntry(entry)).join("");
   }
 
   function renderInfo() {
@@ -56,16 +46,8 @@ const Listing = (function() {
     `;
   }
 
-  function loadMore() {
-    if(!moreContent) return;
-
-    currentIndex += perPage;
-    if(currentIndex >= Entries.all.length) moreContent = false;
-    render();
-  }
-
-  function applySort(sortable) {
-    const previousSortable = $("th.sortable.sort-active");
+  function reflectSort(sortable) {
+    const previousSortable = $(".sortable.sort-active");
     if(previousSortable) previousSortable.classList.remove("sort-active", "sort-asc", "sort-desc");
 
     if(sortable == previousSortable) {
@@ -76,22 +58,44 @@ const Listing = (function() {
   }
 
   function onSort(sortable) {
-    applySort(sortable);
+    reflectSort(sortable);
 
     Entries.query.method = sortable.dataset.sortMethod;
     Entries.query.direction = sortable.dataset.sortDirection;
     saveQuery();
     Entries.update();
-    $tableWrapper.scrollIntoView();
+  }
+
+  function reflectLayoutMode(element) {
+    const previousElement = $(".layout-mode.active");
+    if(previousElement) previousElement.classList.remove("active");
+
+    element.classList.add("active");
+  }
+
+  function onLayoutMode(element) {
+    reflectLayoutMode(element);
+
+    Entries.query.layoutMode = element.dataset.layoutMode;
+    saveQuery();
+  }
+
+  function openEntry(target) {
+    const entry = target.closest(".entry");
+    const link = entry.querySelector("a");
+    link.click();
   }
 
   function initQuery() {
     const state = sessionStorage.getItem(location.pathname);
     if(state) Entries.query = Object.assign(new Query, JSON.parse(state));
 
-    const sortable = $(`th.sortable[data-sort-method="${Entries.query.method}"]`);
+    const sortable = $(`.sortable[data-sort-method="${Entries.query.method}"]`);
     sortable.dataset.sortDirection = Entries.query.direction;
-    applySort(sortable);
+    reflectSort(sortable);
+
+    const element = $(`.layout-mode[data-layout-mode="${Entries.query.layoutMode}"]`);
+    reflectLayoutMode(element);
 
     $("#search").value = Entries.query.text;
   }
@@ -102,17 +106,11 @@ const Listing = (function() {
   }
 
   function initEvents() {
-    const loadMoreObserver = new IntersectionObserver(([e]) => {
-      if(e.intersectionRatio <= 0) return;
-      loadMore();
-    });
-    loadMoreObserver.observe($("#load-more-spy"));
-
-    const tableHeaderObserver = new IntersectionObserver(
-      ([e]) => $tableHeaderWrapper.classList.toggle("pinned", e.intersectionRatio < 1),
+    const toolbarObserver = new IntersectionObserver(
+      ([e]) => $toolbarWrapper.classList.toggle("pinned", e.intersectionRatio < 1),
       { threshold: [1] }
     );
-    tableHeaderObserver.observe($("#table-header-wrapper-spy"));
+    toolbarObserver.observe($toolbarSpy);
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
@@ -122,14 +120,23 @@ const Listing = (function() {
         e.preventDefault();
         Index.jumpGallery();
       }
-      else if(e.target.closest("th.sortable")) {
+      else if(e.target.matches(".layout-mode")) {
         e.preventDefault();
-        onSort(e.target.closest("th.sortable"));
+        onLayoutMode(e.target);
+        layout();
       }
-      else if(e.target.matches("a.media")) {
+      else if(e.target.matches(".sortable")) {
         e.preventDefault();
-        Gallery.jump(e.target.dataset.url);
+        onSort(e.target);
+      }
+      else if(e.target.closest("a.media")) {
+        e.preventDefault();
+        Gallery.jump(e.target.closest("a.media").dataset.url);
         Index.jumpGallery();
+      }
+      else if(e.target.closest(".thumbnail")) {
+        e.preventDefault();
+        openEntry(e.target);
       }
     });
 
@@ -144,21 +151,32 @@ const Listing = (function() {
     });
 
     Common.enableDragScroll($directoryInfo);
+    Common.enableDragScroll($("#toolbar"));
+  }
+
+  function layout() {
+    $listing.classList.remove("list", "thumbnails");
+    $listing.classList.add(Entries.query.layoutMode);
+    $toolbarSpy.scrollIntoView();
   }
 
   function onEntriesUpdate() {
-    $container.innerHTML = "";
-    currentIndex = 0;
-    moreContent = true;
+    hasThumbnails = !!(window.configuration.thumbnailsEnabled && Entries.hasAudioVideo);
+    $listing.classList.toggle("has-thumbnails", hasThumbnails);
+
+    if(!hasThumbnails && Entries.query.layoutMode == "thumbnails") onLayoutMode($(`.layout-mode[data-layout-mode="list"]`));
+
+    layout();
     render();
     renderInfo();
   }
 
   function init() {
+    $listing = $("#listing");
     $directoryInfo = $("#directory-info");
-    $tableWrapper = $("#table-wrapper");
-    $tableHeaderWrapper = $("#table-header-wrapper");
-    $container = $("#listing-container");
+    $toolbarSpy = $("#toolbar-spy");
+    $toolbarWrapper = $("#toolbar-wrapper");
+    $entries = $("#entries");
     const title = `Listing of ${decodeURIComponent(location.pathname)}`;
     $("#title").textContent = title;
     document.title = title;

@@ -4,11 +4,13 @@ class Query {
   method = "";
   direction = "";
   text = "";
+  layoutMode = "list";
 
   isDefault() {
     return this.method == window.defaultQuery.method
       && this.direction == window.defaultQuery.direction
-      && this.text == window.defaultQuery.text;
+      && this.text == window.defaultQuery.text
+      && this.layoutMode == window.defaultQuery.layoutMode;
   }
 }
 
@@ -17,6 +19,7 @@ const Entries = (function () {
   let all;
   let media;
 
+  let hasAudioVideo;
   let query;
 
   function runFilter(entries) {
@@ -59,6 +62,7 @@ const Entries = (function () {
     all = [].concat(others, directories, files);
 
     media = files.filter(entry => entry.mediaType);
+    hasAudioVideo = files.some(entry => entry.audioVideo);
 
     Gallery.onEntriesUpdate();
     Listing.onEntriesUpdate();
@@ -74,6 +78,9 @@ const Entries = (function () {
     },
     get hasMedia() {
       return media.length > 0;
+    },
+    get hasAudioVideo() {
+      return hasAudioVideo;
     },
     get query() {
       return query;

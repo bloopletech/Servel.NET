@@ -12,7 +12,7 @@ public static class KeyGenerator
     public static string GetUniqueKey(int size)
     {
         var result = new StringBuilder(size);
-        for (int i = 0; i < size; i++)
+        for(int i = 0; i < size; i++)
         {
             var idx = RandomNumberGenerator.GetInt32(0, chars.Length);
             result.Append(chars[idx]);
