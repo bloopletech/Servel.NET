@@ -23,17 +23,17 @@ public readonly struct Site
         var portAssigned = options.Port.HasValue;
         Port = options.Port ?? 80;
 
-        if (options.HasCertificate)
+        if(options.HasCertificate)
         {
             var certPath = Path.GetFullPath(options.Cert!, basePath);
             var keyPath = Path.GetFullPath(options.Key!, basePath);
             var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
             Certificate = X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pkcs12), null);
 
-            if (!portAssigned) Port = 443;
+            if(!portAssigned) Port = 443;
         }
 
-        if (options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
+        if(options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
 
         Audience = options.Audience ?? Audience.LocalNetwork;
 
@@ -47,7 +47,7 @@ public readonly struct Site
         var indexParams = new IndexParameters(options.Depth ?? 0, options.CountChildren ?? false);
 
         ListingQuery? defaultQuery = null;
-        if (options.HasDefaultQuery)
+        if(options.HasDefaultQuery)
         {
             defaultQuery = new ListingQuery(
                 options.SortMethod?.ToString().ToLowerInvariant(),

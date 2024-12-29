@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
+using ImageMagick;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
+
+MagickNET.SetEnvironmentVariable("Path", configuration.BasePath);
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {
@@ -31,7 +34,7 @@ void BindSite(KestrelServerOptions options, Site site)
 {
     void Configure(ListenOptions listenOptions)
     {
-        if (site.Certificate != null) listenOptions.UseHttps(site.Certificate);
+        if(site.Certificate != null) listenOptions.UseHttps(site.Certificate);
         listenOptions.Use((context, next) =>
         {
             context.Items.Add("siteId", site.Id);
@@ -39,8 +42,8 @@ void BindSite(KestrelServerOptions options, Site site)
         });
     }
 
-    if (IPAddress.TryParse(site.Host, out var ipAddress)) options.Listen(ipAddress, site.Port, Configure);
-    else if (site.Host.EqualsIgnoreCase("localhost")) options.ListenLocalhost(site.Port, Configure);
+    if(IPAddress.TryParse(site.Host, out var ipAddress)) options.Listen(ipAddress, site.Port, Configure);
+    else if(site.Host.EqualsIgnoreCase("localhost")) options.ListenLocalhost(site.Port, Configure);
     else options.ListenAnyIP(site.Port, Configure);
 }
 
@@ -52,22 +55,32 @@ builder.WebHost.UseKestrel(serverOptions =>
 // Add services to the container.
 builder.Services.AddMemoryCache();
 builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddHostedService<QueuedHostedService>();
+builder.Services.AddSingleton<IBackgroundTaskQueue>(ctx => new BackgroundTaskQueue(1024));
 
-if (configuration.DatabasePath != null)
+if(configuration.DatabasePath != null)
 {
     builder.Services.AddSingleton(new DatabaseService(configuration.DatabasePath));
     builder.Services.AddSingleton<HistoryService>();
 }
 
+if(configuration.CacheDatabasePath != null)
+{
+    builder.Services.AddSingleton(new CacheDatabaseService(configuration.CacheDatabasePath));
+    builder.Services.AddSingleton<ThumbnailService>();
+}
+
 var app = builder.Build();
 
 app.UseExceptionHandler(app => app.Run(context => Task.CompletedTask));
-if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+if(app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
 app.Services.GetService<DatabaseService>()?.CreateSchema();
+app.Services.GetService<CacheDatabaseService>()?.CreateSchema();
 
 void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
+    if(configuration.CacheDatabasePath != null) app.UseMiddleware<ThumbnailMiddleware>(listing, resolver);
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = listing.FileProvider,
@@ -79,7 +92,7 @@ void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsRes
 
 void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
 {
-    if (listing.IsMountAtRoot) MountInternal(app, listing, resolver);
+    if(listing.IsMountAtRoot) MountInternal(app, listing, resolver);
     else app.Map(listing.UrlPath, false, app => MountInternal(app, listing, resolver));
 }
 
@@ -87,7 +100,7 @@ void ConfigureSite(IApplicationBuilder app, Site site)
 {
     app.UseMiddleware<DenyAudienceMiddleware>(site.Audience);
 
-    if (site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
+    if(site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
 
     // Configure the HTTP request pipeline.
 
@@ -100,9 +113,9 @@ void ConfigureSite(IApplicationBuilder app, Site site)
     });
 
     var resolver = new DirectoryOptionsResolver(site.DirectoriesOptions);
-    foreach (var listing in site.Listings) Mount(app, listing, resolver);
+    foreach(var listing in site.Listings) Mount(app, listing, resolver);
 
-    if (!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
+    if(!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
 }
 
 foreach(var site in sites) app.MapWhen(context => context.SiteId() == site.Id, siteApp => ConfigureSite(siteApp, site));

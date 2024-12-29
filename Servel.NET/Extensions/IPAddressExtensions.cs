@@ -20,16 +20,16 @@ public static class IPAddressExtensions
     public static bool IsPrivate(this IPAddress ip)
     {
         // Map back to IPv4 if mapped to IPv6, for example "::ffff:1.2.3.4" to "1.2.3.4".
-        if (ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
+        if(ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
 
         // Checks loopback ranges for both IPv4 and IPv6.
-        if (IPAddress.IsLoopback(ip)) return true;
+        if(IPAddress.IsLoopback(ip)) return true;
 
         // IPv4
-        if (ip.AddressFamily == AddressFamily.InterNetwork) return IsPrivateIPv4(ip.GetAddressBytes());
+        if(ip.AddressFamily == AddressFamily.InterNetwork) return IsPrivateIPv4(ip.GetAddressBytes());
 
         // IPv6
-        if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+        if(ip.AddressFamily == AddressFamily.InterNetworkV6)
         {
             return ip.IsIPv6LinkLocal || ip.IsIPv6UniqueLocal || ip.IsIPv6SiteLocal;
         }

@@ -3,6 +3,8 @@ charset = utf-8
 
 [*.cs]
 
+csharp_space_after_keywords_in_control_flow_statements = false
+
 # SYSLIB1037: Deserialization of init-only properties is currently not supported in source generation mode.
 dotnet_diagnostic.SYSLIB1037.severity = none
 

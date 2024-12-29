@@ -2,7 +2,8 @@
 #define MyAppPublisher "Servel.NET"
 #define MyAppURL "https://www.github.com/bloopletech/Servel.NET"
 #define MyAppExeName "Servel.NET.exe"
-#define MyAppInputPath "..\" + MyAppName + "\bin\x64\Release\win-x64\publish\" + MyAppExeName
+#define MyAppInputDir "..\" + MyAppName + "\bin\x64\Release\win-x64\publish"
+#define MyAppInputPath MyAppInputDir + "\" + MyAppExeName
 #define _MyAppVersion GetStringFileInfo(MyAppInputPath, "ProductVersion")
 #define MyAppVersion Copy(_MyAppVersion, 1, Pos("+", _MyAppVersion) - 1)
 
@@ -35,6 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: {#MyAppInputPath}; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: {#MyAppInputDir}\ffmpeg.exe; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]

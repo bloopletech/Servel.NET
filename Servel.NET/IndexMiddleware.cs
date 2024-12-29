@@ -13,13 +13,15 @@ public class IndexMiddleware(
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
     IMemoryCache memoryCache,
-    HistoryService? historyService = null)
+    IBackgroundTaskQueue queue,
+    HistoryService? historyService = null,
+    CacheDatabaseService? cacheDatabaseService = null)
 {
     private readonly EntryFactory _entryFactory = new(listing, memoryCache);
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        if (ShouldProcess(httpContext)) await Process(httpContext);
+        if(ShouldProcess(httpContext)) await Process(httpContext);
         else await next.Invoke(httpContext);
     }
 
@@ -29,7 +31,7 @@ public class IndexMiddleware(
     {
         // If the path matches a directory but does not end in a slash, redirect to add the slash.
         // This prevents relative links from breaking.
-        if (!httpContext.Request.Path.EndsInSlash())
+        if(!httpContext.Request.Path.EndsInSlash())
         {
             httpContext.RedirectToPathWithSlash();
             return;
@@ -37,7 +39,7 @@ public class IndexMiddleware(
 
         httpContext.Response.Headers.Vary = HeaderNames.Accept;
 
-        if (httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
             try
             {
@@ -60,16 +62,23 @@ public class IndexMiddleware(
 
         var directoryEntry = _entryFactory.ForDirectory(
             httpContext.Request.Path,
-            ParseParameters(httpContext, directoryOptions));
+            ParseParameters(httpContext, directoryOptions),
+            out var physicalDirectoryInfo);
+
+        if(cacheDatabaseService != null) await ThumbnailService.ThumbnailDirectoryBackground(queue, physicalDirectoryInfo);
 
         var recentEntries = historyService?.GetRecent(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
         var popularEntries = historyService?.GetPopular(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
 
-        historyService?.VisitDirectory(httpContext);
+        if(historyService != null) await HistoryService.VisitDirectoryBackground(queue, httpContext);
+        //historyService?.VisitDirectory(httpContext);
+
+        var indexConfiguration = new ListingConfiguration(cacheDatabaseService != null);
 
         var indexResponse = new IndexResponse(
             directoryEntry,
             directoryOptions.DefaultQuery,
+            indexConfiguration,
             recentEntries,
             popularEntries);
 

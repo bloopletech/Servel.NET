@@ -60,9 +60,10 @@ function inflateDirectory(directory) {
       entry.type = getType(entry);
       entry.ext = entry.type?.toLowerCase();
       entry.mediaType = getMediaType(entry);
+      entry.audioVideo = ["image", "video"].includes(entry.mediaType);
       entry.icon = getIcon(entry);
-      entry.sizeText = entry.file ? filesize(entry.size || 0, { base: 2, standard: "jedec" }) : "-";
-      entry.mtimeText = entry.mtime != null ? f(new Date(entry.mtime)) : "-";
+      entry.sizeText = entry.file ? filesize(entry.size || 0, { base: 2, standard: "jedec" }) : null;
+      entry.mtimeText = entry.mtime != null ? f(new Date(entry.mtime)) : null;
       entry.class = getClass(entry);
     }
   }

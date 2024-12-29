@@ -22,21 +22,33 @@ const Common = (function () {
     return input;
   }
 
+  class HTMLSafeString {
+    value;
+    constructor(value) {
+      this.value = value;
+    }
+    toString() {
+      return this.value;
+    }
+  }
+
   function escapeHTML(unsafe) {
-    if(unsafe == null) return "";
-    return unsafe.toString()
+    if(unsafe instanceof HTMLSafeString) return unsafe;
+    if(unsafe == null) return new HTMLSafeString("");
+    return new HTMLSafeString(unsafe
+      .toString()
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/'/g, "&#039;"));
   }
 
-  function HTMLSafe(pieces) {
+  function HTMLSafe(pieces, ...substitutions) {
     let result = pieces[0];
-    const substitutions = [].slice.call(arguments, 1);
-    for(let i = 0; i < substitutions.length; ++i) result += e(substitutions[i]) + pieces[i + 1];
-    return result;
+    //const substitutions = [].slice.call(arguments, 1);
+    for(let i = 0; i < substitutions.length; ++i) result += escapeHTML(substitutions[i]) + pieces[i + 1];
+    return new HTMLSafeString(result);
   }
 
   function formatThenEscape(input) {

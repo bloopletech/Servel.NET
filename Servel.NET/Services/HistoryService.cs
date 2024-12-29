@@ -9,7 +9,7 @@ public class HistoryService(DatabaseService databaseService)
 {
     private static readonly TimeSpan MaxSameFileDuration = new(12, 0, 0);
 
-    private void VisitDirectory(int siteId, string path)
+    public void VisitDirectory(int siteId, string path)
     {
         using var db = databaseService.Connect();
 
@@ -29,6 +29,17 @@ public class HistoryService(DatabaseService databaseService)
         VisitDirectory(httpContext.SiteId(), httpContext.Request.FullPath());
     }
 
+    public static async Task VisitDirectoryBackground(IBackgroundTaskQueue queue, HttpContext httpContext)
+    {
+        var siteId = httpContext.SiteId();
+        var path = httpContext.Request.FullPath();
+        await queue.QueueAsync(async (services, _) =>
+        {
+            var historyService = services.GetRequiredService<HistoryService>();
+            historyService.VisitDirectory(siteId, path);
+        });
+    }
+
     private void VisitFile(int siteId, string path, bool partial = false)
     {
         var now = DateTimeOffset.Now;
@@ -41,15 +52,15 @@ public class HistoryService(DatabaseService databaseService)
         };
 
         var isAVisit = true;
-        if (historyItem.IsExisting && partial)
+        if(historyItem.IsExisting && partial)
         {
             var lastVisited = DateTimeOffset.FromUnixTimeMilliseconds(historyItem.LastVisited);
-            if (now - lastVisited <= MaxSameFileDuration) isAVisit = false;
+            if(now - lastVisited <= MaxSameFileDuration) isAVisit = false;
         }
 
         historyItem.ItemType = HistoryItem.HistoryItemItemType.File;
         historyItem.LastVisited = now.ToUnixTimeMilliseconds();
-        if (isAVisit) historyItem.VisitedCount++;
+        if(isAVisit) historyItem.VisitedCount++;
         historyItem.Save(db);
     }
 

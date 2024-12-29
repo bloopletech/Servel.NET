@@ -44,12 +44,16 @@ public class EntryFactory
         _memoryCache = memoryCache;
     }
 
-    public DirectoryEntry ForDirectory(PathString requestPath, ForDirectoryOptions options)
+    public DirectoryEntry ForDirectory(
+        PathString requestPath,
+        ForDirectoryOptions options,
+        out PhysicalDirectoryInfo physicalDirectoryInfo)
     {
         var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
-        if (!directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
+        if(!directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
 
-        return ForDirectory((PhysicalDirectoryInfo)directoryInfo, requestPath, options);
+        physicalDirectoryInfo = (PhysicalDirectoryInfo)directoryInfo;
+        return ForDirectory(physicalDirectoryInfo, requestPath, options);
     }
 
     private DirectoryEntry ForDirectory(
@@ -103,8 +107,8 @@ public class EntryFactory
     private List<OtherEntry> BuildOtherEntries(PathString requestPath)
     {
         var list = new List<OtherEntry>();
-        if (!_listing.IsMountAtRoot) list.Add(HomeEntry);
-        if (!requestPath.IsRoot())
+        if(!_listing.IsMountAtRoot) list.Add(HomeEntry);
+        if(!requestPath.IsRoot())
         {
             list.Add(_topEntry);
             list.Add(ParentEntry);

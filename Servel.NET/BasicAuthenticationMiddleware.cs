@@ -13,7 +13,7 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
 
     public async Task Invoke(HttpContext httpContext)
     {
-        if (IsAuthenticated(httpContext.Request.Headers.Authorization.FirstOrDefault()))
+        if(IsAuthenticated(httpContext.Request.Headers.Authorization.FirstOrDefault()))
         {
             await next.Invoke(httpContext);
         }
@@ -26,13 +26,13 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
 
     private bool IsAuthenticated(string? authorizationHeader)
     {
-        if (string.IsNullOrEmpty(authorizationHeader)) return false;
+        if(string.IsNullOrEmpty(authorizationHeader)) return false;
 
         // Exact match on purpose, rather than using string compare
         // asp.net request parsing will always trim the header and remove trailing spaces
-        if (Scheme == authorizationHeader) return false;
+        if(Scheme == authorizationHeader) return false;
  
-        if (!authorizationHeader.StartsWith($"{Scheme} ", StringComparison.OrdinalIgnoreCase)) return false;
+        if(!authorizationHeader.StartsWith($"{Scheme} ", StringComparison.OrdinalIgnoreCase)) return false;
 
         var encodedCredentials = authorizationHeader[Scheme.Length..].Trim();
 
@@ -47,7 +47,7 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
         }
 
         var delimiterIndex = Array.IndexOf(decodedCredentials, Delimiter);
-        if (delimiterIndex == -1) return false;
+        if(delimiterIndex == -1) return false;
 
         var username = decodedCredentials[0..delimiterIndex];
         var password = decodedCredentials[(delimiterIndex + 1)..];

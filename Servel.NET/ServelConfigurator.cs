@@ -21,7 +21,11 @@ public readonly struct ServelConfigurator(string BasePath)
 
     private static ServelOptions ConfigureServelOptions(TomlTable options)
     {
-        return new ServelOptions(options.GetBoolean("EnableDatabase"), options.GetString("DatabasePath"));
+        return new ServelOptions(
+            options.GetBoolean("EnableDatabase"),
+            options.GetString("DatabasePath"),
+            options.GetBoolean("EnableCacheDatabase"),
+            options.GetString("CacheDatabasePath"));
     }
 
     private Site[] ConfigureSites(TomlArray sites)
@@ -61,7 +65,7 @@ public readonly struct ServelConfigurator(string BasePath)
 
     private SiteDirectoryOptions[]? ConfigureDirectoriesOptions(TomlArray? directoriesOptions)
     {
-        if (directoriesOptions == null) return null;
+        if(directoriesOptions == null) return null;
         return directoriesOptions.OfType<TomlTable>().Select(ConfigureDirectoryOptions).ToArray();
     }
 

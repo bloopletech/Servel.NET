@@ -28,7 +28,7 @@ public static class Resources
     public static string Get(params string[] parts)
     {
         var fileInfo = FileProvider.GetFileInfo(Path.Join(parts));
-        if (!fileInfo.Exists) throw new FileNotFoundException();
+        if(!fileInfo.Exists) throw new FileNotFoundException();
 
         using var stream = fileInfo.CreateReadStream();
         using var reader = new StreamReader(stream);

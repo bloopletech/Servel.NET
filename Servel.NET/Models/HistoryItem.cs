@@ -20,6 +20,8 @@ public class HistoryItem
     public HistoryItemItemType ItemType { get; set; }
     public long LastVisited { get; set; }
     public int VisitedCount { get; set; }
+    public long CreatedAt { get; set; }
+    public long UpdatedAt { get; set; }
 
     public const string Table = "HistoryItems";
 
@@ -36,25 +38,33 @@ public class HistoryItem
         ItemType = (HistoryItemItemType)reader.GetInt32("ItemType");
         LastVisited = reader.GetInt64("LastVisited");
         VisitedCount = reader.GetInt32("VisitedCount");
+        CreatedAt = reader.GetInt64("CreatedAt");
+        UpdatedAt = reader.GetInt64("UpdatedAt");
     }
 
     public void Save(SqliteConnection db)
     {
+        var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        if(Id == null) CreatedAt = now;
+        UpdatedAt = now;
+
         var entries = new DbPair[] {
             new("SiteId", SiteId),
             new("Path", Path),
             new("ItemType", (int)ItemType),
             new("LastVisited", LastVisited),
-            new("VisitedCount", VisitedCount)
+            new("VisitedCount", VisitedCount),
+            new("CreatedAt", CreatedAt),
+            new("UpdatedAt", UpdatedAt)
         };
 
-        if (Id != null) db.Update(Table, new DbPair("Id", Id.Value), entries);
-        else Id = db.Insert(Table, entries);
+        if(Id != null) db.Update(Table, new DbPair("Id", Id.Value), [..entries]);
+        else Id = db.Insert(Table, [..entries]);
     }
 
     public void Delete(SqliteConnection db)
     {
-        if (Id != null) db.Delete(Table, new DbPair("Id", Id.Value));
+        if(Id != null) db.Delete(Table, new DbPair("Id", Id.Value));
     }
 
     public bool IsNew => Id == null;
@@ -99,11 +109,13 @@ public class HistoryItem
         db.Query($"""
         CREATE TABLE IF NOT EXISTS {Table} (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
-            SiteId INTEGER,
-            Path TEXT,
-            ItemType INTEGER,
+            SiteId INTEGER NOT NULL,
+            Path TEXT NOT NULL,
+            ItemType INTEGER NOT NULL,
             LastVisited INTEGER DEFAULT 0,
-            VisitedCount INTEGER DEFAULT 0
+            VisitedCount INTEGER DEFAULT 0,
+            CreatedAt INTEGER NOT NULL,
+            UpdatedAt INTEGER NOT NULL
         )
         """);
     }

@@ -9,7 +9,7 @@ public class ExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        if (exception is FileNotFoundException || exception is DirectoryNotFoundException)
+        if(exception is FileNotFoundException || exception is DirectoryNotFoundException)
         {
             await Results.NotFound().ExecuteAsync(httpContext);
             return true;
