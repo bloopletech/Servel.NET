@@ -13,13 +13,15 @@ const Listing = (function () {
     return HTMLSafe`
       <div class="entry">
         ${hasThumbnails ? HTMLSafe`<div class="thumbnail">${thumbnailInner}</div>` : ""}
-        <div class="name text-selectable">
-          <span class="icon">${entry.icon}</span>
-          <a href="${entry.href}" class="default ${entry.class}" data-url="${entry.href}" data-type="${entry.mediaType}">${entry.name}</a>
+        <div class="data">
+          <div class="name text-selectable">
+            <span class="icon">${entry.icon}</span>
+            <a href="${entry.href}" class="default ${entry.class}" data-url="${entry.href}" data-type="${entry.mediaType}">${entry.name}</a>
+          </div>
+          <div class="type">${entry.type}</div>
+          <div class="size">${entry.sizeText}</div>
+          <div class="modified">${entry.mtimeText}</div>
         </div>
-        <div class="type">${entry.type}</div>
-        <div class="size">${entry.sizeText}</div>
-        <div class="modified">${entry.mtimeText}</div>
       </div>
     `;
   }

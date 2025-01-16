@@ -147,13 +147,20 @@ body.has-gallery #jump-gallery-wrapper {
   background-color: #f9f9f9;
 }
 
-#listing.list .entry > * {
+#listing.list .data {
+  flex: auto;
+  display: flex;
+  gap: 10px;
+}
+
+#listing.list .data > * {
   flex: none;
 }
 
 #listing.list .thumbnail {
-  width: 50px;
-  max-height: 50px;
+  flex: none;
+  width: 54px;
+  max-height: 54px;
 }
 
 #listing.list .name {
@@ -176,7 +183,7 @@ body.has-gallery #jump-gallery-wrapper {
   height: 100%;
 }
 
-#listing.thumbnails .name {
+#listing.thumbnails .data {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -235,11 +242,11 @@ a.default.home, a.default.top, a.default.parent {
     width: calc(100% - 60px);
   }
 
-  #listing.list .entry {
+  #listing.list .data {
     flex-wrap: wrap;
   }
 
-  #listing.list .entry > * {
+  #listing.list .data > * {
     flex: auto;
   }
 }
