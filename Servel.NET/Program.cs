@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
-using ImageMagick;
+
+SQLitePCL.Batteries_V2.Init();
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
-
-MagickNET.SetEnvironmentVariable("Path", configuration.BasePath);
 
 var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
 {

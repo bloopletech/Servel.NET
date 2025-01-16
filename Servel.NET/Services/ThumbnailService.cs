@@ -26,21 +26,21 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         await queue.QueueAsync(async (services, _) =>
         {
             var thumbnailsService = services.GetRequiredService<ThumbnailService>();
-            thumbnailsService.FindOrCreateByPath(fileInfo);
+            await thumbnailsService.FindOrCreateByPath(fileInfo);
         });
     }
 
-    public byte[]? FindOrCreateByPath(PhysicalFileInfo fileInfo)
+    public async Task<byte[]?> FindOrCreateByPath(PhysicalFileInfo fileInfo)
     {
         if(FindByPath(fileInfo, out var existingData)) return existingData;
 
         var path = fileInfo.PhysicalPath;
         var pathLock = pathLocks.GetOrAdd(path, _ => new SemaphoreSlim(1, 1));
-        pathLock.Wait();
+        await pathLock.WaitAsync();
 
         try
         {
-            return FindOrCreateByPathRacy(fileInfo);
+            return await FindOrCreateByPathRacy(fileInfo);
         }
         finally
         {
@@ -49,11 +49,11 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         }
     }
 
-    private byte[]? FindOrCreateByPathRacy(PhysicalFileInfo fileInfo)
+    private async Task<byte[]?> FindOrCreateByPathRacy(PhysicalFileInfo fileInfo)
     {
         if(FindByPath(fileInfo, out var existingData)) return existingData;
 
-        var data = GenerateThumbnail(fileInfo.PhysicalPath);
+        var data = await GenerateThumbnail(fileInfo.PhysicalPath);
 
         var thumbnail = new Thumbnail
         {
@@ -82,7 +82,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         return false;
     }
 
-    private byte[]? GenerateThumbnail(string path)
+    private async Task<byte[]?> GenerateThumbnail(string path)
     {
         var pathRoot = Path.GetPathRoot(path) ?? "";
         var driveLock = driveLocks.GetOrAdd(pathRoot, _ => new SemaphoreSlim(1, 1));
@@ -90,7 +90,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
 
         try
         {
-            return thumbnailGenerator.Thumbnail(path);
+            return await thumbnailGenerator.Thumbnail(path);
         }
         finally
         {
