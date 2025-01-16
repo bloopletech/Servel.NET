@@ -29,7 +29,7 @@ public class ThumbnailMiddleware(
         var physicalFileInfo = (PhysicalFileInfo)fileInfo;
 
         //is it a media file???????
-        var data = thumbnailsService.FindOrCreateByPath(physicalFileInfo);
+        var data = await thumbnailsService.FindOrCreateByPath(physicalFileInfo);
         if(data == null) throw new FileNotFoundException(requestPath);
 
         //TODO send the most efficient way
