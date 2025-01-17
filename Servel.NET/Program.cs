@@ -5,8 +5,6 @@ using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
 
-SQLitePCL.Batteries_V2.Init();
-
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
 
@@ -73,6 +71,12 @@ var app = builder.Build();
 
 app.UseExceptionHandler(app => app.Run(context => Task.CompletedTask));
 if(app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+if(configuration.DatabasePath != null || configuration.CacheDatabasePath != null)
+{
+    NativeLibraries.Init();
+    app.Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping.Register(NativeLibraries.OnShutdown);
+}
 
 app.Services.GetService<DatabaseService>()?.CreateSchema();
 app.Services.GetService<CacheDatabaseService>()?.CreateSchema();
