@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -35,10 +35,25 @@
     <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.420" GeneratePathProperty="true">
       <ExcludeAssets>all</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="2.1.10" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true" />
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10">
+      <ExcludeAssets>native</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\e_sqlite3.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+      <LogicalName>NativeLibraries\e_sqlite3.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\libe_sqlite3.dylib" Condition="$([MSBuild]::IsOSPlatform('MacOS'))">
+      <LogicalName>NativeLibraries\libe_sqlite3.dylib</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\libe_sqlite3.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+      <LogicalName>NativeLibraries\libe_sqlite3.so</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Assets\**" />
     <EmbeddedResource Include="Views\**" />
