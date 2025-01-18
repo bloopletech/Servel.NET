@@ -1,4 +1,5 @@
 using Microsoft.Extensions.FileProviders;
+using Servel.NET.Extensions;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -25,9 +26,7 @@ public static class Resources
 
     public static string Get(params string[] parts)
     {
-        var fileInfo = FileProvider.GetFileInfo(Path.Join(parts));
-        if(!fileInfo.Exists) throw new FileNotFoundException();
-
+        var fileInfo = FileProvider.GetRequiredFileInfo(Path.Join(parts));
         using var stream = fileInfo.CreateReadStream();
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();

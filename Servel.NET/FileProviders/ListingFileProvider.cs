@@ -25,4 +25,18 @@ public class ListingFileProvider : PhysicalFileProvider
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_info")]
     private extern static ref PhysicalDirectoryInfo GetInfoField(PhysicalDirectoryContents @this);
+
+    public PhysicalFileInfo GetRequiredFileInfo(string subpath)
+    {
+        var fileInfo = GetFileInfo(subpath);
+        if(!fileInfo.Exists) throw new FileNotFoundException(subpath);
+        return (PhysicalFileInfo)fileInfo;
+    }
+
+    public PhysicalDirectoryInfo GetRequiredDirectoryInfo(string subpath)
+    {
+        var directoryInfo = GetDirectoryInfo(subpath);
+        if(!directoryInfo.Exists) throw new DirectoryNotFoundException(subpath);
+        return (PhysicalDirectoryInfo)directoryInfo;
+    }
 }
