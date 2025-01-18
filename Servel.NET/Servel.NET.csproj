@@ -23,6 +23,8 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <_OS>$(RuntimeIdentifier.Split('-')[0].ToUpperInvariant())</_OS>
+    <DefineConstants>$(DefineConstants);$(_OS)</DefineConstants>
     <Version>1.44.0</Version>
   </PropertyGroup>
 
@@ -35,25 +37,24 @@
     <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.420" GeneratePathProperty="true">
       <ExcludeAssets>all</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true">
-      <ExcludeAssets>native</ExcludeAssets>
-    </PackageReference>
-    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10" />
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\e_sqlite3.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-      <LogicalName>NativeLibraries\e_sqlite3.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\libe_sqlite3.dylib" Condition="$([MSBuild]::IsOSPlatform('MacOS'))">
-      <LogicalName>NativeLibraries\libe_sqlite3.dylib</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\libe_sqlite3.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-      <LogicalName>NativeLibraries\libe_sqlite3.so</LogicalName>
+  <ItemGroup Condition="'$(_OS)' == 'win'">
+    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="2.1.10" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(_OS)' == 'linux' OR '$(_OS)' == 'osx'">
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true">
+      <ExcludeAssets>native</ExcludeAssets>
+    </PackageReference>
+    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)">
+      <LogicalName>NativeLibraries\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)</LogicalName>
+      <Visible>false</Visible>
     </EmbeddedResource>
   </ItemGroup>
-  
+
   <ItemGroup>
     <EmbeddedResource Include="Assets\**" />
     <EmbeddedResource Include="Views\**" />

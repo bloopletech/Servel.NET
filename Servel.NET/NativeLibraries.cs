@@ -1,65 +1,63 @@
 using Microsoft.Extensions.FileProviders;
-using SQLitePCL;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Servel.NET;
 
+#pragma warning disable IDE0051 // Remove unused private members
+
 public static class NativeLibraries
 {
-    private static readonly ManifestEmbeddedFileProvider FileProvider = new(Assembly.GetEntryAssembly()!);
+    private static readonly ManifestEmbeddedFileProvider FileProvider = new(
+        Assembly.GetEntryAssembly()!,
+        "NativeLibraries");
     private static DirectoryInfo? LibrariesDirectory;
     private static readonly Dictionary<string, string> Libraries = [];
 
-    public static void Init()
+    private static void ExtractLibrary(string fileName, string libraryName)
     {
-        ExtractLibraries();
-        ConfigureLibraryResolvers();
-        LoadLibraries();
+        LibrariesDirectory ??= Directory.CreateTempSubdirectory("Servel.NET");
+
+        var libraryPath = Path.Join(LibrariesDirectory.FullName, fileName);
+
+        using var embeddedStream = FileProvider.GetFileInfo(fileName).CreateReadStream();
+        using var fileStream = File.Create(libraryPath);
+        embeddedStream.CopyTo(fileStream);
+
+        Libraries.Add(libraryName, libraryPath);
+    }
+
+    private static void SetLibraryResolver(Assembly assembly)
+    {
+        NativeLibrary.SetDllImportResolver(assembly, static (libraryName, _, _) =>
+        {
+            return Libraries.TryGetValue(libraryName, out var libraryPath) ? NativeLibrary.Load(libraryPath) : IntPtr.Zero;
+        });
     }
 
     public static void OnShutdown()
     {
-        LibrariesDirectory!.Delete(true);
+        LibrariesDirectory?.Delete(true);
     }
 
-    private static void ExtractLibraries()
+#if WIN
+    public static void Init()
     {
-        LibrariesDirectory = Directory.CreateTempSubdirectory("Servel.NET");
-
-        var directoryContents = FileProvider.GetDirectoryContents("NativeLibraries");
-
-        foreach(var fileInfo in directoryContents)
-        {
-            var fileName = fileInfo.Name;
-            var nativePath = Path.Join(LibrariesDirectory.FullName, fileName);
-
-            using var embeddedStream = fileInfo.CreateReadStream();
-            using var fileStream = File.Create(nativePath);
-            embeddedStream.CopyTo(fileStream);
-
-            if(OperatingSystem.IsWindows()) Libraries.Add(fileName[..^4], nativePath); //nativedep -> nativedep.dll
-            else if(OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-            {
-                if(fileName.StartsWith("lib")) Libraries.Add(fileName[3..], nativePath); //nativedep.{so|dylib} -> libnativedep.{so|dylib}
-                else Libraries.Add(fileName, nativePath); //nativedep.{so|dylib} -> nativedep.{so|dylib}
-            }
-        }
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
     }
-
-    private static void ConfigureLibraryResolvers()
+#elif LINUX
+    public static void Init()
     {
-        NativeLibrary.SetDllImportResolver(typeof(SQLite3Provider_e_sqlite3).Assembly, DllImportResolver);
+        ExtractLibrary("libe_sqlite3.so", "e_sqlite3.so");
+        SetLibraryResolver(typeof(SQLitePCL.SQLite3Provider_e_sqlite3).Assembly);
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
     }
-
-    private static IntPtr DllImportResolver(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
+#elif OSX
+    public static void Init()
     {
-        if(Libraries.TryGetValue(libraryName, out var nativePath)) return NativeLibrary.Load(nativePath);
-        return IntPtr.Zero;
+        ExtractLibrary("libe_sqlite3.dylib", "e_sqlite3.dylib");
+        SetLibraryResolver(typeof(SQLitePCL.SQLite3Provider_e_sqlite3).Assembly);
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_e_sqlite3());
     }
-
-    private static void LoadLibraries()
-    {
-        raw.SetProvider(new SQLite3Provider_e_sqlite3());
-    }
+#endif
 }
