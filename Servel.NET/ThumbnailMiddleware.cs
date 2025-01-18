@@ -29,8 +29,8 @@ public class ThumbnailMiddleware(
         var physicalFileInfo = (PhysicalFileInfo)fileInfo;
 
         //is it a media file???????
-        var data = await thumbnailsService.FindOrCreateByPath(physicalFileInfo);
-        if(data == null) throw new FileNotFoundException(requestPath);
+        var data = await thumbnailsService.FindOrCreateByPath(physicalFileInfo)
+            ?? throw new FileNotFoundException(requestPath);
 
         //TODO send the most efficient way
         await httpContext.Response.BodyWriter.WriteAsync(data);
