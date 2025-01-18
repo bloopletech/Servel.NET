@@ -51,7 +51,7 @@ const Gallery = (function() {
 
     const entry = Entries.media[currentIndex];
 
-    const url = entry.href;
+    const url = entry.url;
     const type = entry.mediaType;
 
     document.title = `${entry.name} in Listing of ${decodeURIComponent(location.pathname)}`;
@@ -92,7 +92,7 @@ const Gallery = (function() {
   const next = () => go(currentIndex + 1);
   const rewind = () => go(currentIndex - 10);
   const fastForward = () => go(currentIndex + 10);
-  const jump = (url) => go(Entries.media.findIndex(entry => entry.href == url));
+  const jump = (url) => go(Entries.media.findIndex(entry => entry.url == url));
 
   function switchLayoutMode() {
     layoutModeIndex++;
