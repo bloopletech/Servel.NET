@@ -6,13 +6,13 @@ namespace Servel.NET.Services;
 
 public class ThumbnailGenerator
 {
-    public static string[] IMAGE_EXTS = [".jfif", ".jpg", ".jpeg", ".png", ".gif", ".webp"];
-    public static string[] VIDEO_EXTS = [".ogg", ".ogm", ".ogv", ".m4v", ".mkv", ".mp4", ".webm", ".avi", ".wmv"];
-    public static string[] AUDIO_EXTS = [".aac", ".oga", ".opus", ".m4a", ".mka", ".mp3", ".wav", ".flac", ".wma"];
-    public static string[] DOCUMENT_EXTS = [".htm", ".html", ".md", ".pdf", ".txt", ".doc", ".docx"];
-    public static string[] COMPRESSED_EXTS = [".bz2", ".gz", ".lz", ".lz4", ".lzma", ".xz", ".7z", ".rar", ".tgz", ".txz", ".rar", ".zip"];
-    public static int WIDTH = 300;
-    public static int HEIGHT = 300;
+    public static readonly string[] IMAGE_EXTS = [".jfif", ".jpg", ".jpeg", ".png", ".gif", ".webp"];
+    public static readonly string[] VIDEO_EXTS = [".ogg", ".ogm", ".ogv", ".m4v", ".mkv", ".mp4", ".webm", ".avi", ".wmv"];
+    public static readonly string[] AUDIO_EXTS = [".aac", ".oga", ".opus", ".m4a", ".mka", ".mp3", ".wav", ".flac", ".wma"];
+    public static readonly string[] DOCUMENT_EXTS = [".htm", ".html", ".md", ".pdf", ".txt", ".doc", ".docx"];
+    public static readonly string[] COMPRESSED_EXTS = [".bz2", ".gz", ".lz", ".lz4", ".lzma", ".xz", ".7z", ".rar", ".tgz", ".txz", ".rar", ".zip"];
+    public const int WIDTH = 300;
+    public const int HEIGHT = 300;
 
     public async Task<byte[]?> Thumbnail(string path)
     {
@@ -22,14 +22,14 @@ public class ThumbnailGenerator
         return null;
     }
 
-    private async Task<byte[]?> ThumbnailImage(string path)
+    private static async Task<byte[]?> ThumbnailImage(string path)
     {
         //TODO: Error handling, manga specific thumbnailing etc
         using var image = await Image.LoadAsync(path);
         return await ResizeImage(image);
     }
 
-    private async Task<byte[]?> ThumbnailVideo(string path)
+    private static async Task<byte[]?> ThumbnailVideo(string path)
     {
         using var ffmpegStream = new MemoryStream();
 
@@ -60,7 +60,7 @@ public class ThumbnailGenerator
         return await ResizeImage(image);
     }
 
-    private async Task<byte[]> ResizeImage(Image image)
+    private static async Task<byte[]> ResizeImage(Image image)
     {
         image.Mutate(x => x.Resize(new ResizeOptions
         {

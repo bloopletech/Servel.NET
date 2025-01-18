@@ -6,7 +6,7 @@ namespace Servel.NET.Services;
 
 public class ThumbnailService(CacheDatabaseService databaseService)
 {
-    private ThumbnailGenerator thumbnailGenerator = new ThumbnailGenerator();
+    private readonly ThumbnailGenerator thumbnailGenerator = new();
     private readonly ConcurrentDictionary<string, SemaphoreSlim> pathLocks = new();
     private readonly ConcurrentDictionary<string, SemaphoreSlim> driveLocks = new();
 

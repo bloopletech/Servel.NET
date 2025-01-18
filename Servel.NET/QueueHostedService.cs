@@ -1,21 +1,11 @@
 namespace Servel.NET;
 
-public class QueuedHostedService : BackgroundService
+public class QueuedHostedService(
+    IBackgroundTaskQueue taskQueue,
+    ILogger<QueuedHostedService> logger,
+    IServiceProvider services) : BackgroundService
 {
-    private readonly ILogger<QueuedHostedService> _logger;
-    private readonly IServiceProvider _services;
-
-    public QueuedHostedService(
-        IBackgroundTaskQueue taskQueue,
-        ILogger<QueuedHostedService> logger,
-        IServiceProvider services)
-    {
-        TaskQueue = taskQueue;
-        _logger = logger;
-        _services = services;
-    }
-
-    public IBackgroundTaskQueue TaskQueue { get; }
+    public IBackgroundTaskQueue TaskQueue { get; } = taskQueue;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -30,20 +20,20 @@ public class QueuedHostedService : BackgroundService
 
             try
             {
-                using var scope = _services.CreateScope();
+                using var scope = services.CreateScope();
                 var scopedServices = scope.ServiceProvider;
                 await workItem(scopedServices, stoppingToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
+                logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
             }
         }
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Queued Hosted Service is stopping.");
+        logger.LogInformation("Queued Hosted Service is stopping.");
 
         await base.StopAsync(stoppingToken);
     }
