@@ -23,6 +23,8 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <_OS>$(RuntimeIdentifier.Split('-')[0].ToUpperInvariant())</_OS>
+    <DefineConstants>$(DefineConstants);$(_OS)</DefineConstants>
     <Version>1.44.0</Version>
   </PropertyGroup>
 
@@ -38,19 +40,13 @@
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <_OS>$(RuntimeIdentifier.Split('-')[0].ToUpperInvariant())</_OS>
-    <DefineConstants>$(DefineConstants);$(_OS)</DefineConstants>
-    <SqlitePCLRawVersion>2.1.10</SqlitePCLRawVersion>
-  </PropertyGroup>
-
   <ItemGroup Condition="'$(_OS)' == 'win'">
-    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SqlitePCLRawVersion)" />
+    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="2.1.10" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(_OS)' == 'linux' OR '$(_OS)' == 'osx'">
-    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="$(SqlitePCLRawVersion)" />
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SqlitePCLRawVersion)" GeneratePathProperty="true">
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true">
       <ExcludeAssets>native</ExcludeAssets>
     </PackageReference>
     <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)">

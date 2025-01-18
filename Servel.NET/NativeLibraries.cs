@@ -8,7 +8,9 @@ namespace Servel.NET;
 
 public static class NativeLibraries
 {
-    private static readonly ManifestEmbeddedFileProvider FileProvider = new(Assembly.GetEntryAssembly()!);
+    private static readonly ManifestEmbeddedFileProvider FileProvider = new(
+        Assembly.GetEntryAssembly()!,
+        "NativeLibraries");
     private static DirectoryInfo? LibrariesDirectory;
     private static readonly Dictionary<string, string> Libraries = [];
 
@@ -16,22 +18,20 @@ public static class NativeLibraries
     {
         LibrariesDirectory ??= Directory.CreateTempSubdirectory("Servel.NET");
 
-        var fileInfo = FileProvider.GetFileInfo($"NativeLibraries/{fileName}");
+        var libraryPath = Path.Join(LibrariesDirectory.FullName, fileName);
 
-        var nativePath = Path.Join(LibrariesDirectory.FullName, fileName);
-
-        using var embeddedStream = fileInfo.CreateReadStream();
-        using var fileStream = File.Create(nativePath);
+        using var embeddedStream = FileProvider.GetFileInfo(fileName).CreateReadStream();
+        using var fileStream = File.Create(libraryPath);
         embeddedStream.CopyTo(fileStream);
 
-        Libraries.Add(libraryName, nativePath);
+        Libraries.Add(libraryName, libraryPath);
     }
 
     private static void SetLibraryResolver(Assembly assembly)
     {
         NativeLibrary.SetDllImportResolver(assembly, static (libraryName, _, _) =>
         {
-            return Libraries.TryGetValue(libraryName, out var nativePath) ? NativeLibrary.Load(nativePath) : IntPtr.Zero;
+            return Libraries.TryGetValue(libraryName, out var libraryPath) ? NativeLibrary.Load(libraryPath) : IntPtr.Zero;
         });
     }
 
