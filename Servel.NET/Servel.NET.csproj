@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -38,6 +38,27 @@
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <_OS>$(RuntimeIdentifier.Split('-')[0].ToUpperInvariant())</_OS>
+    <DefineConstants>$(DefineConstants);$(_OS)</DefineConstants>
+    <SqlitePCLRawVersion>2.1.10</SqlitePCLRawVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(_OS)' == 'win'">
+    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SqlitePCLRawVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(_OS)' == 'linux' OR '$(_OS)' == 'osx'">
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="$(SqlitePCLRawVersion)" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SqlitePCLRawVersion)" GeneratePathProperty="true">
+      <ExcludeAssets>native</ExcludeAssets>
+    </PackageReference>
+    <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)">
+      <LogicalName>NativeLibraries\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Assets\**" />
     <EmbeddedResource Include="Views\**" />
@@ -46,9 +67,5 @@
 
   <ItemGroup>
     <None Include="$(PkgSoenneker_Libraries_FFmpeg)\content\Resources\ffmpeg.exe" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Servel.NET.NativeLibraries\Servel.NET.NativeLibraries.csproj" />
   </ItemGroup>
 </Project>
