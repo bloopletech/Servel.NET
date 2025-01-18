@@ -9,14 +9,14 @@ const Listing = (function () {
   let hasThumbnails;
 
   function renderEntry(entry) {
-    const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.href}?action=thumbnail">` : "";
+    const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.url}?action=thumbnail">` : "";
     return HTMLSafe`
       <div class="entry">
         ${hasThumbnails ? HTMLSafe`<div class="thumbnail">${thumbnailInner}</div>` : ""}
         <div class="data">
           <div class="name text-selectable">
             <span class="icon">${entry.icon}</span>
-            <a href="${entry.href}" class="default ${entry.class}" data-url="${entry.href}" data-type="${entry.mediaType}">${entry.name}</a>
+            <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>
           </div>
           <div class="type">${entry.type}</div>
           <div class="size">${entry.sizeText}</div>

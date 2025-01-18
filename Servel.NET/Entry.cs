@@ -11,7 +11,7 @@ public readonly record struct DirectoryEntry(
     IEnumerable<OtherEntry>? Others,
     int? Children)
 {
-    public string Href => HttpUtility.UrlPathEncode(Name + "/");
+    public string Url => HttpUtility.UrlPathEncode(Name + "/");
 }
 
 public readonly record struct FileEntry(
@@ -23,25 +23,25 @@ public readonly record struct FileEntry(
     bool Audio,
     bool Text)
 {
-    public string Href => HttpUtility.UrlPathEncode(Name);
+    public string Url => HttpUtility.UrlPathEncode(Name);
 }
 
 public readonly record struct OtherEntry(
     string Name,
-    string Href,
+    string Url,
     bool HomeEntry,
     bool TopEntry,
     bool ParentEntry);
 
-public readonly record struct ListingEntry(string Href, [property: JsonIgnore()] string? CustomName)
+public readonly record struct ListingEntry(string Url, [property: JsonIgnore()] string? CustomName)
 {
-    public string Name => CustomName ?? HttpUtility.UrlDecode(Href[1..]);
+    public string Name => CustomName ?? HttpUtility.UrlDecode(Url[1..]);
 }
 
 public readonly record struct HistoryEntry(
-    string Href,
+    string Url,
     long LastVisited,
     int VisitedCount)
 {
-    public string Name => HttpUtility.UrlDecode(Href[1..]);
+    public string Name => HttpUtility.UrlDecode(Url[1..]);
 }

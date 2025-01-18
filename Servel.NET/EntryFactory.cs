@@ -18,14 +18,14 @@ public class EntryFactory
     {
         HomeEntry = true,
         Name = "Listings Home",
-        Href = "/"
+        Url = "/"
     };
 
     private static readonly OtherEntry ParentEntry = new()
     {
         ParentEntry = true,
         Name = "Parent Directory",
-        Href = "../"
+        Url = "../"
     };
 
     private readonly Listing _listing;
@@ -39,7 +39,7 @@ public class EntryFactory
         {
             TopEntry = true,
             Name = "Top Directory",
-            Href = _listing.UrlPath
+            Url = _listing.UrlPath
         };
         _memoryCache = memoryCache;
     }
