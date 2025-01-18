@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
+using Servel.NET.NativeLibraries;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
