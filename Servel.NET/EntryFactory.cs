@@ -47,13 +47,10 @@ public class EntryFactory
     public DirectoryEntry ForDirectory(
         PathString requestPath,
         ForDirectoryOptions options,
-        out PhysicalDirectoryInfo physicalDirectoryInfo)
+        out PhysicalDirectoryInfo directoryInfo)
     {
-        var directoryInfo = _listing.FileProvider.GetDirectoryInfo(requestPath.Value!);
-        if(!directoryInfo.Exists) throw new DirectoryNotFoundException(requestPath);
-
-        physicalDirectoryInfo = (PhysicalDirectoryInfo)directoryInfo;
-        return ForDirectory(physicalDirectoryInfo, requestPath, options);
+        directoryInfo = _listing.FileProvider.GetRequiredDirectoryInfo(requestPath.Value!);
+        return ForDirectory(directoryInfo, requestPath, options);
     }
 
     private DirectoryEntry ForDirectory(

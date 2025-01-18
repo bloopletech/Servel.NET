@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.FileProviders.Physical;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
 
@@ -24,13 +21,10 @@ public class ThumbnailMiddleware(
     private async Task Process(HttpContext httpContext)
     {
         var requestPath = httpContext.Request.Path;
-        var fileInfo = listing.FileProvider.GetFileInfo(requestPath.Value!);
-        if(!fileInfo.Exists) throw new FileNotFoundException(requestPath);
-        var physicalFileInfo = (PhysicalFileInfo)fileInfo;
+        var fileInfo = listing.FileProvider.GetRequiredFileInfo(requestPath.Value!);
 
         //is it a media file???????
-        var data = await thumbnailsService.FindOrCreateByPath(physicalFileInfo)
-            ?? throw new FileNotFoundException(requestPath);
+        var data = await thumbnailsService.FindOrCreateByPath(fileInfo) ?? throw new FileNotFoundException(requestPath);
 
         //TODO send the most efficient way
         await httpContext.Response.BodyWriter.WriteAsync(data);
