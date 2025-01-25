@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.FileProviders.Physical;
 using Servel.NET.Extensions;
+using Servel.NET.FileProviders;
 
 namespace Servel.NET;
 
@@ -47,14 +47,14 @@ public class EntryFactory
     public DirectoryEntry ForDirectory(
         PathString requestPath,
         ForDirectoryOptions options,
-        out PhysicalDirectoryInfo directoryInfo)
+        out LinkAwareDirectoryInfo directoryInfo)
     {
         directoryInfo = _listing.FileProvider.GetRequiredDirectoryInfo(requestPath.Value!);
         return ForDirectory(directoryInfo, requestPath, options);
     }
 
     private DirectoryEntry ForDirectory(
-        PhysicalDirectoryInfo directoryInfo,
+        LinkAwareDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)
     {
@@ -66,7 +66,7 @@ public class EntryFactory
     }
 
     private DirectoryEntry ForDirectoryWithoutCache(
-        PhysicalDirectoryInfo directoryInfo,
+        LinkAwareDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)
     {
@@ -78,9 +78,9 @@ public class EntryFactory
         if(options.Depth > 0)
         {
             otherEntries = BuildOtherEntries(requestPath);
-            directoryEntries = directoryInfo.OfType<PhysicalDirectoryInfo>()
+            directoryEntries = directoryInfo.OfType<LinkAwareDirectoryInfo>()
                 .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
-            fileEntries = directoryInfo.OfType<PhysicalFileInfo>().Select(ForFile);
+            fileEntries = directoryInfo.OfType<LinkAwareFileInfo>().Select(ForFile);
             if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
         }
         else if(options.CountChildren)
@@ -114,7 +114,7 @@ public class EntryFactory
         return list;
     }
 
-    private FileEntry ForFile(PhysicalFileInfo fileInfo)
+    private FileEntry ForFile(LinkAwareFileInfo fileInfo)
     {
         return new FileEntry
         {
