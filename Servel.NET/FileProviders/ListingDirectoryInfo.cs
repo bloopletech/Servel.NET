@@ -2,6 +2,7 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.FileProviders;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Servel.NET.FileProviders;
 
@@ -45,6 +46,10 @@ public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
     public IEnumerator<IFileInfo> GetEnumerator() => EnumerateEntries();
 
     IEnumerator IEnumerable.GetEnumerator() => EnumerateEntries();
+
+    [SuppressMessage("Performance", "CA1829")]
+    [SuppressMessage("CodeQuality", "IDE0079")]
+    public int ChildrenCount() => this.Count();
 
     public IEnumerable<ListingDirectoryInfo> Directories => this.OfType<ListingDirectoryInfo>();
     public IEnumerable<ListingFileInfo> Files => this.OfType<ListingFileInfo>();
