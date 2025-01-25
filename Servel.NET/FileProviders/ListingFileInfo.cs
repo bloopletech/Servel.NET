@@ -5,18 +5,26 @@ using Microsoft.Extensions.FileProviders.Physical;
 namespace Servel.NET.FileProviders;
 
 // Based on https://github.com/dotnet/runtime/blob/c8acea22626efab11c13778c028975acdc34678f/src/libraries/Microsoft.Extensions.FileProviders.Physical/src/PhysicalFileInfo.cs
-public class LinkAwareFileInfo : IFileInfo
+public class ListingFileInfo : IFileInfo
 {
     private readonly PhysicalFileInfo wrapped;
     private readonly FileInfo info;
     private readonly FileInfo resolvedInfo;
 
-    public LinkAwareFileInfo(PhysicalFileInfo physicalFileInfo)
+    public ListingFileInfo(PhysicalFileInfo physicalFileInfo)
     {
         wrapped = physicalFileInfo;
         info = GetInfoField(wrapped);
-        var targetInfo = info.ResolveLinkTarget(true) as FileInfo;
-        resolvedInfo = targetInfo ?? info;
+
+        try
+        {
+            var targetInfo = info.ResolveLinkTarget(true) as FileInfo;
+            resolvedInfo = targetInfo ?? info;
+        }
+        catch(FileNotFoundException)
+        {
+            resolvedInfo = info;
+        }
     }
 
     public bool Exists => resolvedInfo.Exists;
