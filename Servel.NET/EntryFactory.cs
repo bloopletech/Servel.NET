@@ -1,3 +1,4 @@
+using System.Web;
 using Microsoft.Extensions.Caching.Memory;
 using Servel.NET.Extensions;
 using Servel.NET.FileProviders;
@@ -90,9 +91,11 @@ public class EntryFactory
 #pragma warning restore CA1829
         }
 
+        var name = requestPath.IsRoot() ? "" : directoryInfo.Name;
         return new DirectoryEntry
         {
-            Name = requestPath.IsRoot() ? "" : directoryInfo.Name,
+            Name = name,
+            Url = HttpUtility.UrlPathEncode(name + "/"),
             Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
             Others = others,
             Directories = directories,
@@ -114,13 +117,11 @@ public class EntryFactory
         return list;
     }
 
-    private FileEntry ForFile(ListingFileInfo fileInfo)
+    private FileEntry ForFile(ListingFileInfo fileInfo) => new FileEntry
     {
-        return new FileEntry
-        {
-            Name = fileInfo.Name,
-            Size = fileInfo.Length,
-            Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds()
-        };
-    }
+        Name = fileInfo.Name,
+        Url = HttpUtility.UrlPathEncode(fileInfo.Name),
+        Size = fileInfo.Length,
+        Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds()
+    };
 }

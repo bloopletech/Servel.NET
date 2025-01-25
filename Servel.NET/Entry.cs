@@ -5,26 +5,22 @@ namespace Servel.NET;
 
 public readonly record struct DirectoryEntry(
     string Name,
+    string Url,
     long Mtime,
     IEnumerable<DirectoryEntry>? Directories,
     IEnumerable<FileEntry>? Files,
     IEnumerable<OtherEntry>? Others,
-    int? Children)
-{
-    public string Url => HttpUtility.UrlPathEncode(Name + "/");
-}
+    int? Children);
 
 public readonly record struct FileEntry(
     string Name,
+    string Url,
     long Size,
     long Mtime,
     bool Video,
     bool Image,
     bool Audio,
-    bool Text)
-{
-    public string Url => HttpUtility.UrlPathEncode(Name);
-}
+    bool Text);
 
 public readonly record struct OtherEntry(
     string Name,
