@@ -6,20 +6,8 @@ using System.Runtime.CompilerServices;
 
 namespace Servel.NET.FileProviders;
 
-public class ListingFileProvider : IFileProvider, IDisposable
+public class ListingFileProvider(PhysicalFileProvider physicalProvider) : IFileProvider, IDisposable
 {
-    private PhysicalFileProvider physicalProvider;
-
-    public ListingFileProvider(string root)
-    {
-        physicalProvider = new PhysicalFileProvider(root);
-    }
-
-    public ListingFileProvider(string root, ExclusionFilters filters)
-    {
-        physicalProvider = new PhysicalFileProvider(root, filters);
-    }
-
     public IFileInfo GetFileInfo(string subpath)
     {
         var originalContents = physicalProvider.GetFileInfo(subpath);

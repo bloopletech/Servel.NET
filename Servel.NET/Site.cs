@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using Servel.NET.FileProviders;
 using System.Security.Cryptography.X509Certificates;
 
@@ -68,7 +69,7 @@ public enum Audience
 
 public readonly record struct Listing(string FsPath, string UrlPath, string? Name)
 {
-    public readonly ListingFileProvider FileProvider = new(FsPath);
+    public readonly ListingFileProvider FileProvider = new(new PhysicalFileProvider(FsPath));
     public bool IsMountAtRoot => UrlPath == "/";
 }
 
