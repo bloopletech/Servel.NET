@@ -16,11 +16,7 @@ public readonly record struct FileEntry(
     string Name,
     string Url,
     long Size,
-    long Mtime,
-    bool Video,
-    bool Image,
-    bool Audio,
-    bool Text);
+    long Mtime);
 
 public readonly record struct OtherEntry(
     string Name,
