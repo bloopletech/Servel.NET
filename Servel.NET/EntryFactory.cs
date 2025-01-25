@@ -74,7 +74,6 @@ public class EntryFactory
         IEnumerable<OtherEntry>? others = null;
         IEnumerable<DirectoryEntry>? directories = null;
         IEnumerable<FileEntry>? files = null;
-        int? childCount = null;
 
         if(options.Depth > 0)
         {
@@ -82,13 +81,6 @@ public class EntryFactory
             directories = directoryInfo.Directories.Select(
                 ldi => ForDirectory(ldi, requestPath.Combine(ldi.Name), options.Descend()));
             files = directoryInfo.Files.Select(ForFile);
-            if(options.CountChildren) childCount = directories.Count() + files.Count();
-        }
-        else if(options.CountChildren)
-        {
-#pragma warning disable CA1829
-            childCount = directoryInfo.Count();
-#pragma warning restore CA1829
         }
 
         var name = requestPath.IsRoot() ? "" : directoryInfo.Name;
@@ -100,7 +92,7 @@ public class EntryFactory
             Others = others,
             Directories = directories,
             Files = files,
-            Children = childCount
+            Children = options.CountChildren ? directoryInfo.ChildrenCount() : null
         };
     }
 
