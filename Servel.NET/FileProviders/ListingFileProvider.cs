@@ -1,42 +1,62 @@
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Internal;
 using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.Extensions.Primitives;
 using System.Runtime.CompilerServices;
 
 namespace Servel.NET.FileProviders;
 
-public class ListingFileProvider : PhysicalFileProvider
+public class ListingFileProvider : IFileProvider, IDisposable
 {
-    public ListingFileProvider(string root) : base(root)
+    private PhysicalFileProvider physicalProvider;
+
+    public ListingFileProvider(string root)
     {
+        physicalProvider = new PhysicalFileProvider(root);
     }
 
-    public ListingFileProvider(string root, ExclusionFilters filters) : base(root, filters)
+    public ListingFileProvider(string root, ExclusionFilters filters)
     {
+        physicalProvider = new PhysicalFileProvider(root, filters);
     }
+
+    public IFileInfo GetFileInfo(string subpath)
+    {
+        var originalContents = physicalProvider.GetFileInfo(subpath);
+        if(originalContents is NotFoundFileInfo) return originalContents;
+
+        return new LinkAwareFileInfo((PhysicalFileInfo)originalContents);
+    }
+
+    public LinkAwareFileInfo GetRequiredFileInfo(string subpath)
+    {
+        var fileInfo = GetFileInfo(subpath);
+        if(!fileInfo.Exists) throw new FileNotFoundException(subpath);
+        return (LinkAwareFileInfo)fileInfo;
+    }
+
+    public IDirectoryContents GetDirectoryContents(string subpath) => physicalProvider.GetDirectoryContents(subpath);
 
     public IFileInfo GetDirectoryInfo(string subpath)
     {
         var contents = GetDirectoryContents(subpath);
         if(!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
-        return GetInfoField((PhysicalDirectoryContents)contents);
+        var info = GetInfoField((PhysicalDirectoryContents)contents);
+        return new LinkAwareDirectoryInfo(info);
     }
 
-    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_info")]
-    private extern static ref PhysicalDirectoryInfo GetInfoField(PhysicalDirectoryContents @this);
-
-    public PhysicalFileInfo GetRequiredFileInfo(string subpath)
-    {
-        var fileInfo = GetFileInfo(subpath);
-        if(!fileInfo.Exists) throw new FileNotFoundException(subpath);
-        return (PhysicalFileInfo)fileInfo;
-    }
-
-    public PhysicalDirectoryInfo GetRequiredDirectoryInfo(string subpath)
+    public LinkAwareDirectoryInfo GetRequiredDirectoryInfo(string subpath)
     {
         var directoryInfo = GetDirectoryInfo(subpath);
         if(!directoryInfo.Exists) throw new DirectoryNotFoundException(subpath);
-        return (PhysicalDirectoryInfo)directoryInfo;
+        return (LinkAwareDirectoryInfo)directoryInfo;
     }
+
+    public IChangeToken Watch(string filter) => physicalProvider.Watch(filter);
+
+    public void Dispose() => physicalProvider.Dispose();
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_info")]
+    private extern static ref PhysicalDirectoryInfo GetInfoField(PhysicalDirectoryContents @this);
 }
