@@ -9,39 +9,39 @@ namespace Servel.NET.FileProviders;
 // Based on https://github.com/dotnet/runtime/blob/c8acea22626efab11c13778c028975acdc34678f/src/libraries/Microsoft.Extensions.FileProviders.Physical/src/PhysicalDirectoryInfo.cs
 public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
 {
-    private readonly PhysicalDirectoryInfo wrapped;
-    private readonly DirectoryInfo info;
-    private readonly DirectoryInfo resolvedInfo;
+    private readonly PhysicalDirectoryInfo _physicalDirectoryInfo;
+    private readonly DirectoryInfo _info;
+    private readonly DirectoryInfo _resolvedInfo;
 
     public ListingDirectoryInfo(PhysicalDirectoryInfo physicalDirectoryInfo)
     {
-        wrapped = physicalDirectoryInfo;
-        info = GetInfoField(wrapped);
+        _physicalDirectoryInfo = physicalDirectoryInfo;
+        _info = GetInfoField(_physicalDirectoryInfo);
 
         try
         {
-            var targetInfo = info.ResolveLinkTarget(true) as DirectoryInfo;
-            resolvedInfo = targetInfo ?? info;
+            var targetInfo = _info.ResolveLinkTarget(true) as DirectoryInfo;
+            _resolvedInfo = targetInfo ?? _info;
         }
         catch(DirectoryNotFoundException)
         {
-            resolvedInfo = info;
+            _resolvedInfo = _info;
         }
     }
 
-    public bool Exists => resolvedInfo.Exists;
+    public bool Exists => _resolvedInfo.Exists;
 
     public long Length => -1;
 
-    public string PhysicalPath => info.FullName;
+    public string PhysicalPath => _info.FullName;
 
-    public string Name => info.Name;
+    public string Name => _info.Name;
 
-    public DateTimeOffset LastModified => resolvedInfo.LastWriteTimeUtc;
+    public DateTimeOffset LastModified => _resolvedInfo.LastWriteTimeUtc;
 
     public bool IsDirectory => true;
 
-    public Stream CreateReadStream() => wrapped.CreateReadStream();
+    public Stream CreateReadStream() => _physicalDirectoryInfo.CreateReadStream();
 
     public IEnumerator<IFileInfo> GetEnumerator() => EnumerateEntries();
 
@@ -56,7 +56,7 @@ public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
 
     private IEnumerator<IFileInfo> EnumerateEntries()
     {
-        foreach(var info in wrapped)
+        foreach(var info in _physicalDirectoryInfo)
         {
             yield return info switch
             {
