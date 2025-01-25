@@ -6,18 +6,26 @@ using System.Runtime.CompilerServices;
 namespace Servel.NET.FileProviders;
 
 // Based on https://github.com/dotnet/runtime/blob/c8acea22626efab11c13778c028975acdc34678f/src/libraries/Microsoft.Extensions.FileProviders.Physical/src/PhysicalDirectoryInfo.cs
-public class LinkAwareDirectoryInfo : IFileInfo, IDirectoryContents
+public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
 {
     private readonly PhysicalDirectoryInfo wrapped;
     private readonly DirectoryInfo info;
     private readonly DirectoryInfo resolvedInfo;
 
-    public LinkAwareDirectoryInfo(PhysicalDirectoryInfo physicalDirectoryInfo)
+    public ListingDirectoryInfo(PhysicalDirectoryInfo physicalDirectoryInfo)
     {
         wrapped = physicalDirectoryInfo;
         info = GetInfoField(wrapped);
-        var targetInfo = info.ResolveLinkTarget(true) as DirectoryInfo;
-        resolvedInfo = targetInfo ?? info;
+
+        try
+        {
+            var targetInfo = info.ResolveLinkTarget(true) as DirectoryInfo;
+            resolvedInfo = targetInfo ?? info;
+        }
+        catch(DirectoryNotFoundException)
+        {
+            resolvedInfo = info;
+        }
     }
 
     public bool Exists => resolvedInfo.Exists;
@@ -38,14 +46,17 @@ public class LinkAwareDirectoryInfo : IFileInfo, IDirectoryContents
 
     IEnumerator IEnumerable.GetEnumerator() => EnumerateEntries();
 
+    public IEnumerable<ListingDirectoryInfo> Directories => this.OfType<ListingDirectoryInfo>();
+    public IEnumerable<ListingFileInfo> Files => this.OfType<ListingFileInfo>();
+
     private IEnumerator<IFileInfo> EnumerateEntries()
     {
         foreach(var info in wrapped)
         {
             yield return info switch
             {
-                PhysicalFileInfo pfi => new LinkAwareFileInfo(pfi),
-                PhysicalDirectoryInfo pdi => new LinkAwareDirectoryInfo(pdi),
+                PhysicalFileInfo pfi => new ListingFileInfo(pfi),
+                PhysicalDirectoryInfo pdi => new ListingDirectoryInfo(pdi),
                 _ => throw new InvalidOperationException()
             };
         }

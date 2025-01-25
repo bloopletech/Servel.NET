@@ -47,14 +47,14 @@ public class EntryFactory
     public DirectoryEntry ForDirectory(
         PathString requestPath,
         ForDirectoryOptions options,
-        out LinkAwareDirectoryInfo directoryInfo)
+        out ListingDirectoryInfo directoryInfo)
     {
         directoryInfo = _listing.FileProvider.GetRequiredDirectoryInfo(requestPath.Value!);
         return ForDirectory(directoryInfo, requestPath, options);
     }
 
     private DirectoryEntry ForDirectory(
-        LinkAwareDirectoryInfo directoryInfo,
+        ListingDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)
     {
@@ -66,22 +66,22 @@ public class EntryFactory
     }
 
     private DirectoryEntry ForDirectoryWithoutCache(
-        LinkAwareDirectoryInfo directoryInfo,
+        ListingDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)
     {
-        IEnumerable<OtherEntry>? otherEntries = null;
-        IEnumerable<DirectoryEntry>? directoryEntries = null;
-        IEnumerable<FileEntry>? fileEntries = null;
+        IEnumerable<OtherEntry>? others = null;
+        IEnumerable<DirectoryEntry>? directories = null;
+        IEnumerable<FileEntry>? files = null;
         int? childCount = null;
 
         if(options.Depth > 0)
         {
-            otherEntries = BuildOtherEntries(requestPath);
-            directoryEntries = directoryInfo.OfType<LinkAwareDirectoryInfo>()
-                .Select(pdi => ForDirectory(pdi, requestPath.Combine(pdi.Name), options.Descend()));
-            fileEntries = directoryInfo.OfType<LinkAwareFileInfo>().Select(ForFile);
-            if(options.CountChildren) childCount = directoryEntries.Count() + fileEntries.Count();
+            others = BuildOtherEntries(requestPath);
+            directories = directoryInfo.Directories.Select(
+                ldi => ForDirectory(ldi, requestPath.Combine(ldi.Name), options.Descend()));
+            files = directoryInfo.Files.Select(ForFile);
+            if(options.CountChildren) childCount = directories.Count() + files.Count();
         }
         else if(options.CountChildren)
         {
@@ -94,9 +94,9 @@ public class EntryFactory
         {
             Name = requestPath.IsRoot() ? "" : directoryInfo.Name,
             Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
-            Others = otherEntries,
-            Directories = directoryEntries,
-            Files = fileEntries,
+            Others = others,
+            Directories = directories,
+            Files = files,
             Children = childCount
         };
     }
@@ -114,7 +114,7 @@ public class EntryFactory
         return list;
     }
 
-    private FileEntry ForFile(LinkAwareFileInfo fileInfo)
+    private FileEntry ForFile(ListingFileInfo fileInfo)
     {
         return new FileEntry
         {

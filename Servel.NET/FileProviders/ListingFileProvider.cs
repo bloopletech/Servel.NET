@@ -25,14 +25,14 @@ public class ListingFileProvider : IFileProvider, IDisposable
         var originalContents = physicalProvider.GetFileInfo(subpath);
         if(originalContents is NotFoundFileInfo) return originalContents;
 
-        return new LinkAwareFileInfo((PhysicalFileInfo)originalContents);
+        return new ListingFileInfo((PhysicalFileInfo)originalContents);
     }
 
-    public LinkAwareFileInfo GetRequiredFileInfo(string subpath)
+    public ListingFileInfo GetRequiredFileInfo(string subpath)
     {
         var fileInfo = GetFileInfo(subpath);
         if(!fileInfo.Exists) throw new FileNotFoundException(subpath);
-        return (LinkAwareFileInfo)fileInfo;
+        return (ListingFileInfo)fileInfo;
     }
 
     public IDirectoryContents GetDirectoryContents(string subpath) => physicalProvider.GetDirectoryContents(subpath);
@@ -43,14 +43,14 @@ public class ListingFileProvider : IFileProvider, IDisposable
         if(!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
         var info = GetInfoField((PhysicalDirectoryContents)contents);
-        return new LinkAwareDirectoryInfo(info);
+        return new ListingDirectoryInfo(info);
     }
 
-    public LinkAwareDirectoryInfo GetRequiredDirectoryInfo(string subpath)
+    public ListingDirectoryInfo GetRequiredDirectoryInfo(string subpath)
     {
         var directoryInfo = GetDirectoryInfo(subpath);
         if(!directoryInfo.Exists) throw new DirectoryNotFoundException(subpath);
-        return (LinkAwareDirectoryInfo)directoryInfo;
+        return (ListingDirectoryInfo)directoryInfo;
     }
 
     public IChangeToken Watch(string filter) => physicalProvider.Watch(filter);

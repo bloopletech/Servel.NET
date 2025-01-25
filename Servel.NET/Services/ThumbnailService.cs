@@ -10,18 +10,18 @@ public class ThumbnailService(CacheDatabaseService databaseService)
     private readonly ConcurrentDictionary<string, SemaphoreSlim> pathLocks = new();
     private readonly ConcurrentDictionary<string, SemaphoreSlim> driveLocks = new();
 
-    public static async Task ThumbnailDirectoryBackground(IBackgroundTaskQueue queue, LinkAwareDirectoryInfo directoryInfo)
+    public static async Task ThumbnailDirectoryBackground(IBackgroundTaskQueue queue, ListingDirectoryInfo directoryInfo)
     {
         await queue.QueueAsync(async (services, _) =>
         {
-            foreach(var physicalFileInfo in directoryInfo.OfType<LinkAwareFileInfo>())
+            foreach(var physicalFileInfo in directoryInfo.Files)
             {
                 await ThumbnailFileBackground(queue, physicalFileInfo);
             }
         });
     }
 
-    public static async Task ThumbnailFileBackground(IBackgroundTaskQueue queue, LinkAwareFileInfo fileInfo)
+    public static async Task ThumbnailFileBackground(IBackgroundTaskQueue queue, ListingFileInfo fileInfo)
     {
         await queue.QueueAsync(async (services, _) =>
         {
@@ -30,7 +30,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         });
     }
 
-    public async Task<byte[]?> FindOrCreateByPath(LinkAwareFileInfo fileInfo)
+    public async Task<byte[]?> FindOrCreateByPath(ListingFileInfo fileInfo)
     {
         if(FindByPath(fileInfo, out var existingData)) return existingData;
 
@@ -49,7 +49,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         }
     }
 
-    private async Task<byte[]?> FindOrCreateByPathRacy(LinkAwareFileInfo fileInfo)
+    private async Task<byte[]?> FindOrCreateByPathRacy(ListingFileInfo fileInfo)
     {
         if(FindByPath(fileInfo, out var existingData)) return existingData;
 
@@ -68,7 +68,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
         return data;
     }
 
-    private bool FindByPath(LinkAwareFileInfo fileInfo, out byte[]? data)
+    private bool FindByPath(ListingFileInfo fileInfo, out byte[]? data)
     {
         using var db = databaseService.Connect();
         var existing = Thumbnail.FindByPath(db, fileInfo.PhysicalPath);
