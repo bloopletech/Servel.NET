@@ -109,7 +109,7 @@ public class EntryFactory
         return list;
     }
 
-    private FileEntry ForFile(ListingFileInfo fileInfo) => new FileEntry
+    private FileEntry ForFile(ListingFileInfo fileInfo) => new()
     {
         Name = fileInfo.Name,
         Url = HttpUtility.UrlPathEncode(fileInfo.Name),
