@@ -23,7 +23,7 @@ public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
             var targetInfo = _info.ResolveLinkTarget(true) as DirectoryInfo;
             _resolvedInfo = targetInfo ?? _info;
         }
-        catch(DirectoryNotFoundException)
+        catch(IOException)
         {
             _resolvedInfo = _info;
         }

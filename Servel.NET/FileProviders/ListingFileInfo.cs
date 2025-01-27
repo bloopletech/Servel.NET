@@ -21,7 +21,7 @@ public class ListingFileInfo : IFileInfo
             var targetInfo = _info.ResolveLinkTarget(true) as FileInfo;
             _resolvedInfo = targetInfo ?? _info;
         }
-        catch(FileNotFoundException)
+        catch(IOException)
         {
             _resolvedInfo = _info;
         }
