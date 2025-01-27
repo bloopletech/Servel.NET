@@ -43,7 +43,11 @@ public class ListingFileProvider(PhysicalFileProvider physicalProvider) : IFileP
 
     public IChangeToken Watch(string filter) => physicalProvider.Watch(filter);
 
-    public void Dispose() => physicalProvider.Dispose();
+    public void Dispose()
+    {
+        physicalProvider.Dispose();
+        GC.SuppressFinalize(this);
+    }
 
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_info")]
     private extern static ref PhysicalDirectoryInfo GetInfoField(PhysicalDirectoryContents @this);
