@@ -33,10 +33,10 @@ public class HistoryService(DatabaseService databaseService)
     {
         var siteId = httpContext.SiteId();
         var path = httpContext.Request.FullPath();
-        await queue.QueueAsync(async (services, _) =>
+        await queue.QueueAsync(async (services, cancellationToken) =>
         {
             var historyService = services.GetRequiredService<HistoryService>();
-            historyService.VisitDirectory(siteId, path);
+            await Task.Run(() => historyService.VisitDirectory(siteId, path), cancellationToken);
         });
     }
 

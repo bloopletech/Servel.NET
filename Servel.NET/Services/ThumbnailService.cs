@@ -86,7 +86,7 @@ public class ThumbnailService(CacheDatabaseService databaseService)
     {
         var pathRoot = Path.GetPathRoot(path) ?? "";
         var driveLock = driveLocks.GetOrAdd(pathRoot, _ => new SemaphoreSlim(1, 1));
-        driveLock.Wait();
+        await driveLock.WaitAsync();
 
         try
         {

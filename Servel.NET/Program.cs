@@ -53,7 +53,7 @@ builder.WebHost.UseKestrel(serverOptions =>
 builder.Services.AddMemoryCache();
 builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddHostedService<QueuedHostedService>();
-builder.Services.AddSingleton<IBackgroundTaskQueue>(ctx => new BackgroundTaskQueue(1024));
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 
 if(configuration.DatabasePath != null)
 {
