@@ -18,9 +18,9 @@ const Listing = (function () {
             <span class="icon">${entry.icon}</span>
             <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>
           </div>
-          <div class="type">${entry.type}</div>
-          <div class="size">${entry.sizeText}</div>
           <div class="modified">${entry.mtimeText}</div>
+          <div class="size">${entry.sizeText}</div>
+          <div class="type">${entry.type}</div>
         </div>
       </div>
     `;

@@ -245,10 +245,6 @@ a.default.home, a.default.top, a.default.parent {
   #listing.list .data {
     flex-wrap: wrap;
   }
-
-  #listing.list .data > * {
-    flex: auto;
-  }
 }
 
 @media screen and (max-width: 479px) {
