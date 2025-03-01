@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 
 namespace Servel.NET;
@@ -6,6 +8,7 @@ namespace Servel.NET;
 // Derived from https://github.com/blowdart/idunno.Authentication/blob/8594ba81d5fa7cf5b473d728c355077dd9b3eaea/src/idunno.Authentication.Basic/BasicAuthenticationHandler.cs
 public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials credentials)
 {
+    public static ClaimsPrincipal User = new(new GenericIdentity("DefaultUser"));
     public const string Scheme = "Basic";
     public const byte Delimiter = 0x3A; // U+003A COLON character (:)
     private readonly byte[] _username = Encoding.UTF8.GetBytes(credentials.Username);
@@ -15,6 +18,7 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
     {
         if(IsAuthenticated(httpContext.Request.Headers.Authorization.FirstOrDefault()))
         {
+            httpContext.User = User;
             await next.Invoke(httpContext);
         }
         else
