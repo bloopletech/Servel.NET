@@ -103,7 +103,11 @@ void ConfigureSite(IApplicationBuilder app, Site site)
 {
     app.UseMiddleware<DenyAudienceMiddleware>(site.Audience);
 
-    if(site.Credentials.HasValue) app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
+    if(site.Credentials.HasValue)
+    {
+        app.UseMiddleware<BlockFailedAuthenticationMiddleware>();
+        app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
+    }
 
     // Configure the HTTP request pipeline.
 
