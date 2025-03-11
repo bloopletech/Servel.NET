@@ -1,5 +1,4 @@
 using System.Web;
-using Microsoft.Extensions.Caching.Memory;
 using Servel.NET.Extensions;
 using Servel.NET.FileProviders;
 
@@ -31,9 +30,8 @@ public class EntryFactory
 
     private readonly Listing _listing;
     private readonly OtherEntry _topEntry;
-    private readonly IMemoryCache _memoryCache;
 
-    public EntryFactory(Listing listing, IMemoryCache memoryCache)
+    public EntryFactory(Listing listing)
     {
         _listing = listing;
         _topEntry = new OtherEntry
@@ -42,7 +40,6 @@ public class EntryFactory
             Name = "Top Directory",
             Url = _listing.UrlPath
         };
-        _memoryCache = memoryCache;
     }
 
     public DirectoryEntry ForDirectory(
@@ -55,18 +52,6 @@ public class EntryFactory
     }
 
     private DirectoryEntry ForDirectory(
-        ListingDirectoryInfo directoryInfo,
-        PathString requestPath,
-        ForDirectoryOptions options)
-    {
-        var cacheKey = (directoryInfo.PhysicalPath, directoryInfo.LastModified, options);
-        return _memoryCache.GetOrCreate(cacheKey, (cacheEntry) =>
-        {
-            return ForDirectoryWithoutCache(directoryInfo, requestPath, options);
-        })!;
-    }
-
-    private DirectoryEntry ForDirectoryWithoutCache(
         ListingDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)

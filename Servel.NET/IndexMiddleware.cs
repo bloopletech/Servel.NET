@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
@@ -12,12 +11,11 @@ public class IndexMiddleware(
     RequestDelegate next,
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
-    IMemoryCache memoryCache,
     IBackgroundTaskQueue queue,
     HistoryService? historyService = null,
     CacheDatabaseService? cacheDatabaseService = null)
 {
-    private readonly EntryFactory _entryFactory = new(listing, memoryCache);
+    private readonly EntryFactory _entryFactory = new(listing);
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
