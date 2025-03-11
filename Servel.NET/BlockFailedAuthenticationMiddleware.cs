@@ -3,53 +3,47 @@ using Servel.NET.Extensions;
 
 namespace Servel.NET;
 
-public class BlockFailedAuthenticationMiddleware(RequestDelegate next, IMemoryCache cache)
+public class BlockFailedAuthenticationMiddleware(RequestDelegate next, IMemoryCache cache) : MiddlewareBase(next)
 {
     private static readonly SemaphoreSlim semaphoreSlim = new(1, 1);
     private const int MaxFailures = 10;
     private static readonly TimeSpan TrackFailuresSlidingDuration = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan BlockDuration = TimeSpan.FromHours(1);
 
-    private static string BlocksCacheKey(HttpContext httpContext) =>
-        $"Blocks/{httpContext.SiteId()}/{httpContext.Connection.RemoteIpAddress}";
-    private static string FailuresCacheKey(HttpContext httpContext) =>
-        $"Failures/{httpContext.SiteId()}/{httpContext.Connection.RemoteIpAddress}";
+    private string BlocksCacheKey => $"Blocks/{HttpContext.SiteId()}/{Connection.RemoteIpAddress}";
+    private string FailuresCacheKey => $"Failures/{HttpContext.SiteId()}/{Connection.RemoteIpAddress}";
 
-    public async Task Invoke(HttpContext httpContext)
+    public override async Task BeforeAsync()
     {
-        var clientIp = httpContext.Connection.RemoteIpAddress;
-        if(clientIp == null || cache.Get(BlocksCacheKey(httpContext)) != null)
+        var clientIp = Connection.RemoteIpAddress;
+        if(clientIp == null || cache.Get(BlocksCacheKey) != null) await Results.Unauthorized().ExecuteAsync(HttpContext);
+    }
+
+    public override async Task AfterAsync()
+    {
+        if(Response.StatusCode != StatusCodes.Status401Unauthorized)
         {
-            await Results.Unauthorized().ExecuteAsync(httpContext);
+            cache.Remove(FailuresCacheKey);
             return;
         }
 
-        await next.Invoke(httpContext);
-
-        if(httpContext.Response.StatusCode == StatusCodes.Status401Unauthorized)
+        var failures = await IncrementFailures();
+        if(failures > MaxFailures)
         {
-            var failures = await IncrementFailures(httpContext);
-            if(failures > MaxFailures)
-            {
-                cache.Set(BlocksCacheKey(httpContext), new object(), BlockDuration);
-                cache.Remove(FailuresCacheKey(httpContext));
-            }
-        }
-        else
-        {
-            cache.Remove(FailuresCacheKey(httpContext));
+            cache.Set(BlocksCacheKey, new object(), BlockDuration);
+            cache.Remove(FailuresCacheKey);
         }
     }
 
-    private async Task<int> IncrementFailures(HttpContext httpContext)
+    private async Task<int> IncrementFailures()
     {
         int failures;
         await semaphoreSlim.WaitAsync();
         try
         {
-            failures = cache.GetOrCreate(FailuresCacheKey(httpContext), (cacheEntry) => 0);
+            failures = cache.GetOrCreate(FailuresCacheKey, (cacheEntry) => 0);
             failures++;
-            cache.Set(FailuresCacheKey(httpContext), failures, TrackFailuresSlidingDuration);
+            cache.Set(FailuresCacheKey, failures, TrackFailuresSlidingDuration);
         }
         finally
         {

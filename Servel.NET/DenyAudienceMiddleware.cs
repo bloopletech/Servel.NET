@@ -3,11 +3,11 @@ using Servel.NET.Extensions;
 
 namespace Servel.NET;
 
-public class DenyAudienceMiddleware(RequestDelegate next, Audience audience)
+public class DenyAudienceMiddleware(RequestDelegate next, Audience audience) : MiddlewareBase(next)
 {
-    public async Task Invoke(HttpContext httpContext)
+    public override async Task BeforeAsync()
     {
-        var remoteIp = httpContext.Connection.RemoteIpAddress;
+        var remoteIp = Connection.RemoteIpAddress;
 
         var allow = audience switch
         {
@@ -17,7 +17,6 @@ public class DenyAudienceMiddleware(RequestDelegate next, Audience audience)
             _ => throw new NotImplementedException()
         };
 
-        if(!allow) await Results.StatusCode(StatusCodes.Status403Forbidden).ExecuteAsync(httpContext);
-        else await next.Invoke(httpContext);
+        if(!allow) await Results.Forbid().ExecuteAsync(HttpContext);
     }
 }

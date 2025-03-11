@@ -6,25 +6,24 @@ using System.Text;
 namespace Servel.NET;
 
 // Derived from https://github.com/blowdart/idunno.Authentication/blob/8594ba81d5fa7cf5b473d728c355077dd9b3eaea/src/idunno.Authentication.Basic/BasicAuthenticationHandler.cs
-public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials credentials)
+public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials credentials) : MiddlewareBase(next)
 {
-    public static ClaimsPrincipal User = new(new GenericIdentity("DefaultUser"));
+    public readonly static ClaimsPrincipal User = new(new GenericIdentity("DefaultUser"));
     public const string Scheme = "Basic";
     public const byte Delimiter = 0x3A; // U+003A COLON character (:)
     private readonly byte[] _username = Encoding.UTF8.GetBytes(credentials.Username);
     private readonly byte[] _password = Encoding.UTF8.GetBytes(credentials.Password);
 
-    public async Task Invoke(HttpContext httpContext)
+    public override async Task BeforeAsync()
     {
-        if(IsAuthenticated(httpContext.Request.Headers.Authorization.FirstOrDefault()))
+        if(IsAuthenticated(Request.Headers.Authorization.FirstOrDefault()))
         {
-            httpContext.User = User;
-            await next.Invoke(httpContext);
+            HttpContext.User = User;
         }
         else
         {
-            httpContext.Response.Headers.WWWAuthenticate = $"{Scheme} realm=\"Servel.NET\", charset=\"UTF-8\"";
-            await Results.Unauthorized().ExecuteAsync(httpContext);
+            Response.Headers.WWWAuthenticate = $"{Scheme} realm=\"Servel.NET\", charset=\"UTF-8\"";
+            await Results.Unauthorized().ExecuteAsync(HttpContext);
         }
     }
 

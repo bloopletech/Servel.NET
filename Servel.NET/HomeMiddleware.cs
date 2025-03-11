@@ -5,27 +5,21 @@ using System.Text.Json;
 
 namespace Servel.NET;
 
-public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
+public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings) : MiddlewareBase(next)
 {
-    public async Task InvokeAsync(HttpContext httpContext)
+    public override bool ShouldRun() => Request.IsGetOrHead() && Request.IsRoot();
+
+    public override async Task RunAsync()
     {
-        if(ShouldProcess(httpContext)) await Process(httpContext);
-        else await next.Invoke(httpContext);
-    }
+        Response.Headers.Vary = HeaderNames.Accept;
 
-    private static bool ShouldProcess(HttpContext httpContext) => httpContext.Request.IsGetOrHead() && httpContext.Request.IsRoot();
-
-    private async Task Process(HttpContext httpContext)
-    {
-        httpContext.Response.Headers.Vary = HeaderNames.Accept;
-
-        if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
-            await Results.Text(RenderResponse(), MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
+            await Results.Text(RenderResponse(), MediaTypeNames.Application.Json).ExecuteAsync(HttpContext);
             return;
         }
 
-        await Results.Text(Resources.Get("Views", "home.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+        await Results.Text(Resources.Get("Views", "home.html"), MediaTypeNames.Text.Html).ExecuteAsync(HttpContext);
     }
 
     private byte[] RenderResponse()

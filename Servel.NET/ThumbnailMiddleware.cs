@@ -7,28 +7,21 @@ public class ThumbnailMiddleware(
     RequestDelegate next,
     Listing listing,
     DirectoryOptionsResolver directoryOptionsResolver,
-    ThumbnailService thumbnailsService)
+    ThumbnailService thumbnailsService) : MiddlewareBase(next)
 {
-    public async Task InvokeAsync(HttpContext httpContext)
-    {
-        if(ShouldProcess(httpContext)) await Process(httpContext);
-        else await next.Invoke(httpContext);
-    }
+    public override bool ShouldRun() => Request.IsGetOrHead() && Request.GetAction() == "thumbnail";
 
-    private static bool ShouldProcess(HttpContext httpContext) =>
-        httpContext.Request.IsGetOrHead() && httpContext.Request.GetAction() == "thumbnail";
-
-    private async Task Process(HttpContext httpContext)
+    public override async Task RunAsync()
     {
-        var requestPath = httpContext.Request.Path;
+        var requestPath = Request.Path;
         var fileInfo = listing.FileProvider.GetRequiredFileInfo(requestPath.Value!);
 
         //is it a media file???????
         var data = await thumbnailsService.FindOrCreateByPath(fileInfo) ?? throw new FileNotFoundException(requestPath);
 
         //TODO send the most efficient way
-        await httpContext.Response.BodyWriter.WriteAsync(data);
-        //httpContext.Response.Headers.ContentDisposition = "inline";
-        //await Results.File(data).ExecuteAsync(httpContext);
+        await Response.BodyWriter.WriteAsync(data);
+        //Response.Headers.ContentDisposition = "inline";
+        //await Results.File(data).ExecuteAsync(HttpContext);
     }
 }

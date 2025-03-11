@@ -13,63 +13,56 @@ public class IndexMiddleware(
     DirectoryOptionsResolver directoryOptionsResolver,
     IBackgroundTaskQueue queue,
     HistoryService? historyService = null,
-    CacheDatabaseService? cacheDatabaseService = null)
+    CacheDatabaseService? cacheDatabaseService = null) : MiddlewareBase(next)
 {
     private readonly EntryFactory _entryFactory = new(listing);
 
-    public async Task InvokeAsync(HttpContext httpContext)
-    {
-        if(ShouldProcess(httpContext)) await Process(httpContext);
-        else await next.Invoke(httpContext);
-    }
+    public override bool ShouldRun() => Request.IsGetOrHead();
 
-    private static bool ShouldProcess(HttpContext httpContext) => httpContext.Request.IsGetOrHead();
-
-    private async Task Process(HttpContext httpContext)
+    public override void Before()
     {
         // If the path matches a directory but does not end in a slash, redirect to add the slash.
         // This prevents relative links from breaking.
-        if(!httpContext.Request.Path.EndsInSlash())
-        {
-            httpContext.RedirectToPathWithSlash();
-            return;
-        }
+        if(!Request.Path.EndsInSlash()) HttpContext.RedirectToPathWithSlash();
+    }
 
-        httpContext.Response.Headers.Vary = HeaderNames.Accept;
+    public override async Task RunAsync()
+    {
+        Response.Headers.Vary = HeaderNames.Accept;
 
-        if(httpContext.Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
             try
             {
-                await Render(httpContext);
+                await Render();
             }
             catch (DirectoryNotFoundException)
             {
-                await Results.NotFound().ExecuteAsync(httpContext);
+                await Results.NotFound().ExecuteAsync(HttpContext);
             }
         }
         else
         {
-            await Results.Text(Resources.Get("Views", "index.html"), MediaTypeNames.Text.Html).ExecuteAsync(httpContext);
+            await Results.Text(Resources.Get("Views", "index.html"), MediaTypeNames.Text.Html).ExecuteAsync(HttpContext);
         }
     }
 
-    private async Task Render(HttpContext httpContext)
+    private async Task Render()
     {
-        var directoryOptions = directoryOptionsResolver.Resolve(httpContext.Request.FullPath());
+        var directoryOptions = directoryOptionsResolver.Resolve(Request.FullPath());
 
         var directoryEntry = _entryFactory.ForDirectory(
-            httpContext.Request.Path,
-            ParseParameters(httpContext, directoryOptions),
+            Request.Path,
+            ParseParameters(directoryOptions),
             out var physicalDirectoryInfo);
 
         if(cacheDatabaseService != null) await ThumbnailService.ThumbnailDirectoryBackground(queue, physicalDirectoryInfo);
 
-        var recentEntries = historyService?.GetRecent(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
-        var popularEntries = historyService?.GetPopular(httpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
+        var recentEntries = historyService?.GetRecent(HttpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
+        var popularEntries = historyService?.GetPopular(HttpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
 
-        if(historyService != null) await HistoryService.VisitDirectoryBackground(queue, httpContext);
-        //historyService?.VisitDirectory(httpContext);
+        if(historyService != null) await HistoryService.VisitDirectoryBackground(queue, HttpContext);
+        //historyService?.VisitDirectory(HttpContext);
 
         var indexConfiguration = new ListingConfiguration(cacheDatabaseService != null);
 
@@ -84,12 +77,12 @@ public class IndexMiddleware(
             indexResponse,
             SerializationSourceGenerationContext.Default.IndexResponse);
 
-        await Results.Text(responseJson, MediaTypeNames.Application.Json).ExecuteAsync(httpContext);
+        await Results.Text(responseJson, MediaTypeNames.Application.Json).ExecuteAsync(HttpContext);
     }
 
-    private static EntryFactory.ForDirectoryOptions ParseParameters(HttpContext httpContext, DirectoryOptions options)
+    private EntryFactory.ForDirectoryOptions ParseParameters(DirectoryOptions options)
     {
-        var parameters = IndexParameters.Parse(httpContext.Request);
+        var parameters = IndexParameters.Parse(Request);
         var defaultParams = options.DefaultParameters;
 
         return new EntryFactory.ForDirectoryOptions
