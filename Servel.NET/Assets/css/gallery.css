@@ -130,6 +130,7 @@ body.landscape.touch #content {
 
 #audio {
   width: 100%;
+  margin: 0 120px 0 100px;
 }
 
 #document {
@@ -190,6 +191,10 @@ body.landscape.touch #content {
 
   #content-page-back, #content-page-next {
     width: 60px;
+  }
+
+  #audio {
+    margin: 0 80px 0 60px;
   }
 }
 
