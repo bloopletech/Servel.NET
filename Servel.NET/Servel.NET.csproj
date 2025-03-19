@@ -29,24 +29,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CliWrap" Version="3.7.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
-    <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.420" GeneratePathProperty="true">
+    <PackageReference Include="CliWrap" Version="3.8.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+    <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.494" GeneratePathProperty="true">
       <ExcludeAssets>all</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(_OS)' == 'win'">
-    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="2.1.10" />
+    <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" Version="2.1.11" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(_OS)' == 'linux' OR '$(_OS)' == 'osx'">
-    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.10" />
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.10" GeneratePathProperty="true">
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.11" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.11" GeneratePathProperty="true">
       <ExcludeAssets>native</ExcludeAssets>
     </PackageReference>
     <EmbeddedResource Include="$(PkgSQLitePCLRaw_lib_e_sqlite3)\runtimes\$(RuntimeIdentifier)\native\$(_NativeLibraryPrefix)e_sqlite3$(_NativeLibraryExtension)">
