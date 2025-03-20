@@ -11,7 +11,7 @@ public class ThumbnailMiddleware(
 {
     public override bool ShouldRun() => Request.IsGetOrHead() && Request.GetAction() == "thumbnail";
 
-    public override async Task RunAsync()
+    public override async Task<IResult?> RunAsync()
     {
         var requestPath = Request.Path;
         var fileInfo = listing.FileProvider.GetRequiredFileInfo(requestPath.Value!);
@@ -23,5 +23,6 @@ public class ThumbnailMiddleware(
         await Response.BodyWriter.WriteAsync(data);
         //Response.Headers.ContentDisposition = "inline";
         //await Results.File(data).ExecuteAsync(HttpContext);
+        return Results.Empty;
     }
 }

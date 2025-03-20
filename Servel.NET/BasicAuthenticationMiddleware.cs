@@ -14,17 +14,16 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
     private readonly byte[] _username = Encoding.UTF8.GetBytes(credentials.Username);
     private readonly byte[] _password = Encoding.UTF8.GetBytes(credentials.Password);
 
-    public override async Task BeforeAsync()
+    public override IResult? Before()
     {
         if(IsAuthenticated(Request.Headers.Authorization.FirstOrDefault()))
         {
             HttpContext.User = User;
+            return null;
         }
-        else
-        {
-            Response.Headers.WWWAuthenticate = $"{Scheme} realm=\"Servel.NET\", charset=\"UTF-8\"";
-            await Results.Unauthorized().ExecuteAsync(HttpContext);
-        }
+
+        Response.Headers.WWWAuthenticate = $"{Scheme} realm=\"Servel.NET\", charset=\"UTF-8\"";
+        return Results.Unauthorized();
     }
 
     private bool IsAuthenticated(string? authorizationHeader)

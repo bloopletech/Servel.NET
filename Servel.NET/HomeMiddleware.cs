@@ -9,17 +9,16 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
 {
     public override bool ShouldRun() => Request.IsGetOrHead() && Request.IsRoot();
 
-    public override async Task RunAsync()
+    public override IResult? Run()
     {
         Response.Headers.Vary = HeaderNames.Accept;
 
         if(Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
         {
-            await Results.Text(RenderResponse(), MediaTypeNames.Application.Json).ExecuteAsync(HttpContext);
-            return;
+            return Results.Text(RenderResponse(), MediaTypeNames.Application.Json);
         }
 
-        await Results.Text(Resources.Get("Views", "home.html"), MediaTypeNames.Text.Html).ExecuteAsync(HttpContext);
+        return Results.Text(Resources.Get("Views", "home.html"), MediaTypeNames.Text.Html);
     }
 
     private byte[] RenderResponse()

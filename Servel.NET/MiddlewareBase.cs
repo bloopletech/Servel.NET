@@ -15,18 +15,21 @@ public class MiddlewareBase(RequestDelegate next)
             _httpContextHolder.Value = httpContext;
             if(!await ShouldRunAsync())
             {
-                await RunNextAsync();
+                await InvokeNext();
                 return;
             }
 
-            var statusCode = Response.StatusCode;
-            var headersCount = Response.Headers.Count;
-            await BeforeAsync();
-            if(Response.HasStarted || Response.StatusCode != statusCode || Response.Headers.Count != headersCount)
+            var result = await BeforeAsync();
+            if(result != null)
             {
+                await result.ExecuteAsync(HttpContext);
                 return;
             }
-            await RunAsync();
+
+            result = await RunAsync();
+            if(result != null) await result.ExecuteAsync(HttpContext);
+            else await InvokeNext();
+
             await AfterAsync();
         }
         finally
@@ -45,22 +48,27 @@ public class MiddlewareBase(RequestDelegate next)
         return Task.FromResult(ShouldRun());
     }
 
-    public virtual void Before()
+    public virtual IResult? Before()
     {
+        return null;
     }
 
-    public virtual Task BeforeAsync()
+    public virtual Task<IResult?> BeforeAsync()
     {
-        Before();
-        return Task.CompletedTask;
+        return Task.FromResult(Before());
     }
 
-    public virtual async Task RunAsync()
+    public virtual IResult? Run()
     {
-        await RunNextAsync();
+        return null;
     }
 
-    public async Task RunNextAsync()
+    public virtual Task<IResult?> RunAsync()
+    {
+        return Task.FromResult(Run());
+    }
+
+    public async Task InvokeNext()
     {
         await next.Invoke(HttpContext);
     }

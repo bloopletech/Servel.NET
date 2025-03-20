@@ -5,7 +5,7 @@ namespace Servel.NET;
 
 public class DenyAudienceMiddleware(RequestDelegate next, Audience audience) : MiddlewareBase(next)
 {
-    public override async Task BeforeAsync()
+    public override IResult? Before()
     {
         var remoteIp = Connection.RemoteIpAddress;
 
@@ -17,6 +17,6 @@ public class DenyAudienceMiddleware(RequestDelegate next, Audience audience) : M
             _ => throw new NotImplementedException()
         };
 
-        if(!allow) await Results.Forbid().ExecuteAsync(HttpContext);
+        return allow ? null : Results.Forbid();
     }
 }

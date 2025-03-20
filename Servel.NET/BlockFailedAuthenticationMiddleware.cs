@@ -13,10 +13,11 @@ public class BlockFailedAuthenticationMiddleware(RequestDelegate next, IMemoryCa
     private string BlocksCacheKey => $"Blocks/{HttpContext.SiteId()}/{Connection.RemoteIpAddress}";
     private string FailuresCacheKey => $"Failures/{HttpContext.SiteId()}/{Connection.RemoteIpAddress}";
 
-    public override async Task BeforeAsync()
+    public override IResult? Before()
     {
         var clientIp = Connection.RemoteIpAddress;
-        if(clientIp == null || cache.Get(BlocksCacheKey) != null) await Results.Unauthorized().ExecuteAsync(HttpContext);
+        if(clientIp == null || cache.Get(BlocksCacheKey) != null) return Results.Unauthorized();
+        return null;
     }
 
     public override async Task AfterAsync()

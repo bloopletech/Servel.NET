@@ -19,14 +19,15 @@ public class IndexMiddleware(
 
     public override bool ShouldRun() => Request.IsGetOrHead();
 
-    public override void Before()
+    public override IResult? Before()
     {
         // If the path matches a directory but does not end in a slash, redirect to add the slash.
         // This prevents relative links from breaking.
-        if(!Request.Path.EndsInSlash()) HttpContext.RedirectToPathWithSlash();
+        if(!Request.Path.EndsInSlash()) return HttpContext.RedirectToPathWithSlash();
+        return null;
     }
 
-    public override async Task RunAsync()
+    public override async Task<IResult> RunAsync()
     {
         Response.Headers.Vary = HeaderNames.Accept;
 
@@ -34,20 +35,18 @@ public class IndexMiddleware(
         {
             try
             {
-                await Render();
+                return await Render();
             }
             catch (DirectoryNotFoundException)
             {
-                await Results.NotFound().ExecuteAsync(HttpContext);
+                return Results.NotFound();
             }
         }
-        else
-        {
-            await Results.Text(Resources.Get("Views", "index.html"), MediaTypeNames.Text.Html).ExecuteAsync(HttpContext);
-        }
+
+        return Results.Text(Resources.Get("Views", "index.html"), MediaTypeNames.Text.Html);
     }
 
-    private async Task Render()
+    private async Task<IResult> Render()
     {
         var directoryOptions = directoryOptionsResolver.Resolve(Request.FullPath());
 
@@ -77,7 +76,7 @@ public class IndexMiddleware(
             indexResponse,
             SerializationSourceGenerationContext.Default.IndexResponse);
 
-        await Results.Text(responseJson, MediaTypeNames.Application.Json).ExecuteAsync(HttpContext);
+        return Results.Text(responseJson, MediaTypeNames.Application.Json);
     }
 
     private EntryFactory.ForDirectoryOptions ParseParameters(DirectoryOptions options)
