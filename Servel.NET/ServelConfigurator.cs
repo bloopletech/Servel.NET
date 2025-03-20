@@ -47,6 +47,7 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetString("Key"),
             siteOptions.GetString("Username"),
             siteOptions.GetString("Password"),
+            siteOptions.GetString("JwtSigningKey"),
             siteOptions.GetEnum<Audience>("Audience"),
             ConfigureListings(siteOptions.GetRequiredArray("Listing")),
             ConfigureDirectoriesOptions(siteOptions.GetArray("DirectoriesOptions")));

@@ -11,6 +11,7 @@ public readonly struct Site
     public int Port { get; }
     public X509Certificate2? Certificate { get; }
     public Credentials? Credentials { get; }
+    public string? JwtSigningKey { get; }
     public Audience Audience { get; }
     public IEnumerable<Listing> Listings { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
@@ -34,7 +35,8 @@ public readonly struct Site
             if(!portAssigned) Port = 443;
         }
 
-        if(options.HasCredentials) Credentials = new Credentials(options.Username!, options.Password!);
+        if(options.HasCredentials) Credentials = new(options.Username!, options.Password!);
+        JwtSigningKey = options.JwtSigningKey;
 
         Audience = options.Audience ?? Audience.LocalNetwork;
 

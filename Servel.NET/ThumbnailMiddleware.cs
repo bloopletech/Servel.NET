@@ -9,7 +9,7 @@ public class ThumbnailMiddleware(
     DirectoryOptionsResolver directoryOptionsResolver,
     ThumbnailService thumbnailsService) : MiddlewareBase(next)
 {
-    public override bool ShouldRun() => Request.IsGetOrHead() && Request.GetAction() == "thumbnail";
+    public override bool ShouldRun() => Request.IsGetOrHead() && Request.Action() == "thumbnail";
 
     public override async Task<IResult?> RunAsync()
     {

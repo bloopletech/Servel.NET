@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Connections;
 using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
+using CliWrap;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;
@@ -106,6 +107,7 @@ void ConfigureSite(IApplicationBuilder app, Site site)
     if(site.Credentials.HasValue)
     {
         app.UseMiddleware<BlockFailedAuthenticationMiddleware>();
+        if(site.JwtSigningKey != null) app.UseMiddleware<JwtAuthenticationMiddleware>(site);
         app.UseMiddleware<BasicAuthenticationMiddleware>(site.Credentials.Value);
     }
 
@@ -118,6 +120,8 @@ void ConfigureSite(IApplicationBuilder app, Site site)
         FileProvider = Resources.AssetsFileProvider,
         RequestPath = "/_servel",
     });
+
+    if(site.JwtSigningKey != null) app.UseMiddleware<GenerateSignedUrlMiddleware>(site);
 
     var resolver = new DirectoryOptionsResolver(site.DirectoriesOptions);
     foreach(var listing in site.Listings) Mount(app, listing, resolver);

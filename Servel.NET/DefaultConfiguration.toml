@@ -64,6 +64,8 @@ Port = 9292
 # Username = "servel"
 # Password = "{0}"
 
+# JwtSigningKey = "{1}"
+
 
 # Audience allows you to limit which IP addresses can connect to Servel.NET.
 # 
@@ -122,7 +124,7 @@ Port = 9292
 # You can remove this entry, keep it, or mix and match with the following examples.
 
 [[Site.Listing]]
-"{1}" = "/"
+"{2}" = "/"
 
 # [[Site.Listing]]
 # "C:\\" = "/c"

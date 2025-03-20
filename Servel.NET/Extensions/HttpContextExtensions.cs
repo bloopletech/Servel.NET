@@ -23,4 +23,7 @@ public static class HttpContextExtensions
             request.QueryString);
         return Results.Redirect(url, true);
     }
+
+    public static bool IsAuthenticated(this HttpContext context) => context.User?.Identity?.IsAuthenticated == true;
+    public static bool IsUnauthenticated(this HttpContext context) => !context.IsAuthenticated();
 }

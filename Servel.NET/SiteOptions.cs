@@ -7,6 +7,7 @@ public record struct SiteOptions(
     string? Key,
     string? Username,
     string? Password,
+    string? JwtSigningKey,
     Audience? Audience,
     SiteListingOption[] Listings,
     SiteDirectoryOptions[]? DirectoriesOptions)

@@ -6,13 +6,13 @@ public static class HttpRequestExtensions
     public static bool IsGetOrHead(this HttpRequest request) =>
         HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method);
 
+    public static bool IsPost(this HttpRequest request) => HttpMethods.IsPost(request.Method);
+
     public static bool IsRoot(this HttpRequest request) => request.Path.IsRoot();
 
     public static PathString FullPath(this HttpRequest request) => request.PathBase + request.Path;
 
-    public static string? GetAction(this HttpRequest request)
-    {
-        if(!request.Query.ContainsKey("action")) return null;
-        return request.Query["action"].ToString();
-    }
+    public static string? Param(this HttpRequest request, string name) => request.Query[name].LastOrDefault();
+
+    public static string? Action(this HttpRequest request) => request.Param("action");
 }

@@ -37,6 +37,7 @@
     <PackageReference Include="Soenneker.Libraries.FFmpeg" Version="3.0.494" GeneratePathProperty="true">
       <ExcludeAssets>all</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
     <PackageReference Include="Tommy" Version="3.1.2" />
   </ItemGroup>
 

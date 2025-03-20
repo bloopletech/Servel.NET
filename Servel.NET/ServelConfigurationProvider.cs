@@ -20,6 +20,7 @@ public static class ServelConfigurationProvider
         if(File.Exists(configPath)) return;
 
         var password = HttpUtility.JavaScriptStringEncode(KeyGenerator.GetUniqueKey(20));
+        var jwtSigningKey = HttpUtility.JavaScriptStringEncode(KeyGenerator.GetUniqueKey(50));
         string publicPath;
         if(Environment.IsPrivilegedProcess)
         {
@@ -34,7 +35,7 @@ public static class ServelConfigurationProvider
         var encodedPublicPath = HttpUtility.JavaScriptStringEncode(publicPath);
 
         var defaultConfiguration = Resources.Get("DefaultConfiguration.toml");
-        var renderedConfiguration = string.Format(defaultConfiguration, password, encodedPublicPath);
+        var renderedConfiguration = string.Format(defaultConfiguration, password, jwtSigningKey, encodedPublicPath);
         File.WriteAllText(configPath, renderedConfiguration);
     }
 }

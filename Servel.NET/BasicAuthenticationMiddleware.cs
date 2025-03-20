@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
+using Servel.NET.Extensions;
 
 namespace Servel.NET;
 
@@ -9,14 +10,16 @@ namespace Servel.NET;
 public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials credentials) : MiddlewareBase(next)
 {
     public readonly static ClaimsPrincipal User = new(new GenericIdentity("DefaultUser"));
-    public const string Scheme = "Basic";
-    public const byte Delimiter = 0x3A; // U+003A COLON character (:)
+    private const string Scheme = "Basic";
+    private const byte Delimiter = 0x3A; // U+003A COLON character (:)
     private readonly byte[] _username = Encoding.UTF8.GetBytes(credentials.Username);
     private readonly byte[] _password = Encoding.UTF8.GetBytes(credentials.Password);
 
+    public override bool ShouldRun() => HttpContext.IsUnauthenticated();
+
     public override IResult? Before()
     {
-        if(IsAuthenticated(Request.Headers.Authorization.FirstOrDefault()))
+        if(Authenticate())
         {
             HttpContext.User = User;
             return null;
@@ -26,8 +29,10 @@ public class BasicAuthenticationMiddleware(RequestDelegate next, Credentials cre
         return Results.Unauthorized();
     }
 
-    private bool IsAuthenticated(string? authorizationHeader)
+    private bool Authenticate()
     {
+        var authorizationHeader = Request.Headers.Authorization.FirstOrDefault();
+
         if(string.IsNullOrEmpty(authorizationHeader)) return false;
 
         // Exact match on purpose, rather than using string compare
