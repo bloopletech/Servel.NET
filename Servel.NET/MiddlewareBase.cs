@@ -19,8 +19,13 @@ public class MiddlewareBase(RequestDelegate next)
                 return;
             }
 
+            var statusCode = Response.StatusCode;
+            var headersCount = Response.Headers.Count;
             await BeforeAsync();
-            if(Response.HasStarted) return;
+            if(Response.HasStarted || Response.StatusCode != statusCode || Response.Headers.Count != headersCount)
+            {
+                return;
+            }
             await RunAsync();
             await AfterAsync();
         }
