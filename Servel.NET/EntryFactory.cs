@@ -1,4 +1,3 @@
-using System.Web;
 using Servel.NET.Extensions;
 using Servel.NET.FileProviders;
 
@@ -72,7 +71,7 @@ public class EntryFactory
         return new DirectoryEntry
         {
             Name = name,
-            Url = HttpUtility.UrlPathEncode(name + "/"),
+            Url = UrlUtility.EncodeUrlPath(name + "/"),
             Mtime = directoryInfo.LastModified.ToUnixTimeMilliseconds(),
             Others = others,
             Directories = directories,
@@ -97,7 +96,7 @@ public class EntryFactory
     private FileEntry ForFile(ListingFileInfo fileInfo) => new()
     {
         Name = fileInfo.Name,
-        Url = HttpUtility.UrlPathEncode(fileInfo.Name),
+        Url = UrlUtility.EncodeUrlPath(fileInfo.Name),
         Size = fileInfo.Length,
         Mtime = fileInfo.LastModified.ToUnixTimeMilliseconds()
     };
