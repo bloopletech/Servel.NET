@@ -55,7 +55,7 @@ public class IndexMiddleware(
             ParseParameters(directoryOptions),
             out var physicalDirectoryInfo);
 
-        if(cacheDatabaseService != null) await ThumbnailService.ThumbnailDirectoryBackground(queue, physicalDirectoryInfo);
+        //if(cacheDatabaseService != null) await ThumbnailService.ThumbnailDirectoryBackground(queue, physicalDirectoryInfo);
 
         var recentEntries = historyService?.GetRecent(HttpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
         var popularEntries = historyService?.GetPopular(HttpContext.SiteId()).Select(hi => hi.ToEntry()).ToList();
