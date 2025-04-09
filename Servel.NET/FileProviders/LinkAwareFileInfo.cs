@@ -5,13 +5,13 @@ using Microsoft.Extensions.FileProviders.Physical;
 namespace Servel.NET.FileProviders;
 
 // Based on https://github.com/dotnet/runtime/blob/c8acea22626efab11c13778c028975acdc34678f/src/libraries/Microsoft.Extensions.FileProviders.Physical/src/PhysicalFileInfo.cs
-public class ListingFileInfo : IFileInfo
+public class LinkAwareFileInfo : IFileInfo
 {
     private readonly PhysicalFileInfo _physicalFileInfo;
     private readonly FileInfo _info;
     private readonly FileInfo _resolvedInfo;
 
-    public ListingFileInfo(PhysicalFileInfo physicalFileInfo)
+    public LinkAwareFileInfo(PhysicalFileInfo physicalFileInfo)
     {
         _physicalFileInfo = physicalFileInfo;
         _info = GetInfoField(_physicalFileInfo);

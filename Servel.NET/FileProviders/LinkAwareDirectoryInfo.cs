@@ -7,13 +7,13 @@ using System.Diagnostics.CodeAnalysis;
 namespace Servel.NET.FileProviders;
 
 // Based on https://github.com/dotnet/runtime/blob/c8acea22626efab11c13778c028975acdc34678f/src/libraries/Microsoft.Extensions.FileProviders.Physical/src/PhysicalDirectoryInfo.cs
-public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
+public class LinkAwareDirectoryInfo : IFileInfo, IDirectoryContents
 {
     private readonly PhysicalDirectoryInfo _physicalDirectoryInfo;
     private readonly DirectoryInfo _info;
     private readonly DirectoryInfo _resolvedInfo;
 
-    public ListingDirectoryInfo(PhysicalDirectoryInfo physicalDirectoryInfo)
+    public LinkAwareDirectoryInfo(PhysicalDirectoryInfo physicalDirectoryInfo)
     {
         _physicalDirectoryInfo = physicalDirectoryInfo;
         _info = GetInfoField(_physicalDirectoryInfo);
@@ -51,8 +51,8 @@ public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
     [SuppressMessage("CodeQuality", "IDE0079")]
     public int ChildrenCount() => this.Count();
 
-    public IEnumerable<ListingDirectoryInfo> Directories => this.OfType<ListingDirectoryInfo>();
-    public IEnumerable<ListingFileInfo> Files => this.OfType<ListingFileInfo>();
+    public IEnumerable<LinkAwareDirectoryInfo> Directories => this.OfType<LinkAwareDirectoryInfo>();
+    public IEnumerable<LinkAwareFileInfo> Files => this.OfType<LinkAwareFileInfo>();
 
     private IEnumerator<IFileInfo> EnumerateEntries()
     {
@@ -60,8 +60,8 @@ public class ListingDirectoryInfo : IFileInfo, IDirectoryContents
         {
             yield return info switch
             {
-                PhysicalFileInfo pfi => new ListingFileInfo(pfi),
-                PhysicalDirectoryInfo pdi => new ListingDirectoryInfo(pdi),
+                PhysicalFileInfo pfi => new LinkAwareFileInfo(pfi),
+                PhysicalDirectoryInfo pdi => new LinkAwareDirectoryInfo(pdi),
                 _ => throw new InvalidOperationException()
             };
         }

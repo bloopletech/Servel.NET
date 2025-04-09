@@ -13,7 +13,7 @@ public readonly struct Site
     public Credentials? Credentials { get; }
     public string? JwtSigningKey { get; }
     public Audience Audience { get; }
-    public IEnumerable<Listing> Listings { get; }
+    public IEnumerable<Root> Roots { get; }
     public string ServerUrl => $"{(Certificate != null ? "https" : "http")}://{Host}:{Port}";
     public IEnumerable<DirectoryOptions> DirectoriesOptions { get; }
 
@@ -40,7 +40,7 @@ public readonly struct Site
 
         Audience = options.Audience ?? Audience.LocalNetwork;
 
-        Listings = options.Listings.Select(l => new Listing(Path.GetFullPath(l.Dir, basePath), l.Url, l.Name));
+        Roots = options.Roots.Select(l => new Root(Path.GetFullPath(l.Dir, basePath), l.Url, l.Name));
 
         DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? [];
     }
@@ -69,9 +69,9 @@ public enum Audience
     Localhost, LocalNetwork, Public
 }
 
-public readonly record struct Listing(string FsPath, string UrlPath, string? Name)
+public readonly record struct Root(string FsPath, string UrlPath, string? Name)
 {
-    public readonly ListingFileProvider FileProvider = new(new PhysicalFileProvider(FsPath));
+    public readonly RootFileProvider FileProvider = new(new PhysicalFileProvider(FsPath));
     public bool IsMountAtRoot => UrlPath == "/";
 }
 

@@ -82,22 +82,22 @@ if(configuration.DatabasePath != null || configuration.CacheDatabasePath != null
 app.Services.GetService<DatabaseService>()?.CreateSchema();
 app.Services.GetService<CacheDatabaseService>()?.CreateSchema();
 
-void MountInternal(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
+void MountInternal(IApplicationBuilder app, Root root, DirectoryOptionsResolver resolver)
 {
-    if(configuration.CacheDatabasePath != null) app.UseMiddleware<ThumbnailMiddleware>(listing, resolver);
+    if(configuration.CacheDatabasePath != null) app.UseMiddleware<ThumbnailMiddleware>(root, resolver);
     app.UseStaticFiles(new StaticFileOptions
     {
-        FileProvider = listing.FileProvider,
+        FileProvider = root.FileProvider,
         ServeUnknownFileTypes = true,
         OnPrepareResponse = HistoryService.OnPrepareResponse
     });
-    app.UseMiddleware<IndexMiddleware>(listing, resolver);
+    app.UseMiddleware<IndexMiddleware>(root, resolver);
 }
 
-void Mount(IApplicationBuilder app, Listing listing, DirectoryOptionsResolver resolver)
+void Mount(IApplicationBuilder app, Root root, DirectoryOptionsResolver resolver)
 {
-    if(listing.IsMountAtRoot) MountInternal(app, listing, resolver);
-    else app.Map(listing.UrlPath, false, app => MountInternal(app, listing, resolver));
+    if(root.IsMountAtRoot) MountInternal(app, root, resolver);
+    else app.Map(root.UrlPath, false, app => MountInternal(app, root, resolver));
 }
 
 void ConfigureSite(IApplicationBuilder app, Site site)
@@ -124,9 +124,9 @@ void ConfigureSite(IApplicationBuilder app, Site site)
     if(site.JwtSigningKey != null) app.UseMiddleware<GenerateSignedUrlMiddleware>(site);
 
     var resolver = new DirectoryOptionsResolver(site.DirectoriesOptions);
-    foreach(var listing in site.Listings) Mount(app, listing, resolver);
+    foreach(var root in site.Roots) Mount(app, root, resolver);
 
-    if(!site.Listings.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Listings);
+    if(!site.Roots.Any(l => l.IsMountAtRoot)) app.UseMiddleware<HomeMiddleware>(site.Roots);
 }
 
 foreach(var site in sites) app.MapWhen(context => context.SiteId() == site.Id, siteApp => ConfigureSite(siteApp, site));

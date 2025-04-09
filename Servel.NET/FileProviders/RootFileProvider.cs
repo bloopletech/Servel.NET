@@ -6,21 +6,21 @@ using System.Runtime.CompilerServices;
 
 namespace Servel.NET.FileProviders;
 
-public class ListingFileProvider(PhysicalFileProvider physicalProvider) : IFileProvider, IDisposable
+public class RootFileProvider(PhysicalFileProvider physicalProvider) : IFileProvider, IDisposable
 {
     public IFileInfo GetFileInfo(string subpath)
     {
         var originalContents = physicalProvider.GetFileInfo(subpath);
         if(originalContents is NotFoundFileInfo) return originalContents;
 
-        return new ListingFileInfo((PhysicalFileInfo)originalContents);
+        return new LinkAwareFileInfo((PhysicalFileInfo)originalContents);
     }
 
-    public ListingFileInfo GetRequiredFileInfo(string subpath)
+    public LinkAwareFileInfo GetRequiredFileInfo(string subpath)
     {
         var fileInfo = GetFileInfo(subpath);
         if(!fileInfo.Exists) throw new FileNotFoundException(subpath);
-        return (ListingFileInfo)fileInfo;
+        return (LinkAwareFileInfo)fileInfo;
     }
 
     public IDirectoryContents GetDirectoryContents(string subpath) => physicalProvider.GetDirectoryContents(subpath);
@@ -31,14 +31,14 @@ public class ListingFileProvider(PhysicalFileProvider physicalProvider) : IFileP
         if(!contents.Exists) return new NotFoundDirectoryInfo(subpath);
 
         var info = GetInfoField((PhysicalDirectoryContents)contents);
-        return new ListingDirectoryInfo(info);
+        return new LinkAwareDirectoryInfo(info);
     }
 
-    public ListingDirectoryInfo GetRequiredDirectoryInfo(string subpath)
+    public LinkAwareDirectoryInfo GetRequiredDirectoryInfo(string subpath)
     {
         var directoryInfo = GetDirectoryInfo(subpath);
         if(!directoryInfo.Exists) throw new DirectoryNotFoundException(subpath);
-        return (ListingDirectoryInfo)directoryInfo;
+        return (LinkAwareDirectoryInfo)directoryInfo;
     }
 
     public IChangeToken Watch(string filter) => physicalProvider.Watch(filter);

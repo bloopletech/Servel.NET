@@ -5,7 +5,7 @@ namespace Servel.NET;
 
 public class ThumbnailMiddleware(
     RequestDelegate next,
-    Listing listing,
+    Root root,
     DirectoryOptionsResolver directoryOptionsResolver,
     ThumbnailService thumbnailsService) : MiddlewareBase(next)
 {
@@ -14,7 +14,7 @@ public class ThumbnailMiddleware(
     public override async Task<IResult?> RunAsync()
     {
         var requestPath = Request.Path;
-        var fileInfo = listing.FileProvider.GetRequiredFileInfo(requestPath.Value!);
+        var fileInfo = root.FileProvider.GetRequiredFileInfo(requestPath.Value!);
 
         //is it a media file???????
         var data = await thumbnailsService.FindOrCreateByPath(fileInfo) ?? throw new FileNotFoundException(requestPath);

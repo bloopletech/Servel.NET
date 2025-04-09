@@ -6,6 +6,7 @@ const Listing = (function () {
   let $toolbarSpy;
   let $toolbarWrapper;
   let $entries;
+  let title;
   let hasThumbnails;
 
   function renderEntry(entry) {
@@ -179,8 +180,8 @@ const Listing = (function () {
     $toolbarSpy = $("#toolbar-spy");
     $toolbarWrapper = $("#toolbar-wrapper");
     $entries = $("#entries");
-    const title = `Listing of ${decodeURIComponent(location.pathname)}`;
-    $("#title").textContent = title;
+    title = decodeURIComponent(location.pathname);
+    $("#title").textContent = `📁 ${decodeURIComponent(location.pathname)}`;
     document.title = title;
 
     initQuery();
@@ -189,7 +190,7 @@ const Listing = (function () {
 
   function show() {
     document.body.classList.add("listing");
-    document.title = `Listing of ${decodeURIComponent(location.pathname)}`;
+    document.title = title;
   }
 
   function hide() {

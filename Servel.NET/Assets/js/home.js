@@ -1,7 +1,7 @@
 "use strict";
 
 async function init() {
-  document.title = "Browse Listings";
+  document.title = "Home";
 
   const response = await fetch(window.location.href, {
     headers: {
@@ -9,17 +9,17 @@ async function init() {
     }
   });
 
-  const entries = await response.json();
+  const roots = await response.json();
 
-  const items = entries.map(entry => HTMLSafe`
+  const rows = roots.map(root => HTMLSafe`
       <li>
-        <a href="${entry.url}">${entry.name}</a>
+        <a href="${root.url}">${root.name}</a>
       </li>
     `);
 
   $("#container").innerHTML = `
-    <ul id="listings">
-      ${items.join("")}
+    <ul id="roots">
+      ${rows.join("")}
     </ul>
   `;
 }

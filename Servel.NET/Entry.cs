@@ -25,7 +25,7 @@ public readonly record struct OtherEntry(
     bool TopEntry,
     bool ParentEntry);
 
-public readonly record struct ListingEntry(string Url, [property: JsonIgnore()] string? CustomName)
+public readonly record struct RootEntry(string Url, [property: JsonIgnore()] string? CustomName)
 {
     public string Name => CustomName ?? HttpUtility.UrlDecode(Url[1..]);
 }

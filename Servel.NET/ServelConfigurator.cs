@@ -49,19 +49,19 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetString("Password"),
             siteOptions.GetString("JwtSigningKey"),
             siteOptions.GetEnum<Audience>("Audience"),
-            ConfigureListings(siteOptions.GetRequiredArray("Listing")),
+            ConfigureRoots(siteOptions.GetRequiredArray("Directory")),
             ConfigureDirectoriesOptions(siteOptions.GetArray("DirectoriesOptions")));
     }
 
-    private SiteListingOption[] ConfigureListings(TomlArray listings)
+    private SiteRootOption[] ConfigureRoots(TomlArray directories)
     {
-        return listings.OfType<TomlTable>().Select(ConfigureListing).ToArray();
+        return directories.OfType<TomlTable>().Select(ConfigureRoot).ToArray();
     }
 
-    private SiteListingOption ConfigureListing(TomlTable listing)
+    private SiteRootOption ConfigureRoot(TomlTable directory)
     {
-        var key = listing.Keys.First();
-        return new SiteListingOption(key, listing.GetRequiredString(key), listing.GetString("Name"));
+        var key = directory.Keys.First();
+        return new SiteRootOption(key, directory.GetRequiredString(key), directory.GetString("Name"));
     }
 
     private SiteDirectoryOptions[]? ConfigureDirectoriesOptions(TomlArray? directoriesOptions)

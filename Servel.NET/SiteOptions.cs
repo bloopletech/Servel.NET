@@ -9,14 +9,14 @@ public record struct SiteOptions(
     string? Password,
     string? JwtSigningKey,
     Audience? Audience,
-    SiteListingOption[] Listings,
+    SiteRootOption[] Roots,
     SiteDirectoryOptions[]? DirectoriesOptions)
 {
     public readonly bool HasCertificate => Cert != null && Key != null;
     public readonly bool HasCredentials => Username != null && Password != null;
 }
 
-public readonly record struct SiteListingOption(string Dir, string Url, string? Name);
+public readonly record struct SiteRootOption(string Dir, string Url, string? Name);
 
 public readonly record struct SiteDirectoryOptions(
     string UrlPath,

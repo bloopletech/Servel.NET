@@ -9,13 +9,13 @@ namespace Servel.NET;
 // Derived from https://github.com/dotnet/aspnetcore/blob/5a4c82ec57fadddef9ce841d608de5c7c8c74446/src/Middleware/StaticFiles/src/DirectoryBrowserMiddleware.cs
 public class IndexMiddleware(
     RequestDelegate next,
-    Listing listing,
+    Root root,
     DirectoryOptionsResolver directoryOptionsResolver,
     IBackgroundTaskQueue queue,
     HistoryService? historyService = null,
     CacheDatabaseService? cacheDatabaseService = null) : MiddlewareBase(next)
 {
-    private readonly EntryFactory _entryFactory = new(listing);
+    private readonly EntryFactory _entryFactory = new(root);
 
     public override bool ShouldRun() => Request.IsGetOrHead();
 
@@ -27,7 +27,7 @@ public class IndexMiddleware(
         return null;
     }
 
-    public override async Task<IResult> RunAsync()
+    public override async Task<IResult?> RunAsync()
     {
         Response.Headers.Vary = HeaderNames.Accept;
 

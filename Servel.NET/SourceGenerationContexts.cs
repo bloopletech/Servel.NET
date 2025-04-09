@@ -7,7 +7,7 @@ namespace Servel.NET;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault)]
 [JsonSerializable(typeof(IndexResponse))]
-[JsonSerializable(typeof(IEnumerable<ListingEntry>))]
+[JsonSerializable(typeof(IEnumerable<RootEntry>))]
 internal partial class SerializationSourceGenerationContext : JsonSerializerContext
 {
 }

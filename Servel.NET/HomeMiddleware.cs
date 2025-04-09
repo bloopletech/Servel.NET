@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Servel.NET;
 
-public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings) : MiddlewareBase(next)
+public class HomeMiddleware(RequestDelegate next, IEnumerable<Root> roots) : MiddlewareBase(next)
 {
     public override bool ShouldRun() => Request.IsGetOrHead() && Request.IsRoot();
 
@@ -24,7 +24,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Listing> listings)
     private byte[] RenderResponse()
     {
         return JsonSerializer.SerializeToUtf8Bytes(
-            listings.Select(l => new ListingEntry(l.UrlPath, l.Name)),
-            SerializationSourceGenerationContext.Default.IEnumerableListingEntry);
+            roots.Select(l => new RootEntry(l.UrlPath, l.Name)),
+            SerializationSourceGenerationContext.Default.IEnumerableRootEntry);
     }
 }

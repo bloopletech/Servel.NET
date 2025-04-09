@@ -16,7 +16,7 @@ public class EntryFactory
     private static readonly OtherEntry HomeEntry = new()
     {
         HomeEntry = true,
-        Name = "Listings Home",
+        Name = "Home",
         Url = "/"
     };
 
@@ -27,31 +27,31 @@ public class EntryFactory
         Url = "../"
     };
 
-    private readonly Listing _listing;
+    private readonly Root _root;
     private readonly OtherEntry _topEntry;
 
-    public EntryFactory(Listing listing)
+    public EntryFactory(Root root)
     {
-        _listing = listing;
+        _root = root;
         _topEntry = new OtherEntry
         {
             TopEntry = true,
             Name = "Top Directory",
-            Url = _listing.UrlPath
+            Url = _root.UrlPath
         };
     }
 
     public DirectoryEntry ForDirectory(
         PathString requestPath,
         ForDirectoryOptions options,
-        out ListingDirectoryInfo directoryInfo)
+        out LinkAwareDirectoryInfo directoryInfo)
     {
-        directoryInfo = _listing.FileProvider.GetRequiredDirectoryInfo(requestPath.Value!);
+        directoryInfo = _root.FileProvider.GetRequiredDirectoryInfo(requestPath.Value!);
         return ForDirectory(directoryInfo, requestPath, options);
     }
 
     private DirectoryEntry ForDirectory(
-        ListingDirectoryInfo directoryInfo,
+        LinkAwareDirectoryInfo directoryInfo,
         PathString requestPath,
         ForDirectoryOptions options)
     {
@@ -83,7 +83,7 @@ public class EntryFactory
     private List<OtherEntry> BuildOtherEntries(PathString requestPath)
     {
         var list = new List<OtherEntry>();
-        if(!_listing.IsMountAtRoot) list.Add(HomeEntry);
+        if(!_root.IsMountAtRoot) list.Add(HomeEntry);
         if(!requestPath.IsRoot())
         {
             list.Add(_topEntry);
@@ -93,7 +93,7 @@ public class EntryFactory
         return list;
     }
 
-    private FileEntry ForFile(ListingFileInfo fileInfo) => new()
+    private FileEntry ForFile(LinkAwareFileInfo fileInfo) => new()
     {
         Name = fileInfo.Name,
         Url = UrlUtility.EncodeUrlPath(fileInfo.Name),

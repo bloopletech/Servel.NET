@@ -54,7 +54,7 @@ const Gallery = (function() {
     const url = entry.url;
     const type = entry.mediaType;
 
-    document.title = `${entry.name} in Listing of ${decodeURIComponent(location.pathname)}`;
+    document.title = `${entry.name} in ${decodeURIComponent(location.pathname)}`;
 
     $gallery.classList.add(type);
 
