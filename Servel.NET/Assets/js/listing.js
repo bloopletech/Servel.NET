@@ -10,7 +10,7 @@ const Listing = (function () {
   let hasThumbnails;
 
   function renderEntry(entry) {
-    const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.url}?action=thumbnail">` : "";
+    const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.url}?action=thumbnail" loading="lazy">` : "";
     return HTMLSafe`
       <div class="entry">
         ${hasThumbnails ? HTMLSafe`<div class="thumbnail">${thumbnailInner}</div>` : ""}
