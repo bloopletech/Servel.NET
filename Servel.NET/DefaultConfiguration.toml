@@ -34,16 +34,28 @@ Port = 9292
 # at the start of the URL to be able to access Servel.NET.
 # 
 # If you want to enable TLS/HTTPS support, you have to provide both Cert and Key.
+#
+# Cert contains a PEM-encoded TLS certificate public key.
+# Key contains a PEM-encoded TLS certificate private key.
+#
+# Alternatively, you can set CertPath and KeyPath instead.
 # 
-# Cert is a filesystem path of a PEM-encoded TLS certificate public key.
-# Key is a filesystem path of a PEM-encoded TLS certificate private key.
+# CertPath is a filesystem path of a PEM-encoded TLS certificate public key.
+# KeyPath is a filesystem path of a PEM-encoded TLS certificate private key.
 # 
 # You can use relative paths; they will be resolved relative to the folder where Servel.NET.exe is located.
 # When entering the filesystem path, you will need to add an extra backslash before each backslash;
 # for example, C:\Temp\ becomes C:\\Temp\\ .
 
-# Cert = "servel.crt"
-# Key = "servel.key"
+# Cert = """
+# -----BEGIN CERTIFICATE-----
+# ..."""
+# Key = """
+# -----BEGIN PRIVATE KEY-----
+# ..."""
+
+# CertPath = "servel.crt"
+# KeyPath = "servel.key"
 
 
 # Username and Password allow you to enable HTTP Basic Authentication support in Servel.NET.

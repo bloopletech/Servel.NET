@@ -45,6 +45,8 @@ public readonly struct ServelConfigurator(string BasePath)
             siteOptions.GetInteger("Port"),
             siteOptions.GetString("Cert"),
             siteOptions.GetString("Key"),
+            siteOptions.GetString("CertPath"),
+            siteOptions.GetString("KeyPath"),
             siteOptions.GetString("Username"),
             siteOptions.GetString("Password"),
             siteOptions.GetString("JwtSigningKey"),

@@ -5,6 +5,8 @@ public record struct SiteOptions(
     int? Port,
     string? Cert,
     string? Key,
+    string? CertPath,
+    string? KeyPath,
     string? Username,
     string? Password,
     string? JwtSigningKey,
@@ -12,7 +14,9 @@ public record struct SiteOptions(
     SiteRootOption[] Roots,
     SiteDirectoryOptions[]? DirectoriesOptions)
 {
-    public readonly bool HasCertificate => Cert != null && Key != null;
+    public readonly bool HasCertificatePaths => CertPath != null && KeyPath != null;
+    public readonly bool HasCertificateValues => Cert != null && Key != null;
+    public readonly bool HasCertificate => HasCertificatePaths || HasCertificateValues;
     public readonly bool HasCredentials => Username != null && Password != null;
 }
 

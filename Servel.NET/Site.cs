@@ -27,11 +27,7 @@ public readonly struct Site
 
         if(options.HasCertificate)
         {
-            var certPath = Path.GetFullPath(options.Cert!, basePath);
-            var keyPath = Path.GetFullPath(options.Key!, basePath);
-            var certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
-            Certificate = X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pkcs12), null);
-
+            Certificate = LoadCertificate(options, basePath);
             if(!portAssigned) Port = 443;
         }
 
@@ -43,6 +39,28 @@ public readonly struct Site
         Roots = options.Roots.Select(l => new Root(Path.GetFullPath(l.Dir, basePath), l.Url, l.Name));
 
         DirectoriesOptions = options.DirectoriesOptions?.Select(ConvertDirectoryOptions) ?? [];
+    }
+
+    private static X509Certificate2 LoadCertificate(SiteOptions options, string basePath)
+    {
+        X509Certificate2 certificate;
+
+        if(options.HasCertificatePaths)
+        {
+            var certPath = Path.GetFullPath(options.CertPath!, basePath);
+            var keyPath = Path.GetFullPath(options.KeyPath!, basePath);
+            certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
+        }
+        else if(options.HasCertificateValues)
+        {
+            certificate = X509Certificate2.CreateFromPem(options.Cert!, options.Key!);
+        }
+        else
+        {
+            throw new InvalidOperationException();
+        }
+
+        return X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pkcs12), null);
     }
 
     private static DirectoryOptions ConvertDirectoryOptions(SiteDirectoryOptions options)
