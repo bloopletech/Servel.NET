@@ -6,6 +6,7 @@ namespace Servel.NET;
 
 public readonly struct Site
 {
+    private static readonly string PemPrefix = "-----";
     public int Id { get; }
     public string Host { get; }
     public int Port { get; }
@@ -43,23 +44,13 @@ public readonly struct Site
 
     private static X509Certificate2 LoadCertificate(SiteOptions options, string basePath)
     {
-        X509Certificate2 certificate;
+        var cert = options.Cert!.Trim();
+        var key = options.Key!.Trim();
 
-        if(options.HasCertificatePaths)
-        {
-            var certPath = Path.GetFullPath(options.CertPath!, basePath);
-            var keyPath = Path.GetFullPath(options.KeyPath!, basePath);
-            certificate = X509Certificate2.CreateFromPemFile(certPath, keyPath);
-        }
-        else if(options.HasCertificateValues)
-        {
-            certificate = X509Certificate2.CreateFromPem(options.Cert!, options.Key!);
-        }
-        else
-        {
-            throw new InvalidOperationException();
-        }
+        if(!cert.StartsWith(PemPrefix)) cert = File.ReadAllText(Path.GetFullPath(cert, basePath));
+        if(!key.StartsWith(PemPrefix)) key = File.ReadAllText(Path.GetFullPath(key, basePath));
 
+        var certificate = X509Certificate2.CreateFromPem(cert, key);
         return X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pkcs12), null);
     }
 
