@@ -11,13 +11,15 @@ const Listing = (function () {
 
   function renderEntry(entry) {
     const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.url}?action=thumbnail" loading="lazy">` : "";
+    const downloadLink = entry.file ? HTMLSafe`<a href="#" class="download-url default ${entry.class}" data-url="${entry.url}">⤵</a>` : "";
+
     return HTMLSafe`
       <div class="entry">
         ${hasThumbnails ? HTMLSafe`<div class="thumbnail">${thumbnailInner}</div>` : ""}
         <div class="data">
           <div class="name text-selectable">
             <span class="icon">${entry.icon}</span>
-            <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>
+            <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>\u2004${downloadLink}
           </div>
           <div class="modified">${entry.mtimeText}</div>
           <div class="size">${entry.sizeText}</div>
@@ -67,6 +69,19 @@ const Listing = (function () {
     Entries.query.direction = sortable.dataset.sortDirection;
     saveQuery();
     Entries.update();
+  }
+
+  async function onDownload(link) {
+    const url = `${link.dataset.url}?action=signed-url`;
+    const response = await fetch(url, { method: "POST" });
+    const signedUrl = await response.text();
+
+    const downloadLink = document.createElement("a");
+    downloadLink.target = "_blank";
+    downloadLink.href = signedUrl;
+    link.insertAdjacentElement("afterend", downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
   }
 
   function reflectLayoutMode(element) {
@@ -131,6 +146,10 @@ const Listing = (function () {
       else if(e.target.matches(".sortable")) {
         e.preventDefault();
         onSort(e.target);
+      }
+      else if(e.target.matches(".download-url")) {
+        e.preventDefault();
+        onDownload(e.target);
       }
       else if(e.target.closest("a.media")) {
         e.preventDefault();

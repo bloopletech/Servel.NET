@@ -121,7 +121,7 @@ void ConfigureSite(IApplicationBuilder app, Site site)
         RequestPath = "/_servel",
     });
 
-    if(site.JwtSigningKey != null) app.UseMiddleware<GenerateSignedUrlMiddleware>(site);
+    if(site.JwtSigningKey != null) app.UseMiddleware<SignedUrlMiddleware>(site);
 
     var resolver = new DirectoryOptionsResolver(site.DirectoriesOptions);
     foreach(var root in site.Roots) Mount(app, root, resolver);

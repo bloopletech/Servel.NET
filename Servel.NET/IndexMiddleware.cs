@@ -31,7 +31,7 @@ public class IndexMiddleware(
     {
         Response.Headers.Vary = HeaderNames.Accept;
 
-        if(Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(Request.Action() == "list")
         {
             try
             {

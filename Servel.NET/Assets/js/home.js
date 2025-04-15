@@ -3,12 +3,7 @@
 async function init() {
   document.title = "Home";
 
-  const response = await fetch(window.location.href, {
-    headers: {
-      "Accept": "application/json",
-    }
-  });
-
+  const response = await fetch(`${window.location.href}?action=list`);
   const roots = await response.json();
 
   const rows = roots.map(root => HTMLSafe`

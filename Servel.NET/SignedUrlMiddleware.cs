@@ -5,11 +5,11 @@ using Servel.NET.Services;
 
 namespace Servel.NET;
 
-public class GenerateSignedUrlMiddleware(RequestDelegate next, Site site) : MiddlewareBase(next)
+public class SignedUrlMiddleware(RequestDelegate next, Site site) : MiddlewareBase(next)
 {
     private readonly JwtService jwtService = new(site);
 
-    public override bool ShouldRun() => Request.IsPost() && Request.Action() == "signedUrl";
+    public override bool ShouldRun() => Request.IsPost() && Request.Action() == "signed-url";
 
     public override IResult? Run()
     {

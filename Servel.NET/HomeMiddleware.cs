@@ -13,7 +13,7 @@ public class HomeMiddleware(RequestDelegate next, IEnumerable<Root> roots) : Mid
     {
         Response.Headers.Vary = HeaderNames.Accept;
 
-        if(Request.Headers.Accept.Contains(MediaTypeNames.Application.Json))
+        if(Request.Action() == "list")
         {
             return Results.Text(RenderResponse(), MediaTypeNames.Application.Json);
         }
