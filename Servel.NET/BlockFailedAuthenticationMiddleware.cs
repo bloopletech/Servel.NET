@@ -3,7 +3,10 @@ using Servel.NET.Extensions;
 
 namespace Servel.NET;
 
-public class BlockFailedAuthenticationMiddleware(RequestDelegate next, IMemoryCache cache) : MiddlewareBase(next)
+public class BlockFailedAuthenticationMiddleware(
+    RequestDelegate next,
+    ILogger<BlockFailedAuthenticationMiddleware> logger,
+    IMemoryCache cache) : MiddlewareBase(next)
 {
     private static readonly SemaphoreSlim semaphoreSlim = new(1, 1);
     private const int MaxFailures = 10;
@@ -16,7 +19,11 @@ public class BlockFailedAuthenticationMiddleware(RequestDelegate next, IMemoryCa
     public override IResult? Before()
     {
         var clientIp = Connection.RemoteIpAddress;
-        if(clientIp == null || cache.Get(BlocksCacheKey) != null) return Results.Unauthorized();
+        if(clientIp == null || cache.Get(BlocksCacheKey) != null)
+        {
+            logger.Information($"Blocking request from {clientIp} due to repeated authentication failures");
+            return Results.Unauthorized();
+        }
         return null;
     }
 

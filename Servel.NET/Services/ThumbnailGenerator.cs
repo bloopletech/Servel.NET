@@ -1,4 +1,5 @@
 using CliWrap;
+using Servel.NET.Extensions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
@@ -13,6 +14,7 @@ public class ThumbnailGenerator
     public static readonly string[] COMPRESSED_EXTS = [".bz2", ".gz", ".lz", ".lz4", ".lzma", ".xz", ".7z", ".rar", ".tgz", ".txz", ".rar", ".zip"];
     public const int WIDTH = 300;
     public const int HEIGHT = 300;
+    private static readonly ILogger<ThumbnailGenerator> logger = Logging.Create<ThumbnailGenerator>();
 
     public async Task<byte[]?> Thumbnail(string path)
     {
@@ -24,44 +26,53 @@ public class ThumbnailGenerator
 
     private static async Task<byte[]?> ThumbnailImage(string path)
     {
+        using var measurer = logger.BeginMeasureScope("ThumbnailImage {Path}", path);
         //TODO: Error handling, manga specific thumbnailing etc
-        using var image = await Image.LoadAsync(path);
+
+        //using var image = await logger.MeasureAsync("Load Image", async () => await Image.LoadAsync(path));
+        using var image = await logger.Measure("Load Image", () => Image.LoadAsync(path));
         return await ResizeImage(image);
     }
 
     private static async Task<byte[]?> ThumbnailVideo(string path)
     {
+        using var measurer = logger.BeginMeasureScope("ThumbnailVideo {Path}", path);
         using var ffmpegStream = new MemoryStream();
 
-        await Cli
-            .Wrap("ffmpeg.exe")
-            .WithArguments([
-                "-hide_banner",
-                "-loglevel",
-                "error",
-                "-i",
-                path,
-                "-vf",
-                "thumbnail,scale=300:300:force_original_aspect_ratio=increase",
-                "-frames:v",
-                "1",
-                "-c:v",
-                "png",
-                "-f",
-                "image2pipe",
-                "-"])
-            //.WithWorkingDirectory("work/dir/path")
-            .WithStandardOutputPipe(PipeTarget.ToStream(ffmpegStream))
-            .ExecuteAsync();
+        using(measurer.Measure("ffmpeg"))
+        {
+            await Cli
+                .Wrap("ffmpeg.exe")
+                .WithArguments([
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-i",
+                    path,
+                    "-vf",
+                    "thumbnail,scale=300:300:force_original_aspect_ratio=increase",
+                    "-frames:v",
+                    "1",
+                    "-c:v",
+                    "png",
+                    "-f",
+                    "image2pipe",
+                    "-"])
+                //.WithWorkingDirectory("work/dir/path")
+                .WithStandardOutputPipe(PipeTarget.ToStream(ffmpegStream))
+                .ExecuteAsync();
+        }
 
         ffmpegStream.Position = 0;
 
-        using var image = await Image.LoadAsync(ffmpegStream);
+        using var image = await logger.Measure("Load Image", () => Image.LoadAsync(ffmpegStream));
         return await ResizeImage(image);
     }
 
     private static async Task<byte[]> ResizeImage(Image image)
     {
+        using var measurer = logger.BeginMeasureScope("ResizeImage");
+
         image.Mutate(x => x.Resize(new ResizeOptions
         {
             Size = new Size(WIDTH, HEIGHT)

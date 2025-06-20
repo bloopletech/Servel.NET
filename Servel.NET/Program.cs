@@ -73,6 +73,8 @@ var app = builder.Build();
 app.UseExceptionHandler(app => app.Run(context => Task.CompletedTask));
 if(app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
 
+Logging.LoggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+
 if(configuration.DatabasePath != null || configuration.CacheDatabasePath != null)
 {
     NativeLibraries.Init();
