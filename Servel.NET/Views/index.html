@@ -71,10 +71,10 @@
                     <a id="jump-gallery" href="#">Gallery</a>
                 </h1>
             </div>
-            <div id="directory-info"></div>
             <div id="toolbar-spy"></div>
             <div id="toolbar-wrapper">
                 <div id="toolbar">
+                    <a href="#" id="show-information">ℹ️</a>
                     <div>
                         <label>Sort</label>
                         <a class="sortable" data-sort-method="name" data-sort-direction="asc" href="#">Name</a>
@@ -92,6 +92,12 @@
             </div>
             <div id="entries"></div>
         </div>
+
+        <dialog id="info-dialog">
+            <div class="close">🗙</div>
+            <h3>Listing Information</h3>
+            <div id="directory-info"></div>
+        </dialog>
 
         <svg class="default-hidden">
             <symbol id="icon-aspect-ratio" height="52" viewBox="0 -960 960 960" width="52"><path d="M577-274h191v-194h-60v134H577v60ZM193-492h60v-134h131v-60H193v194Zm-53 332q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm0-60h680v-520H140v520Zm0 0v-520 520Z" /></symbol>

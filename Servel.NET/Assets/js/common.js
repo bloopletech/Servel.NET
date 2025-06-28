@@ -86,4 +86,17 @@ window.HTMLSafe = Common.HTMLSafe;
 window.f = Common.format;
 window.ef = Common.formatThenEscape;
 
-window.addEventListener("DOMContentLoaded", () => window.$ = document.querySelector.bind(document));
+
+window.addEventListener("DOMContentLoaded", () => {
+  window.$ = document.querySelector.bind(document);
+
+  document.body.addEventListener("click", function (e) {
+    if(!e.target) return;
+
+    if(e.target.matches("dialog .close")) {
+      e.preventDefault();
+      const dialog = e.target.closest("dialog");
+      dialog.close();
+    }
+  });
+});

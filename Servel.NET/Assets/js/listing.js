@@ -33,7 +33,7 @@ const Listing = (function () {
     $entries.innerHTML = Entries.all.map(entry => renderEntry(entry)).join("");
   }
 
-  function renderInfo() {
+  function showInfoDialog() {
     const directories = window.directory.directories.length;
     const files = window.directory.files.length;
 
@@ -49,6 +49,8 @@ const Listing = (function () {
       <div><span title="Audio">🔊</span>\u2004${f(byMediaType.audio)}</div>
       <div><span title="Documents">📝</span>\u2004${f(byMediaType.document)}</div>
     `;
+
+    $("#info-dialog").showModal();
   }
 
   function reflectSort(sortable) {
@@ -138,6 +140,11 @@ const Listing = (function () {
         e.preventDefault();
         Index.jumpGallery();
       }
+      else if(e.target.matches("#show-information"))
+      {
+        e.preventDefault();
+        showInfoDialog();
+      }
       else if(e.target.matches(".layout-mode")) {
         e.preventDefault();
         onLayoutMode(e.target);
@@ -190,7 +197,6 @@ const Listing = (function () {
 
     layout();
     render();
-    renderInfo();
   }
 
   function init() {
