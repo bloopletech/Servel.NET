@@ -12,6 +12,10 @@ body.listing #listing {
   display: flex;
 }
 
+#header h1 {
+  margin-bottom: 10px;
+}
+
 #title {
   flex-grow: 1;
 }
