@@ -12,11 +12,6 @@ body.listing #listing {
   display: flex;
 }
 
-#listing h1 {
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-
 #title {
   flex-grow: 1;
 }
@@ -231,10 +226,6 @@ a.default.home, a.default.top, a.default.parent {
 }
 
 @media screen and (max-width: 767px) {
-  #listing h1 {
-    font-size: 20px;
-  }
-
   #listing.list .name {
     width: 100%;
   }

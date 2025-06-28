@@ -27,3 +27,23 @@ a {
 a:hover, a:focus, a:active {
   text-decoration: underline;
 }
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+@media screen and (max-width: 767px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}

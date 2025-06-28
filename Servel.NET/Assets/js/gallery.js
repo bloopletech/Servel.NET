@@ -55,6 +55,7 @@ const Gallery = (function() {
     const type = entry.mediaType;
 
     document.title = `${entry.name} in ${decodeURIComponent(location.pathname)}`;
+    $("#overlay-title").textContent = `${entry.icon} ${entry.name}`;
 
     $gallery.classList.add(type);
 
@@ -99,25 +100,24 @@ const Gallery = (function() {
     if(layoutModeIndex >= LAYOUT_MODES.length) layoutModeIndex = 0;
   }
 
-  function onResize() {
-    const vw = document.documentElement.clientWidth;
-    const vh = document.documentElement.clientHeight;
-
-    const viewportOrientation = vw > vh ? "landscape" : "portrait";
-    $body.classList.remove("landscape", "portrait", "touch");
-    $body.classList.add(viewportOrientation);
-    if(navigator.maxTouchPoints > 0) $body.classList.add("touch");
-  }
+  const showOverlay = () => $gallery.classList.add("overlay");
+  const hideOverlay = () => $gallery.classList.remove("overlay");
+  const isOverlayVisible = () => $gallery.classList.contains("overlay");
 
   function initEvents() {
-    window.addEventListener("resize", onResize);
-    onResize();
-
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
       if(!isVisible()) return;
 
-      if(e.target.matches("#page-back, #content-page-back")) {
+      if(e.target.matches("#content-show-overlay")) {
+        e.stopPropagation();
+        showOverlay();
+      }
+      else if(e.target.matches("#jump-listing, #overlay-jump-listing")) {
+        e.preventDefault();
+        Index.jumpListing();
+      }
+      else if(e.target.matches("#page-back, #content-page-back")) {
         e.stopPropagation();
         prev();
       }
@@ -133,14 +133,14 @@ const Gallery = (function() {
         e.stopPropagation();
         fastForward();
       }
-      else if(e.target.matches("#page-jump-listing")) {
-        e.stopPropagation();
-        Index.jumpListing();
-      }
       else if(e.target.closest("#layout-mode")) {
         e.stopPropagation();
         switchLayoutMode();
         layout();
+      }
+      else if(e.target.closest("#overlay")) {
+        e.stopPropagation();
+        hideOverlay();
       }
     });
 
@@ -161,8 +161,8 @@ const Gallery = (function() {
     $video.addEventListener("loadedmetadata", setLoop);
     $audio.addEventListener("loadedmetadata", setLoop);
 
-    $video.addEventListener("mouseenter", () => $video.toggleAttribute("controls", true));
-    $video.addEventListener("mouseleave", () => $video.toggleAttribute("controls", false));
+    $gallery.addEventListener("mouseenter", () => $video.toggleAttribute("controls", true));
+    $gallery.addEventListener("mouseleave", () => $video.toggleAttribute("controls", false));
     $video.addEventListener("touchstart", (e) => e.target.matches("#video") && $video.toggleAttribute("controls", true));
 
     $document.addEventListener("load", () => $document.focus());
@@ -188,6 +188,7 @@ const Gallery = (function() {
     $video = $("#video");
     $audio = $("#audio");
     $document = $("#document");
+    $("#overlay-jump-listing").textContent = `📁 ${decodeURIComponent(location.pathname)}`;
 
     initEvents();
     layout();
@@ -201,6 +202,7 @@ const Gallery = (function() {
   function hide() {
     document.body.classList.remove("gallery");
     clearContent();
+    hideOverlay();
   }
 
   function isVisible() {
