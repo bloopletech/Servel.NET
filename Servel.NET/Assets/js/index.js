@@ -28,7 +28,7 @@ const Index = (function() {
   async function init() {
     window.addEventListener("hashchange", onHashChange);
 
-    const response = await fetch(`${window.location.href}?action=list`);
+    const response = await fetch(`${window.location.origin}${window.location.pathname}?action=list`);
 
     const { directory, defaultQuery, configuration } = await response.json();
     inflateDirectory(directory);
