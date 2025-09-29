@@ -2,10 +2,34 @@
   background: #333;
   display: none;
   height: 100vh;
+  flex-direction: column;
 }
 
 body.has-gallery.gallery #gallery {
   display: flex;
+}
+
+#content-handle {
+  display: none;
+  height: 20px;
+  flex: none;
+}
+
+#gallery.document #content-handle {
+  display: block;
+}
+
+#content-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#gallery.content-handle #content-overlay {
+  display: block;
 }
 
 #overlay {
@@ -82,55 +106,6 @@ body.has-gallery.gallery #gallery {
   pointer-events: none;
 }
 
-#content-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin: 0 20px 80px 0;
-  pointer-events: none;
-}
-
-#content-controls > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  width: 100px;
-  opacity: 0;
-  background-color: #1f1f1fbf;
-  color: #e0e0e0;
-  font-size: 40px;
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-#content-controls > div:active {
-  opacity: 1;
-}
-
-#content-controls > #content-page-back {
-  top: 0;
-  bottom: 0;
-  left: 0;
-}
-
-#content-controls > #content-page-next {
-  top: 0;
-  right: 0;
-  bottom: 0;
-}
-
-#content-controls > #content-show-overlay {
-  top: auto;
-  right: 100px;
-  bottom: 0;
-  left: 100px;
-  width: auto;
-  height: 100px;
-}
-
 #content {
   display: flex;
   align-items: safe center;
@@ -145,6 +120,7 @@ body.has-gallery.gallery #gallery {
 #image, #video, #audio, #document {
   display: none;
   margin: 0 auto 0 auto;
+  touch-action: none;
 }
 
 #video:focus, #audio:focus {
@@ -213,16 +189,6 @@ body.has-gallery.gallery #gallery {
 
   #controls > div {
     width: 60px;
-    height: 60px;
-  }
-
-  #content-controls > #content-page-back, #content-controls > #content-page-next {
-    width: 60px;
-  }
-
-  #content-controls > #content-show-overlay {
-    right: 60px;
-    left: 60px;
     height: 60px;
   }
 

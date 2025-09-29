@@ -67,7 +67,11 @@ const Common = (function () {
       addEventListener("pointerup", () => aborter.abort(), { signal: aborter.signal });
       addEventListener("pointermove", (e) => (element.scrollLeft -= e.movementX), { signal: aborter.signal });
     });
-  };
+  }
+
+  function detectSwipes(element, handler) {
+    new SwipeDetector(element, handler);
+  }
 
   return {
     formatDate: formatDate,
@@ -77,7 +81,8 @@ const Common = (function () {
     HTMLSafe: HTMLSafe,
     formatThenEscape: formatThenEscape,
     atBottom: atBottom,
-    enableDragScroll: enableDragScroll
+    enableDragScroll: enableDragScroll,
+    detectSwipes: detectSwipes
   }
 })();
 

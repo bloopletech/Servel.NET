@@ -12,6 +12,7 @@
         <link href="/_servel/css/gallery.css" rel="stylesheet" />
 
         <script src="/_servel/js/filesize_min.js"></script>
+        <script src="/_servel/js/swipe_detector.js"></script>
         <script src="/_servel/js/common.js"></script>
         <script src="/_servel/js/inflater.js"></script>
         <script src="/_servel/js/entries.js"></script>
@@ -22,17 +23,14 @@
     </head>
     <body>
         <div id="gallery">
+            <div id="content-handle">☰</div>
             <div id="content">
                 <img id="image">
                 <video id="video"></video>
                 <audio id="audio" controls></audio>
                 <iframe id="document"></iframe>
             </div>
-            <div id="content-controls">
-                <div id="content-page-back">◀️</div>
-                <div id="content-page-next">▶️</div>
-                <div id="content-show-overlay"></div>
-            </div>
+            <div id="content-overlay"></div>
             <div id="overlay">
                 <div id="overlay-header">
                     <h1 id="overlay-title" class="name text-selectable"></h1>

@@ -106,19 +106,33 @@ const Gallery = (function() {
   const isOverlayVisible = () => $gallery.classList.contains("overlay");
 
   function initEvents() {
+    Common.detectSwipes($("#gallery"), (data) => {
+      if(!isVisible()) return;
+      if(isOverlayVisible()) return;
+      if(data.dir == "down") showOverlay();
+      if(data.dir == "left") next();
+      if(data.dir == "right") prev();
+    });
+
+    Common.detectSwipes($("#overlay"), (data) => {
+      if(!isVisible()) return;
+      if(data.dir == "up") hideOverlay();
+    });
+
+    $("#content-handle").addEventListener("pointerdown", () => {
+      $gallery.classList.add("content-handle");
+      setTimeout(() => $gallery.classList.remove("content-handle"), 1000);
+    });
+
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
       if(!isVisible()) return;
 
-      if(e.target.matches("#content-show-overlay")) {
-        e.stopPropagation();
-        showOverlay();
-      }
       else if(e.target.matches("#jump-listing, #overlay-jump-listing")) {
         e.preventDefault();
         Index.jumpListing();
       }
-      else if(e.target.matches("#page-back, #content-page-back")) {
+      else if(e.target.matches("#page-back")) {
         e.stopPropagation();
         prev();
       }
@@ -126,7 +140,7 @@ const Gallery = (function() {
         e.stopPropagation();
         rewind();
       }
-      else if(e.target.matches("#page-next, #content-page-next")) {
+      else if(e.target.matches("#page-next")) {
         e.stopPropagation();
         next();
       }
@@ -138,10 +152,6 @@ const Gallery = (function() {
         e.stopPropagation();
         switchLayoutMode();
         layout();
-      }
-      else if(e.target.closest("#overlay")) {
-        e.stopPropagation();
-        hideOverlay();
       }
     });
 
@@ -157,6 +167,10 @@ const Gallery = (function() {
         prev();
       }
     });
+
+    $image.ondragstart = () => false;
+    $video.ondragstart = () => false;
+    $audio.ondragstart = () => false;
 
     const setLoop = (e) => e.target.loop = e.target.duration < (5 * 60);
     $video.addEventListener("loadedmetadata", setLoop);
