@@ -11,7 +11,6 @@ const Listing = (function () {
 
   function renderEntry(entry) {
     const thumbnailInner = hasThumbnails && entry.audioVideo ? HTMLSafe`<img src="${entry.url}?action=thumbnail" loading="lazy">` : "";
-    const downloadLink = entry.file ? HTMLSafe`<a href="#" class="download-url default ${entry.class}" data-url="${entry.url}">⤵</a>` : "";
 
     return HTMLSafe`
       <div class="entry">
@@ -19,7 +18,7 @@ const Listing = (function () {
         <div class="data">
           <div class="name text-selectable">
             <span class="icon">${entry.icon}</span>
-            <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>\u2004${downloadLink}
+            <a href="${entry.url}" class="default ${entry.class}" data-url="${entry.url}" data-type="${entry.mediaType}">${entry.name}</a>
           </div>
           <div class="modified">${entry.mtimeText}</div>
           <div class="size">${entry.sizeText}</div>
