@@ -6,6 +6,7 @@ const Gallery = (function() {
 
   let $body;
   let $gallery;
+  let $overlayTitle;
   let $image;
   let $video;
   let $audio;
@@ -55,7 +56,7 @@ const Gallery = (function() {
     const type = entry.mediaType;
 
     document.title = `${entry.name} in ${decodeURIComponent(location.pathname)}`;
-    $("#overlay-title").textContent = `${entry.icon} ${entry.name}`;
+    $overlayTitle.innerHTML = HTMLSafe`<span class="icon">${entry.icon}</span> <a href="${entry.url}" target="_blank">${entry.name}</a>`;
 
     $gallery.classList.add(type);
 
@@ -184,11 +185,12 @@ const Gallery = (function() {
   function init() {
     $body = $("body");
     $gallery = $("#gallery");
+    $overlayTitle = $("#overlay-title");
     $image = $("#image");
     $video = $("#video");
     $audio = $("#audio");
     $document = $("#document");
-    $("#overlay-jump-listing").textContent = `📁 ${decodeURIComponent(location.pathname)}`;
+    $("#overlay-jump-listing").textContent = decodeURIComponent(location.pathname);
 
     initEvents();
     layout();

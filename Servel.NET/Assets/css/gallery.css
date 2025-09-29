@@ -24,6 +24,18 @@ body.has-gallery.gallery #gallery {
   display: flex;
 }
 
+#overlay :link {
+  color: #e0e0e0;
+}
+
+#overlay :visited {
+  color: #c1c1c1;
+}
+
+#overlay :link:active, #overlay :visited:active {
+  color: #ffffff;
+}
+
 #overlay > div.spacer {
   flex-grow: 1;
 }
