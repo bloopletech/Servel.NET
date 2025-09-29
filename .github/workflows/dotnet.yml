@@ -24,6 +24,9 @@ jobs:
       with:
         global-json-file: global.json
 
+    - name: Install Inno Setup
+      run: choco install innosetup --no-progress
+
     - uses: actions/cache@v3
       with:
         path: ~/.nuget/packages
