@@ -5,6 +5,10 @@
   line-height: 1.4;
 }
 
+html, body {
+  overscroll-behavior-x: none;
+}
+
 body {
   padding: 0;
   min-height: 100vh;
