@@ -69,8 +69,16 @@ const Common = (function () {
     });
   }
 
-  function detectSwipes(element, handler) {
-    new SwipeDetector(element, handler);
+  function isTouch() {
+    return !!("ontouchstart" in window);
+  }
+
+  function detectMouseSwipes(handler) {
+    new SwipeDetector.Mouse(handler);
+  }
+
+  function detectTouchSwipes(handler) {
+    new SwipeDetector.Touch(handler);
   }
 
   return {
@@ -82,7 +90,9 @@ const Common = (function () {
     formatThenEscape: formatThenEscape,
     atBottom: atBottom,
     enableDragScroll: enableDragScroll,
-    detectSwipes: detectSwipes
+    isTouch: isTouch,
+    detectMouseSwipes: detectMouseSwipes,
+    detectTouchSwipes: detectTouchSwipes
   }
 })();
 
@@ -94,6 +104,7 @@ window.ef = Common.formatThenEscape;
 
 window.addEventListener("DOMContentLoaded", () => {
   window.$ = document.querySelector.bind(document);
+  if(Common.isTouch()) document.body.classList.add("touch");
 
   document.body.addEventListener("click", function (e) {
     if(!e.target) return;

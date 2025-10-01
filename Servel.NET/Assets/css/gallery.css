@@ -3,20 +3,15 @@
   display: none;
   height: 100vh;
   flex-direction: column;
+  touch-action: none;
+}
+
+#gallery.scrollable {
+  touch-action: auto;
 }
 
 body.has-gallery.gallery #gallery {
   display: flex;
-}
-
-#content-handle {
-  display: none;
-  height: 20px;
-  flex: none;
-}
-
-#gallery.document #content-handle {
-  display: block;
 }
 
 #content-overlay {
@@ -28,8 +23,24 @@ body.has-gallery.gallery #gallery {
   left: 0;
 }
 
-#gallery.content-handle #content-overlay {
+#gallery.content-handle-active #content-overlay {
   display: block;
+}
+
+#content-handle {
+  flex: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  font-size: 24px;
+  color: #e0e0e0;
+  cursor: pointer;
+  contain: layout;
+}
+
+#gallery.scrollable #content-handle {
+  display: flex;
 }
 
 #overlay {
@@ -115,12 +126,16 @@ body.has-gallery.gallery #gallery {
   min-height: 0;
   position: relative;
   overflow: auto;
+  touch-action: none;
+}
+
+#gallery.scrollable #content {
+  touch-action: auto;
 }
 
 #image, #video, #audio, #document {
   display: none;
   margin: 0 auto 0 auto;
-  touch-action: none;
 }
 
 #video:focus, #audio:focus {

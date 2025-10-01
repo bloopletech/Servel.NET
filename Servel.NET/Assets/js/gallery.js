@@ -47,6 +47,12 @@ const Gallery = (function() {
     $document.removeAttribute("srcdoc");
   }
 
+  function setScrollable() {
+    const value = ["fit-width", "clamp-width", "original", "document"].some((c) => $gallery.classList.contains(c));
+    $gallery.classList.toggle("scrollable", value);
+  }
+  const isScrollable = () => $gallery.classList.contains("scrollable");
+
   function render() {
     clearContent();
 
@@ -59,6 +65,7 @@ const Gallery = (function() {
     $overlayTitle.innerHTML = HTMLSafe`<span class="icon">${entry.icon}</span> <a href="${entry.url}" target="_blank">${entry.name}</a>`;
 
     $gallery.classList.add(type);
+    setScrollable();
 
     if(PLAYABLE_TEXT_EXTS.includes(entry.ext)) {
       renderText(url);
@@ -105,24 +112,36 @@ const Gallery = (function() {
   const hideOverlay = () => $gallery.classList.remove("overlay");
   const isOverlayVisible = () => $gallery.classList.contains("overlay");
 
+  function onSwiped(data) {
+    if(!isVisible()) return;
+    if(isScrollable() && data.target.closest("#content")) return;
+
+    if(isOverlayVisible()) {
+      if(data.dir == "down") hideOverlay();
+      return;
+    }
+
+    if(data.dir == "up") showOverlay();
+    if(data.dir == "left") next();
+    if(data.dir == "right") prev();
+  }
+
+  function initTouchSwipes() {
+    Common.detectTouchSwipes(onSwiped);
+  }
+
+  function initMouseSwipes() {
+    $("#content-handle").addEventListener("mousedown", () => {
+      $gallery.classList.add("content-handle-active");
+      setTimeout(() => $gallery.classList.remove("content-handle-active"), 1000);
+    });
+
+    Common.detectMouseSwipes(onSwiped);
+  }
+
   function initEvents() {
-    Common.detectSwipes($("#gallery"), (data) => {
-      if(!isVisible()) return;
-      if(isOverlayVisible()) return;
-      if(data.dir == "down") showOverlay();
-      if(data.dir == "left") next();
-      if(data.dir == "right") prev();
-    });
-
-    Common.detectSwipes($("#overlay"), (data) => {
-      if(!isVisible()) return;
-      if(data.dir == "up") hideOverlay();
-    });
-
-    $("#content-handle").addEventListener("pointerdown", () => {
-      $gallery.classList.add("content-handle");
-      setTimeout(() => $gallery.classList.remove("content-handle"), 1000);
-    });
+    if(document.body.classList.contains("touch")) initTouchSwipes();
+    else initMouseSwipes();
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
@@ -188,6 +207,7 @@ const Gallery = (function() {
 
     $gallery.classList.remove(...LAYOUT_MODES);
     $gallery.classList.add(layoutMode);
+    setScrollable();
   }
 
   function onEntriesUpdate() {
