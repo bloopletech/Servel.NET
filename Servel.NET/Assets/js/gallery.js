@@ -114,7 +114,7 @@ const Gallery = (function() {
 
   function onSwiped(data) {
     if(!isVisible()) return;
-    if(isScrollable() && data.target.closest("#content")) return;
+    if(isScrollable() && data.target?.closest("#content")) return;
 
     if(isOverlayVisible()) {
       if(data.dir == "down") hideOverlay();
