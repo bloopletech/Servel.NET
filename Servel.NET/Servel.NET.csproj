@@ -25,7 +25,7 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <_OS>$(RuntimeIdentifier.Split('-')[0].ToUpperInvariant())</_OS>
     <DefineConstants>$(DefineConstants);$(_OS)</DefineConstants>
-    <Version>1.66.0</Version>
+    <Version>1.67.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
