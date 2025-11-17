@@ -24,10 +24,8 @@ const SwipeDetector = (function () {
       const diffX = endX - startX;
       const diffY = endY - startY;
 
-      if(Math.hypot(diffX, diffY) < minLengthPx) return;
-
-      const direction = angleDirection(angleDeg(diffX, diffY), maxSlopeDeg);
-      if(!direction) return;
+      let direction = angleDirection(angleDeg(diffX, diffY), maxSlopeDeg);
+      if(Math.hypot(diffX, diffY) < minLengthPx) direction = null;
 
       handler({
         dir: direction,
@@ -66,10 +64,8 @@ const SwipeDetector = (function () {
       const diffX = endX - startX;
       const diffY = endY - startY;
 
-      if(Math.hypot(diffX, diffY) < minLengthPx) return;
-
-      const direction = angleDirection(angleDeg(diffX, diffY), maxSlopeDeg);
-      if(!direction) return;
+      let direction = angleDirection(angleDeg(diffX, diffY), maxSlopeDeg);
+      if(Math.hypot(diffX, diffY) < minLengthPx) direction = null;
 
       handler({
         dir: direction,

@@ -12,6 +12,7 @@ const Gallery = (function() {
   let $audio;
   let $document;
   let currentIndex;
+  let controlsInteractedAt;
   let layoutModeIndex = 0;
 
   async function renderText(url) {
@@ -41,6 +42,7 @@ const Gallery = (function() {
     $video.removeAttribute("src");
     $video.removeAttribute("controls");
     $video.pause();
+    controlsInteractedAt = null;
     $audio.removeAttribute("src");
     $audio.pause();
     $document.removeAttribute("src");
@@ -111,10 +113,30 @@ const Gallery = (function() {
   const showOverlay = () => $gallery.classList.add("overlay");
   const hideOverlay = () => $gallery.classList.remove("overlay");
   const isOverlayVisible = () => $gallery.classList.contains("overlay");
+  const isControlsEnabled = () => $video.hasAttribute("controls");
+
+  const controlsInteracted = () => controlsInteractedAt = performance.now();
+
+  function checkControlsInteracted(timestamp) {
+    if(!controlsInteractedAt) return;
+    if((timestamp - controlsInteractedAt) >= 3000) {
+      $video.toggleAttribute("controls", false);
+      return;
+    }
+
+    requestAnimationFrame(checkControlsInteracted);
+  }
+
+  function enableControls() {
+    $video.toggleAttribute("controls", true);
+    controlsInteracted();
+    requestAnimationFrame(checkControlsInteracted);
+  }
 
   function onSwiped(data) {
     if(!isVisible()) return;
     if(isScrollable() && data.target?.closest("#content")) return;
+    if(isControlsEnabled()) return;
 
     if(isOverlayVisible()) {
       if(data.dir == "down") hideOverlay();
@@ -124,30 +146,36 @@ const Gallery = (function() {
     if(data.dir == "up") showOverlay();
     if(data.dir == "left") next();
     if(data.dir == "right") prev();
+    if(data.dir == null && data.target.matches("#video")) enableControls();
   }
 
-  function initTouchSwipes() {
+  const videoInteracted = () => isControlsEnabled() && controlsInteracted();
+
+  function initTouchEvents() {
     Common.detectTouchSwipes(onSwiped);
+    $video.addEventsListener("touchstart touchmove touchend", videoInteracted);
   }
 
-  function initMouseSwipes() {
+  function initMouseEvents() {
     $("#content-handle").addEventListener("mousedown", () => {
       $gallery.classList.add("content-handle-active");
       setTimeout(() => $gallery.classList.remove("content-handle-active"), 1000);
     });
 
     Common.detectMouseSwipes(onSwiped);
+
+    $video.addEventsListener("mousedown mousemove mouseup", videoInteracted);
   }
 
   function initEvents() {
-    if(document.body.classList.contains("touch")) initTouchSwipes();
-    else initMouseSwipes();
+    if(document.body.classList.contains("touch")) initTouchEvents();
+    else initMouseEvents();
 
     document.body.addEventListener("click", function(e) {
       if(!e.target) return;
       if(!isVisible()) return;
 
-      else if(e.target.matches("#jump-listing, #overlay-jump-listing")) {
+      if(e.target.matches("#jump-listing, #overlay-jump-listing")) {
         e.preventDefault();
         Index.jumpListing();
       }
@@ -194,10 +222,6 @@ const Gallery = (function() {
     const setLoop = (e) => e.target.loop = e.target.duration < (5 * 60);
     $video.addEventListener("loadedmetadata", setLoop);
     $audio.addEventListener("loadedmetadata", setLoop);
-
-    $gallery.addEventListener("mouseenter", () => $video.toggleAttribute("controls", true));
-    $gallery.addEventListener("mouseleave", () => $video.toggleAttribute("controls", false));
-    $video.addEventListener("touchstart", (e) => e.target.matches("#video") && $video.toggleAttribute("controls", true));
 
     $document.addEventListener("load", () => $document.focus());
   }

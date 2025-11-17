@@ -101,6 +101,9 @@ window.HTMLSafe = Common.HTMLSafe;
 window.f = Common.format;
 window.ef = Common.formatThenEscape;
 
+Element.prototype.addEventsListener = function (events, listener) {
+  for(const event of events.split(" ")) this.addEventListener(event, listener);
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   window.$ = document.querySelector.bind(document);
