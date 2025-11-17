@@ -30,7 +30,7 @@ public readonly struct ServelConfigurator(string BasePath)
 
     private Site[] ConfigureSites(TomlArray sites)
     {
-        return sites.OfType<TomlTable>().Select(ConfigureSite).ToArray();
+        return [..sites.OfType<TomlTable>().Select(ConfigureSite)];
     }
 
     private Site ConfigureSite(TomlTable siteOptions, int id)
@@ -55,7 +55,7 @@ public readonly struct ServelConfigurator(string BasePath)
 
     private SiteRootOption[] ConfigureRoots(TomlArray directories)
     {
-        return directories.OfType<TomlTable>().Select(ConfigureRoot).ToArray();
+        return [..directories.OfType<TomlTable>().Select(ConfigureRoot)];
     }
 
     private SiteRootOption ConfigureRoot(TomlTable directory)
@@ -67,7 +67,7 @@ public readonly struct ServelConfigurator(string BasePath)
     private SiteDirectoryOptions[]? ConfigureDirectoriesOptions(TomlArray? directoriesOptions)
     {
         if(directoriesOptions == null) return null;
-        return directoriesOptions.OfType<TomlTable>().Select(ConfigureDirectoryOptions).ToArray();
+        return [..directoriesOptions.OfType<TomlTable>().Select(ConfigureDirectoryOptions)];
     }
 
     private SiteDirectoryOptions ConfigureDirectoryOptions(TomlTable directoryOptions)
