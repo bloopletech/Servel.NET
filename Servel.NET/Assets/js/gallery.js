@@ -119,7 +119,7 @@ const Gallery = (function() {
 
   function checkControlsInteracted(timestamp) {
     if(!controlsInteractedAt) return;
-    if((timestamp - controlsInteractedAt) >= 3000) {
+    if((timestamp - controlsInteractedAt) >= 1000) {
       $video.toggleAttribute("controls", false);
       return;
     }
