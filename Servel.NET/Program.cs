@@ -91,6 +91,7 @@ void MountInternal(IApplicationBuilder app, Root root, DirectoryOptionsResolver 
     {
         FileProvider = root.FileProvider,
         ServeUnknownFileTypes = true,
+        ContentTypeProvider = ContentTypeProvider.Provider,
         OnPrepareResponse = HistoryService.OnPrepareResponse
     });
     app.UseMiddleware<IndexMiddleware>(root, resolver);
