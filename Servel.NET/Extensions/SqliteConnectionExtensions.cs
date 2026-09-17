@@ -3,8 +3,6 @@ using Microsoft.Data.Sqlite;
 
 namespace Servel.NET.Extensions;
 
-public readonly record struct DbPair(string Name, object? Value);
-
 public static class SqliteConnectionExtensions
 {
     public static SqliteCommand CreateCommand(this SqliteConnection connection, string sql)
@@ -30,7 +28,7 @@ public static class SqliteConnectionExtensions
     public static T GetRequired<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         Func<SqliteDataReader, T> builder)
     {
         return connection.Get(table, idEntry, ["*"], builder) ?? throw new InvalidOperationException();
@@ -39,7 +37,7 @@ public static class SqliteConnectionExtensions
     public static T GetRequired<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         string[] columns,
         Func<SqliteDataReader, T> builder)
     {
@@ -49,7 +47,7 @@ public static class SqliteConnectionExtensions
     public static T? Get<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         Func<SqliteDataReader, T> builder)
     {
         return connection.Get(table, idEntry, ["*"], builder);
@@ -58,7 +56,7 @@ public static class SqliteConnectionExtensions
     public static T? Get<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         string[] columns,
         Func<SqliteDataReader, T> builder)
     {
@@ -68,7 +66,7 @@ public static class SqliteConnectionExtensions
     public static SqliteDataReader Select(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry)
+        SqliteParameter idEntry)
     {
         return connection.Select(table, idEntry, ["*"]);
     }
@@ -76,12 +74,13 @@ public static class SqliteConnectionExtensions
     public static SqliteDataReader Select(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         string[] columns)
     {
         var columnsClause = string.Join(",", columns);
 
-        using var command = connection.CreateCommand($"SELECT {columnsClause} FROM {table} WHERE {idEntry.Name} = @id");
+        using var command = connection.CreateCommand(
+            $"SELECT {columnsClause} FROM {table} WHERE {idEntry.ParameterName} = @id");
         command.Parameters.AddWithValue("@id", idEntry.Value);
 
         return command.ExecuteReader();
@@ -90,7 +89,7 @@ public static class SqliteConnectionExtensions
     public static IList<T> Select<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         Func<SqliteDataReader, T> builder)
     {
         return connection.Select(table, idEntry, ["*"], builder);
@@ -99,13 +98,14 @@ public static class SqliteConnectionExtensions
     public static IList<T> Select<T>(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
+        SqliteParameter idEntry,
         string[] columns,
         Func<SqliteDataReader, T> builder)
     {
         var columnsClause = string.Join(",", columns);
 
-        using var command = connection.CreateCommand($"SELECT {columnsClause} FROM {table} WHERE {idEntry.Name} = @id");
+        using var command = connection.CreateCommand(
+            $"SELECT {columnsClause} FROM {table} WHERE {idEntry.ParameterName} = @id");
         command.Parameters.AddWithValue("@id", idEntry.Value);
 
         using var reader = command.ExecuteReader();
@@ -206,9 +206,9 @@ public static class SqliteConnectionExtensions
         return builder(reader);
     }
 
-    public static long Insert(this SqliteConnection connection, string table, DbPair[] entries)
+    public static long Insert(this SqliteConnection connection, string table, SqliteParameter[] entries)
     {
-        var columnsClause = string.Join(",", entries.Select(static e => e.Name));
+        var columnsClause = string.Join(",", entries.Select(static e => e.ParameterName));
         var valuesClause = string.Join(",", entries.Select(static (e, i) => $"@{i}"));
 
         using var command = connection.CreateCommand($"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})");
@@ -222,20 +222,20 @@ public static class SqliteConnectionExtensions
     public static void Update(
         this SqliteConnection connection,
         string table,
-        DbPair idEntry,
-        DbPair[] entries)
+        SqliteParameter idEntry,
+        SqliteParameter[] entries)
     {
-        var setClause = string.Join(", ", entries.Select(static (e, i) => $"{e.Name} = @{i}"));
+        var setClause = string.Join(", ", entries.Select(static (e, i) => $"{e.ParameterName} = @{i}"));
 
-        using var command = connection.CreateCommand($"UPDATE {table} SET {setClause} WHERE {idEntry.Name} = @id");
+        using var command = connection.CreateCommand($"UPDATE {table} SET {setClause} WHERE {idEntry.ParameterName} = @id");
         foreach(var (i, entry) in entries.Index()) command.Parameters.AddWithValue($"@{i}", entry.Value ?? DBNull.Value);
         command.Parameters.AddWithValue("@id", idEntry.Value);
         command.ExecuteNonQuery();
     }
 
-    public static void Delete(this SqliteConnection connection, string table, DbPair idEntry)
+    public static void Delete(this SqliteConnection connection, string table, SqliteParameter idEntry)
     {
-        using var command = connection.CreateCommand($"DELETE FROM {table} WHERE {idEntry.Name} = @id");
+        using var command = connection.CreateCommand($"DELETE FROM {table} WHERE {idEntry.ParameterName} = @id");
         command.Parameters.AddWithValue("@id", idEntry.Value);
         command.ExecuteNonQuery();
     }

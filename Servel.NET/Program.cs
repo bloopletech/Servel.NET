@@ -5,6 +5,7 @@ using System.Net;
 using Servel.NET.Extensions;
 using Servel.NET.Services;
 using CliWrap;
+using Servel.NET.Db;
 
 var configuration = ServelConfigurationProvider.Configure();
 var sites = configuration.Sites;

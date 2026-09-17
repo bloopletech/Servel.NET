@@ -4,28 +4,30 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Servel.NET.Extensions;
 
-namespace Servel.NET.Models;
+namespace Servel.NET.Db;
 
-public class MediaFileMetadata
+public class Thumbnail
 {
     public long? Id { get; set; }
     public required string Path { get; set; }
-    public int? DurationMs { get; set; }
+    public byte[]? Data { get; set; }
+    public long Mtime { get; set; }
     public long CreatedAt { get; set; }
     public long UpdatedAt { get; set; }
 
-    public const string Table = "MediaFileMetadatas";
+    public const string Table = "Thumbnails";
 
-    public MediaFileMetadata()
+    public Thumbnail()
     {
     }
 
     [SetsRequiredMembers]
-    public MediaFileMetadata(DbDataReader reader)
+    public Thumbnail(DbDataReader reader)
     {
         Id = reader.GetInt64("Id");
         Path = reader.GetString("Path");
-        DurationMs = reader.GetInt32("DurationMs");
+        Data = reader.GetByteArray("Data");
+        Mtime = reader.GetInt64("Mtime");
         CreatedAt = reader.GetInt64("CreatedAt");
         UpdatedAt = reader.GetInt64("UpdatedAt");
     }
@@ -36,37 +38,38 @@ public class MediaFileMetadata
         if(Id == null) CreatedAt = now;
         UpdatedAt = now;
 
-        var entries = new DbPair[] {
+        var entries = new SqliteParameter[] {
             new("Path", Path),
-            new("DurationMs", DurationMs),
+            new("Data", Data),
+            new("Mtime", Mtime),
             new("CreatedAt", CreatedAt),
             new("UpdatedAt", UpdatedAt)
         };
 
-        if(Id != null) db.Update(Table, new DbPair("Id", Id.Value), [..entries]);
+        if(Id != null) db.Update(Table, new SqliteParameter("Id", Id.Value), [..entries]);
         else Id = db.Insert(Table, [..entries]);
     }
 
     public void Delete(SqliteConnection db)
     {
-        if(Id != null) db.Delete(Table, new DbPair("Id", Id.Value));
+        if(Id != null) db.Delete(Table, new SqliteParameter("Id", Id.Value));
     }
 
     public bool IsNew => Id == null;
     public bool IsExisting => !IsNew;
 
 
-    public static MediaFileMetadata? FindById(SqliteConnection db, long id)
+    public static Thumbnail? FindById(SqliteConnection db, long id)
     {
-        return db.Get(Table, new DbPair("Id", id), reader => new MediaFileMetadata(reader));
+        return db.Get(Table, new SqliteParameter("Id", id), reader => new Thumbnail(reader));
     }
 
-    public static MediaFileMetadata? FindByPath(SqliteConnection db, int siteId, string path)
+    public static Thumbnail? FindByPath(SqliteConnection db, string path)
     {
         return db.Get(
             $"SELECT * FROM {Table} WHERE Path=@Path",
             [new SqliteParameter("@Path", path)],
-            reader => new MediaFileMetadata(reader));
+            reader => new Thumbnail(reader));
     }
 
     public static void CreateSchema(SqliteConnection db)
@@ -75,7 +78,8 @@ public class MediaFileMetadata
         CREATE TABLE IF NOT EXISTS {Table} (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Path TEXT NOT NULL,
-            DurationMs INTEGER,
+            Data BLOB,
+            Mtime INTEGER NOT NULL,
             CreatedAt INTEGER NOT NULL,
             UpdatedAt INTEGER NOT NULL
         )

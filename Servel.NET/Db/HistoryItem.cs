@@ -4,9 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.Sqlite;
 using Servel.NET.Extensions;
 
-namespace Servel.NET.Models;
+namespace Servel.NET.Db;
 
-public class HistoryItem
+public class HistoryItem : IModel<HistoryItem>
 {
     public enum HistoryItemItemType
     {
@@ -30,7 +30,7 @@ public class HistoryItem
     }
 
     [SetsRequiredMembers]
-    public HistoryItem(DbDataReader reader)
+    public HistoryItem(SqliteDataReader reader)
     {
         Id = reader.GetInt64("Id");
         SiteId = reader.GetInt32("SiteId");
@@ -42,13 +42,13 @@ public class HistoryItem
         UpdatedAt = reader.GetInt64("UpdatedAt");
     }
 
-    public void Save(SqliteConnection db)
+    public void Save()
     {
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         if(Id == null) CreatedAt = now;
         UpdatedAt = now;
 
-        var entries = new DbPair[] {
+        var entries = new SqliteParameter[] {
             new("SiteId", SiteId),
             new("Path", Path),
             new("ItemType", (int)ItemType),
@@ -58,13 +58,13 @@ public class HistoryItem
             new("UpdatedAt", UpdatedAt)
         };
 
-        if(Id != null) db.Update(Table, new DbPair("Id", Id.Value), [..entries]);
+        if(Id != null) db.Update(Table, new SqliteParameter("Id", Id.Value), [..entries]);
         else Id = db.Insert(Table, [..entries]);
     }
 
-    public void Delete(SqliteConnection db)
+    public void Delete()
     {
-        if(Id != null) db.Delete(Table, new DbPair("Id", Id.Value));
+        if(Id != null) db.Delete(Table, new SqliteParameter("Id", Id.Value));
     }
 
     public bool IsNew => Id == null;
@@ -75,9 +75,11 @@ public class HistoryItem
         return new HistoryEntry(Path, LastVisited, VisitedCount);
     }
 
+    public static HistoryItem Load(SqliteDataReader reader) => new(reader);
+
     public static HistoryItem? FindById(SqliteConnection db, long id)
     {
-        return db.Get(Table, new DbPair("Id", id), reader => new HistoryItem(reader));
+        return db.Get(Table, new SqliteParameter("Id", id), reader => new HistoryItem(reader));
     }
 
     public static HistoryItem? FindBySiteAndPath(SqliteConnection db, int siteId, string path)
@@ -104,7 +106,7 @@ public class HistoryItem
             reader => new HistoryItem(reader));
     }
 
-    public static void CreateSchema(SqliteConnection db)
+    public static void CreateSchema()
     {
         db.Query($"""
         CREATE TABLE IF NOT EXISTS {Table} (
@@ -119,4 +121,6 @@ public class HistoryItem
         )
         """);
     }
+
+    private static DatabaseAdapter<HistoryItem> Dba => new()
 }

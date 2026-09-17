@@ -1,6 +1,4 @@
-using Servel.NET.Models;
-
-namespace Servel.NET.Services;
+namespace Servel.NET.Db;
 
 public class CacheDatabaseService(string databasePath) : DatabaseServiceBase(databasePath)
 {

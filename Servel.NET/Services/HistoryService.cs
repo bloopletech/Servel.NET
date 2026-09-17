@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Primitives;
+using Servel.NET.Db;
 using Servel.NET.Extensions;
-using Servel.NET.Models;
 
 namespace Servel.NET.Services;
 
