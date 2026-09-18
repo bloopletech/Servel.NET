@@ -34,6 +34,7 @@ public static class SqliteConnectionExtensions
         return connection.Get(table, idEntry, ["*"], builder) ?? throw new InvalidOperationException();
     }
 
+    // UNUSED
     public static T GetRequired<T>(
         this SqliteConnection connection,
         string table,
@@ -63,6 +64,7 @@ public static class SqliteConnectionExtensions
         return connection.Select(table, idEntry, columns, builder).FirstOrDefault();
     }
 
+    // UNUSED
     public static SqliteDataReader Select(
         this SqliteConnection connection,
         string table,
@@ -71,6 +73,7 @@ public static class SqliteConnectionExtensions
         return connection.Select(table, idEntry, ["*"]);
     }
 
+    // UNUSED
     public static SqliteDataReader Select(
         this SqliteConnection connection,
         string table,
@@ -86,6 +89,7 @@ public static class SqliteConnectionExtensions
         return command.ExecuteReader();
     }
 
+    // UNUSED
     public static IList<T> Select<T>(
         this SqliteConnection connection,
         string table,
@@ -115,6 +119,7 @@ public static class SqliteConnectionExtensions
         return results;
     }
 
+    // UNUSED
     public static T GetRequired<T>(
         this SqliteConnection connection,
         string sql,
@@ -132,6 +137,7 @@ public static class SqliteConnectionExtensions
         return connection.Get(sql, entries, builder) ?? throw new InvalidOperationException();
     }
 
+    // UNUSED
     public static T? Get<T>(
         this SqliteConnection connection,
         string sql,
@@ -149,6 +155,7 @@ public static class SqliteConnectionExtensions
         return connection.Select(sql, entries, builder).FirstOrDefault();
     }
 
+    // UNUSED
     public static IList<T> Select<T>(
         this SqliteConnection connection,
         string sql,
@@ -172,11 +179,13 @@ public static class SqliteConnectionExtensions
         return results;
     }
 
+    // UNUSED
     public static SqliteDataReader SelectRaw(this SqliteConnection connection, string sql)
     {
         return connection.SelectRaw(sql, []);
     }
 
+    // UNUSED
     public static SqliteDataReader SelectRaw(this SqliteConnection connection, string sql, SqliteParameter[] entries)
     {
         using var command = connection.CreateCommand(sql);
@@ -185,6 +194,7 @@ public static class SqliteConnectionExtensions
         return command.ExecuteReader();
     }
 
+    // UNUSED
     public static T SelectRaw<T>(
         this SqliteConnection connection,
         string sql,
@@ -206,6 +216,7 @@ public static class SqliteConnectionExtensions
         return builder(reader);
     }
 
+    // KEEP
     public static long Insert(this SqliteConnection connection, string table, SqliteParameter[] entries)
     {
         var columnsClause = string.Join(",", entries.Select(static e => e.ParameterName));
@@ -219,6 +230,7 @@ public static class SqliteConnectionExtensions
         return (long)idCommand.ExecuteScalar()!;
     }
 
+    // KEEP
     public static void Update(
         this SqliteConnection connection,
         string table,
@@ -233,6 +245,7 @@ public static class SqliteConnectionExtensions
         command.ExecuteNonQuery();
     }
 
+    // KEEP
     public static void Delete(this SqliteConnection connection, string table, SqliteParameter idEntry)
     {
         using var command = connection.CreateCommand($"DELETE FROM {table} WHERE {idEntry.ParameterName} = @id");
