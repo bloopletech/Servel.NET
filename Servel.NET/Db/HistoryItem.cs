@@ -6,7 +6,7 @@ using Servel.NET.Extensions;
 
 namespace Servel.NET.Db;
 
-public class HistoryItem : IModel<HistoryItem>
+public class HistoryItem : ITimestampedModel<HistoryItem>
 {
     public enum HistoryItemItemType
     {
@@ -23,7 +23,7 @@ public class HistoryItem : IModel<HistoryItem>
     public long CreatedAt { get; set; }
     public long UpdatedAt { get; set; }
 
-    public const string Table = "HistoryItems";
+    public static string Table => "HistoryItems";
 
     public HistoryItem()
     {
@@ -61,6 +61,16 @@ public class HistoryItem : IModel<HistoryItem>
         if(Id != null) db.Update(Table, new SqliteParameter("Id", Id.Value), [..entries]);
         else Id = db.Insert(Table, [..entries]);
     }
+
+    public SqliteParameter[] Values() => [
+        new("SiteId", SiteId),
+        new("Path", Path),
+        new("ItemType", (int)ItemType),
+        new("LastVisited", LastVisited),
+        new("VisitedCount", VisitedCount),
+        new("CreatedAt", CreatedAt),
+        new("UpdatedAt", UpdatedAt)
+    ];
 
     public void Delete()
     {
@@ -121,6 +131,4 @@ public class HistoryItem : IModel<HistoryItem>
         )
         """);
     }
-
-    private static DatabaseAdapter<HistoryItem> Dba => new()
 }
