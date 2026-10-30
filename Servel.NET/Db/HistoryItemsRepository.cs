@@ -13,19 +13,17 @@ public class HistoryItemsRepository(SqliteConnection connection) : Repository<Hi
     {
         return Select(
             "SiteId=@SiteId",
-            [new("@SiteId", siteId)],
             "LastVisited DESC, VisitedCount DESC",
-            null,
             "@Limit",
-            [new("@Limit", limit)]);
+            [new("@SiteId", siteId), new("@Limit", limit)]);
     }
 
     public IList<HistoryItem> SelectPopular(int siteId, int limit)
     {
         return Select(
             "SiteId=@SiteId",
-            [new("@SiteId", siteId)],
             "VisitedCount DESC, LastVisited DESC",
-            "@Limit");
+            "@Limit",
+            [new("@SiteId", siteId), new("@Limit", limit)]);
     }
 }

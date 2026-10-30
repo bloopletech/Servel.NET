@@ -39,13 +39,11 @@ public class SqliteQueries(SqliteConnection connection)
         string table,
         string[]? columns = null,
         string? where = null,
-        IEnumerable<SqliteParameter>? whereArgs = null,
         string? orderBy = null,
-        IEnumerable<SqliteParameter>? orderByArgs = null,
         string? limit = null,
-        IEnumerable<SqliteParameter>? limitArgs = null)
+        IEnumerable<SqliteParameter>? args = null)
     {
-        return Select(false, table, columns, where, whereArgs, orderBy, orderByArgs, limit, limitArgs);
+        return Select(false, table, columns, where, orderBy, limit, args);
     }
 
     /*
@@ -61,11 +59,9 @@ public class SqliteQueries(SqliteConnection connection)
         string table,
         string[]? columns = null,
         string? where = null,
-        IEnumerable<SqliteParameter>? whereArgs = null,
         string? orderBy = null,
-        IEnumerable<SqliteParameter>? orderByArgs = null,
         string? limit = null,
-        IEnumerable<SqliteParameter>? limitArgs = null)
+        IEnumerable<SqliteParameter>? args = null)
     {
         var distinctClause = distinct ? "DISTINCT" : "";
         var columnsClause = columns != null ? string.Join(",", columns) : "*";
@@ -75,7 +71,7 @@ public class SqliteQueries(SqliteConnection connection)
 
         return Select(
             $"SELECT {distinctClause} {columnsClause} FROM {table} {whereClause} {orderByClause} {limitClause}",
-            [..whereArgs ?? [], ..orderByArgs ?? [], ..limitArgs ?? []]);
+            args);
     }
 
     public bool HasColumn(string table, string column)

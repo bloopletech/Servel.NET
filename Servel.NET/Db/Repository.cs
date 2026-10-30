@@ -41,7 +41,7 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
 
     public T? TryGet(long id)
     {
-        return Select("Id=@id", [new("Id", id)]).FirstOrDefault();
+        return Select("Id=@id", args: [new("Id", id)]).FirstOrDefault();
     }
 
     public T Get(long id)
@@ -59,13 +59,16 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
         return TryFind(selection, selectionArgs) ?? throw new RecordNotFoundException($"No {T.Table} found for query");
     }
 
+    public IList<T> Select(string? where = null, SqliteParameter[]? whereArgs = null) =>
+        Select(where, args: whereArgs);
+
     public IList<T> Select(
         string? where = null,
-        SqliteParameter[]? whereArgs = null,
         string? orderBy = null,
-        string? limit = null)
+        string? limit = null,
+        SqliteParameter[]? args = null)
     {
-        using var reader = db.Select(T.Table, ["*"], where, whereArgs, orderBy, limit);
+        using var reader = db.Select(T.Table, ["*"], where, orderBy, limit, args);
 
         var results = new List<T>();
         while(reader.Read()) results.Add(T.Load(reader));
