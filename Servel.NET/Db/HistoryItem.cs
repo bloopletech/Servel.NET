@@ -6,7 +6,7 @@ using Servel.NET.Extensions;
 
 namespace Servel.NET.Db;
 
-public class HistoryItem : ITimestampedModel<HistoryItem>
+public class HistoryItem : IModel<HistoryItem>, ITimestampedModel
 {
     public enum HistoryItemItemType
     {
@@ -29,37 +29,12 @@ public class HistoryItem : ITimestampedModel<HistoryItem>
     {
     }
 
-    [SetsRequiredMembers]
-    public HistoryItem(SqliteDataReader reader)
+    public bool IsNew => Id == null;
+    public bool IsExisting => !IsNew;
+
+    public HistoryEntry ToEntry()
     {
-        Id = reader.GetInt64("Id");
-        SiteId = reader.GetInt32("SiteId");
-        Path = reader.GetString("Path");
-        ItemType = (HistoryItemItemType)reader.GetInt32("ItemType");
-        LastVisited = reader.GetInt64("LastVisited");
-        VisitedCount = reader.GetInt32("VisitedCount");
-        CreatedAt = reader.GetInt64("CreatedAt");
-        UpdatedAt = reader.GetInt64("UpdatedAt");
-    }
-
-    public void Save()
-    {
-        var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        if(Id == null) CreatedAt = now;
-        UpdatedAt = now;
-
-        var entries = new SqliteParameter[] {
-            new("SiteId", SiteId),
-            new("Path", Path),
-            new("ItemType", (int)ItemType),
-            new("LastVisited", LastVisited),
-            new("VisitedCount", VisitedCount),
-            new("CreatedAt", CreatedAt),
-            new("UpdatedAt", UpdatedAt)
-        };
-
-        if(Id != null) db.Update(Table, new SqliteParameter("Id", Id.Value), [..entries]);
-        else Id = db.Insert(Table, [..entries]);
+        return new HistoryEntry(Path, LastVisited, VisitedCount);
     }
 
     public SqliteParameter[] Values() => [
@@ -72,20 +47,17 @@ public class HistoryItem : ITimestampedModel<HistoryItem>
         new("UpdatedAt", UpdatedAt)
     ];
 
-    public void Delete()
+    public static HistoryItem Load(SqliteDataReader reader) => new()
     {
-        if(Id != null) db.Delete(Table, new SqliteParameter("Id", Id.Value));
-    }
-
-    public bool IsNew => Id == null;
-    public bool IsExisting => !IsNew;
-
-    public HistoryEntry ToEntry()
-    {
-        return new HistoryEntry(Path, LastVisited, VisitedCount);
-    }
-
-    public static HistoryItem Load(SqliteDataReader reader) => new(reader);
+        Id = reader.GetInt64("Id"),
+        SiteId = reader.GetInt32("SiteId"),
+        Path = reader.GetString("Path"),
+        ItemType = (HistoryItemItemType)reader.GetInt32("ItemType"),
+        LastVisited = reader.GetInt64("LastVisited"),
+        VisitedCount = reader.GetInt32("VisitedCount"),
+        CreatedAt = reader.GetInt64("CreatedAt"),
+        UpdatedAt = reader.GetInt64("UpdatedAt")
+    };
 
     public static HistoryItem? FindById(SqliteConnection db, long id)
     {

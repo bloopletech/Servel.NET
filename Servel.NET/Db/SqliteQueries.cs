@@ -21,49 +21,89 @@ public class SqliteQueries(SqliteConnection connection)
         return (long)idCommand.ExecuteScalar()!;
     }
 
-    public void Update(string table, SqliteParameter[] values, string where, SqliteParameter[] whereArgs)
+    public void Update(
+        string table,
+        SqliteParameter[] values,
+        string? where = null,
+        SqliteParameter[]? whereArgs = null)
     {
         var setClause = string.Join(", ", values.Select(static (e, i) => $"{e.ParameterName} = @{i}"));
         var setArgs = values.Select((entry, i) => new SqliteParameter($"@{i}", entry.Value ?? DBNull.Value));
 
-        using var command = CreateCommand($"UPDATE {table} SET {setClause} WHERE {where}", [..setArgs, ..whereArgs]);
+        var whereClause = where != null ? $"WHERE {where}" : "";
+        whereArgs ??= [];
+
+        using var command = CreateCommand($"UPDATE {table} SET {setClause} {whereClause}", [..setArgs, ..whereArgs]);
         command.ExecuteNonQuery();
     }
 
-    public void Delete(string table, string where, SqliteParameter[] whereArgs)
+    public void Delete(string table, string? where = null, SqliteParameter[]? whereArgs = null)
     {
         using var command = CreateCommand($"DELETE FROM {table} WHERE {where}", whereArgs);
         command.ExecuteNonQuery();
     }
 
+    public SqliteDataReader Select(
+        string table,
+        string[]? columns = null,
+        string? where = null,
+        SqliteParameter[]? whereArgs = null,
+        string? orderBy = null,
+        SqliteParameter[]? orderByArgs = null,
+        string? limit = null,
+        SqliteParameter[]? limitArgs = null)
+    {
+        return Select(false, table, columns, where, whereArgs, orderBy, orderByArgs, limit, limitArgs);
+    }
+
     /*
-    (boolean distinct,
+    (
     ...
     String groupBy, 
     String having, 
-    String orderBy, 
-    String limit)
+    ...
+    )
     */
-    public SqliteDataReader Select(string table, string[] columns, string where, SqliteParameter[] whereArgs)
+    public SqliteDataReader Select(
+        bool distinct,
+        string table,
+        string[]? columns = null,
+        string? where = null,
+        SqliteParameter[]? whereArgs = null,
+        string? orderBy = null,
+        SqliteParameter[]? orderByArgs = null,
+        string? limit = null,
+        SqliteParameter[]? limitArgs = null)
     {
-        var columnsClause = string.Join(",", columns);
-        using var command = CreateCommand($"SELECT {columnsClause} FROM {table} WHERE {where}", whereArgs);
+        var distinctClause = distinct ? "DISTINCT" : "";
+        var columnsClause = columns != null ? string.Join(",", columns) : "*";
+        var whereClause = where != null ? $"WHERE {where}" : "";
+        var orderByClause = orderBy != null ? $"ORDER BY {orderBy}" : "";
+        var limitClause = limit != null ? $"LIMIT {limit}" : "";
+
+        whereArgs ??= [];
+        orderByArgs ??= [];
+        limitArgs ??= [];
+
+        using var command = CreateCommand(
+            $"SELECT {distinctClause} {columnsClause} FROM {table} {whereClause} {orderByClause} {limitClause}",
+            [..whereArgs, ..orderByArgs, ..limitArgs]);
         return command.ExecuteReader();
     }
 
-    public SqliteDataReader Select(string sql, SqliteParameter[] sqlArgs)
+    public SqliteDataReader Select(string sql, SqliteParameter[]? sqlArgs = null)
     {
         using var command = CreateCommand(sql, sqlArgs);
         return command.ExecuteReader();
     }
 
-    public int Execute(string sql, SqliteParameter[] sqlArgs)
+    public int Execute(string sql, SqliteParameter[]? sqlArgs = null)
     {
         using var command = CreateCommand(sql, sqlArgs);
         return command.ExecuteNonQuery();
     }
 
-    public T Query<T>(string sql, SqliteParameter[] sqlArgs) where T : struct
+    public T Query<T>(string sql, SqliteParameter[]? sqlArgs = null) where T : struct
     {
         using var command = CreateCommand(sql, sqlArgs);
         return (T)command.ExecuteScalar()!;

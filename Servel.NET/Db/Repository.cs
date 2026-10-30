@@ -13,16 +13,24 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
 
     public T Create(T record)
     {
-        if(record is ITimestampedModel<T> timestampedModel)
+        if(record is ITimestampedModel timestampedRecord)
         {
-
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            timestampedRecord.CreatedAt = now;
+            timestampedRecord.UpdatedAt = now;
         }
+
         record.Id = db.Insert(T.Table, record.Values());
         return record;
     }
 
     public void Update(T record)
     {
+        if(record is ITimestampedModel timestampedRecord)
+        {
+            timestampedRecord.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+
         db.Update(T.Table, record.Values(), "Id=@Id", [new SqliteParameter("Id", record.Id)]);
     }
 
@@ -41,9 +49,19 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
         return TryGet(id) ?? throw new RecordNotFoundException($"No {T.Table} found with Id {id}");
     }
 
-    public IList<T> Select(string[] columns, string selection, SqliteParameter[] selectionArgs)
+    public T? TryFind(string selection, SqliteParameter[] selectionArgs)
     {
-        using var reader = db.Select(T.Table, columns, selection, selectionArgs);
+        return Select(selection, selectionArgs).FirstOrDefault();
+    }
+
+    public T Find(string selection, SqliteParameter[] selectionArgs)
+    {
+        return TryFind(selection, selectionArgs) ?? throw new RecordNotFoundException($"No {T.Table} found for query");
+    }
+
+    public IList<T> Select(string selection, SqliteParameter[] selectionArgs)
+    {
+        using var reader = db.Select(T.Table, ["*"], selection, selectionArgs);
 
         var results = new List<T>();
         while(reader.Read()) results.Add(T.Load(reader));
