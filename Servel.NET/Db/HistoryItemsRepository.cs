@@ -9,19 +9,23 @@ public class HistoryItemsRepository(SqliteConnection connection) : Repository<Hi
         return TryFind($"SiteId=@SiteId AND Path=@Path", [new("@SiteId", siteId), new("@Path", path)]);
     }
 
-    public static IList<HistoryItem> SelectRecent(SqliteConnection db, int siteId, int limit)
+    public IList<HistoryItem> SelectRecent(int siteId, int limit)
     {
-        return db.Select(
-            $"SELECT * FROM {Table} WHERE SiteId=@SiteId ORDER BY LastVisited DESC, VisitedCount DESC LIMIT @Limit",
-            [new SqliteParameter("@SiteId", siteId), new SqliteParameter("@Limit", limit)],
-            reader => new HistoryItem(reader));
+        return Select(
+            "SiteId=@SiteId",
+            [new("@SiteId", siteId)],
+            "LastVisited DESC, VisitedCount DESC",
+            null,
+            "@Limit",
+            [new("@Limit", limit)]);
     }
 
-    public static IList<HistoryItem> SelectPopular(SqliteConnection db, int siteId, int limit)
+    public IList<HistoryItem> SelectPopular(int siteId, int limit)
     {
-        return db.Select(
-            $"SELECT * FROM {Table} WHERE SiteId=@SiteId ORDER BY VisitedCount DESC, LastVisited DESC LIMIT @Limit",
-            [new SqliteParameter("@SiteId", siteId), new SqliteParameter("@Limit", limit)],
-            reader => new HistoryItem(reader));
+        return Select(
+            "SiteId=@SiteId",
+            [new("@SiteId", siteId)],
+            "VisitedCount DESC, LastVisited DESC",
+            "@Limit");
     }
 }

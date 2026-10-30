@@ -31,17 +31,17 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
             timestampedRecord.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
-        db.Update(T.Table, record.Values(), "Id=@Id", [new SqliteParameter("Id", record.Id)]);
+        db.Update(T.Table, record.Values(), "Id=@Id", [new("Id", record.Id)]);
     }
 
     public void Delete(T record)
     {
-        db.Delete(T.Table, "Id=@Id", [new SqliteParameter("Id", record.Id)]);
+        db.Delete(T.Table, "Id=@Id", [new("Id", record.Id)]);
     }
 
     public T? TryGet(long id)
     {
-        return Select(["*"], "Id=@id", [new SqliteParameter("Id", id)]).FirstOrDefault();
+        return Select("Id=@id", [new("Id", id)]).FirstOrDefault();
     }
 
     public T Get(long id)
@@ -59,9 +59,13 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
         return TryFind(selection, selectionArgs) ?? throw new RecordNotFoundException($"No {T.Table} found for query");
     }
 
-    public IList<T> Select(string selection, SqliteParameter[] selectionArgs)
+    public IList<T> Select(
+        string? where = null,
+        SqliteParameter[]? whereArgs = null,
+        string? orderBy = null,
+        string? limit = null)
     {
-        using var reader = db.Select(T.Table, ["*"], selection, selectionArgs);
+        using var reader = db.Select(T.Table, ["*"], where, whereArgs, orderBy, limit);
 
         var results = new List<T>();
         while(reader.Read()) results.Add(T.Load(reader));
@@ -70,6 +74,6 @@ public class Repository<T>(SqliteConnection connection) where T : IModel<T>
 
     public long Count()
     {
-        return db.Query<long>($"SELECT COUNT(*) FROM {T.Table}", []);
+        return db.Query<long>($"SELECT COUNT(*) FROM {T.Table}");
     }
 }

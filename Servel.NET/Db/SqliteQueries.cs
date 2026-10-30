@@ -6,52 +6,44 @@ namespace Servel.NET.Db;
 
 public class SqliteQueries(SqliteConnection connection)
 {
-    public long Insert(string table, SqliteParameter[] values)
+    public long Insert(string table, IEnumerable<SqliteParameter> values)
     {
         var columnsClause = string.Join(",", values.Select(static e => e.ParameterName));
         var valuesClause = string.Join(",", values.Select(static (e, i) => $"@{i}"));
         var valuesArgs = values.Select((entry, i) => new SqliteParameter($"@{i}", entry.Value ?? DBNull.Value));
 
-        using var command = CreateCommand(
-            $"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})",
-            valuesArgs);
-        command.ExecuteNonQuery();
-
-        using var idCommand = CreateCommand("SELECT last_insert_rowid();");
-        return (long)idCommand.ExecuteScalar()!;
+        Execute($"INSERT INTO {table} ({columnsClause}) VALUES ({valuesClause})", valuesArgs);
+        return Query<long>("SELECT last_insert_rowid();");
     }
 
     public void Update(
         string table,
-        SqliteParameter[] values,
+        IEnumerable<SqliteParameter> values,
         string? where = null,
-        SqliteParameter[]? whereArgs = null)
+        IEnumerable<SqliteParameter>? whereArgs = null)
     {
         var setClause = string.Join(", ", values.Select(static (e, i) => $"{e.ParameterName} = @{i}"));
         var setArgs = values.Select((entry, i) => new SqliteParameter($"@{i}", entry.Value ?? DBNull.Value));
 
         var whereClause = where != null ? $"WHERE {where}" : "";
-        whereArgs ??= [];
 
-        using var command = CreateCommand($"UPDATE {table} SET {setClause} {whereClause}", [..setArgs, ..whereArgs]);
-        command.ExecuteNonQuery();
+        Execute($"UPDATE {table} SET {setClause} {whereClause}", [..setArgs, ..whereArgs ?? []]);
     }
 
-    public void Delete(string table, string? where = null, SqliteParameter[]? whereArgs = null)
+    public void Delete(string table, string? where = null, IEnumerable<SqliteParameter>? whereArgs = null)
     {
-        using var command = CreateCommand($"DELETE FROM {table} WHERE {where}", whereArgs);
-        command.ExecuteNonQuery();
+        Execute($"DELETE FROM {table} WHERE {where}", whereArgs);
     }
 
     public SqliteDataReader Select(
         string table,
         string[]? columns = null,
         string? where = null,
-        SqliteParameter[]? whereArgs = null,
+        IEnumerable<SqliteParameter>? whereArgs = null,
         string? orderBy = null,
-        SqliteParameter[]? orderByArgs = null,
+        IEnumerable<SqliteParameter>? orderByArgs = null,
         string? limit = null,
-        SqliteParameter[]? limitArgs = null)
+        IEnumerable<SqliteParameter>? limitArgs = null)
     {
         return Select(false, table, columns, where, whereArgs, orderBy, orderByArgs, limit, limitArgs);
     }
@@ -69,11 +61,11 @@ public class SqliteQueries(SqliteConnection connection)
         string table,
         string[]? columns = null,
         string? where = null,
-        SqliteParameter[]? whereArgs = null,
+        IEnumerable<SqliteParameter>? whereArgs = null,
         string? orderBy = null,
-        SqliteParameter[]? orderByArgs = null,
+        IEnumerable<SqliteParameter>? orderByArgs = null,
         string? limit = null,
-        SqliteParameter[]? limitArgs = null)
+        IEnumerable<SqliteParameter>? limitArgs = null)
     {
         var distinctClause = distinct ? "DISTINCT" : "";
         var columnsClause = columns != null ? string.Join(",", columns) : "*";
@@ -81,32 +73,9 @@ public class SqliteQueries(SqliteConnection connection)
         var orderByClause = orderBy != null ? $"ORDER BY {orderBy}" : "";
         var limitClause = limit != null ? $"LIMIT {limit}" : "";
 
-        whereArgs ??= [];
-        orderByArgs ??= [];
-        limitArgs ??= [];
-
-        using var command = CreateCommand(
+        return Select(
             $"SELECT {distinctClause} {columnsClause} FROM {table} {whereClause} {orderByClause} {limitClause}",
-            [..whereArgs, ..orderByArgs, ..limitArgs]);
-        return command.ExecuteReader();
-    }
-
-    public SqliteDataReader Select(string sql, SqliteParameter[]? sqlArgs = null)
-    {
-        using var command = CreateCommand(sql, sqlArgs);
-        return command.ExecuteReader();
-    }
-
-    public int Execute(string sql, SqliteParameter[]? sqlArgs = null)
-    {
-        using var command = CreateCommand(sql, sqlArgs);
-        return command.ExecuteNonQuery();
-    }
-
-    public T Query<T>(string sql, SqliteParameter[]? sqlArgs = null) where T : struct
-    {
-        using var command = CreateCommand(sql, sqlArgs);
-        return (T)command.ExecuteScalar()!;
+            [..whereArgs ?? [], ..orderByArgs ?? [], ..limitArgs ?? []]);
     }
 
     public bool HasColumn(string table, string column)
@@ -120,11 +89,29 @@ public class SqliteQueries(SqliteConnection connection)
         return false;
     }
 
-    private SqliteCommand CreateCommand(string sql, IEnumerable<SqliteParameter>? args = null)
+    public SqliteDataReader Select(string sql, IEnumerable<SqliteParameter>? sqlArgs = null)
+    {
+        using var command = CreateCommand(sql, sqlArgs);
+        return command.ExecuteReader();
+    }
+
+    public int Execute(string sql, IEnumerable<SqliteParameter>? sqlArgs = null)
+    {
+        using var command = CreateCommand(sql, sqlArgs);
+        return command.ExecuteNonQuery();
+    }
+
+    public T Query<T>(string sql, IEnumerable<SqliteParameter>? sqlArgs = null) where T : struct
+    {
+        using var command = CreateCommand(sql, sqlArgs);
+        return (T)command.ExecuteScalar()!;
+    }
+
+    private SqliteCommand CreateCommand(string sql, IEnumerable<SqliteParameter>? sqlArgs = null)
     {
         var command = connection.CreateCommand();
         command.CommandText = sql;
-        if(args != null) command.Parameters.AddRange(args);
+        if(sqlArgs != null) command.Parameters.AddRange(sqlArgs);
         return command;
     }
 }
